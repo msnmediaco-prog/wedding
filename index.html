@@ -246,7 +246,7 @@ label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5
     <button class="chip" onclick="setHV('rsvp',this)">📞 RSVP Chase</button>
   </div>
   <div id="hv-dump">
-    <p style="font-size:12px;color:#8A7968;margin-bottom:8px">Drop any info here — visible to everyone on this device</p>
+    <p style="font-size:12px;color:#8A7968;margin-bottom:8px">Drop any info here — syncs to all devices</p>
     <label>From</label>
     <select id="dfrom"><option>Dad</option><option>Mum</option><option>Mani</option><option>Jas</option><option>Family member</option><option>Other</option></select>
     <label>Message / Info</label>
@@ -409,117 +409,32 @@ var EK=['paath','maiyan','mehndi','jaggo','wedding','reception'];
 var EL={paath:'Paath 16/5',maiyan:'Maiyan 18/5',mehndi:'Mehndi 19/5',jaggo:'Jaggo 20/5',wedding:'Wed 22/5',reception:'Recept 24/5'};
 var gf='all',gsearch='',tf='open',vv='v',hv='dump';
 
-function ld(k){try{var r=localStorage.getItem('w_'+k);return r?JSON.parse(r):null;}catch(e){return null;}}
-function sv(k,d){try{localStorage.setItem('w_'+k,JSON.stringify(d));}catch(e){}}
+// ---- SUPABASE ----
+var SB='https://pecvorberttcojnkdgpm.supabase.co';
+var SK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBlY3ZvcmJlcnR0Y29qbmtkZ3BtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzczNTY1NDcsImV4cCI6MjA5MjkzMjU0N30.E8k_S_qFzAwQfsfqw2yzMx7PxDk7UTsMsFd0eAB9zqk';
+var DB={g:[],t:[],v:[],l:[],dp:[]};
 
-function init(){
-  if(!ld('g')) sv('g',[
-    {id:1,n:'Mani (Groom)',r:'Core Family',c:1,rv:'Confirmed',ac:'Bickhams',tr:'Own',ev:{paath:1,maiyan:1,mehndi:1,jaggo:1,wedding:1,reception:1},nt:''},
-    {id:2,n:'Ajmer',r:'Core Family',c:1,rv:'Confirmed',ac:'Bickhams',tr:'Own',ev:{paath:1,maiyan:1,mehndi:1,jaggo:1,wedding:1,reception:1},nt:''},
-    {id:3,n:'Raj',r:'Core Family',c:1,rv:'Confirmed',ac:'TBC',tr:'TBC',ev:{paath:1,maiyan:1,mehndi:1,jaggo:1,wedding:1,reception:1},nt:''},
-    {id:4,n:'Jas (Sister)',r:'Core Family',c:1,rv:'Confirmed',ac:'TBC',tr:'TBC',ev:{paath:1,maiyan:1,mehndi:0,jaggo:1,wedding:1,reception:1},nt:''},
-    {id:5,n:'Gurnam',r:'Core Family',c:1,rv:'Confirmed',ac:'TBC',tr:'TBC',ev:{paath:1,maiyan:1,mehndi:1,jaggo:1,wedding:1,reception:1},nt:''},
-    {id:6,n:'Mohinder',r:'Core Family',c:1,rv:'Confirmed',ac:'TBC',tr:'TBC',ev:{paath:1,maiyan:1,mehndi:1,jaggo:1,wedding:1,reception:1},nt:''},
-    {id:7,n:'Amritpal',r:'Core Family',c:1,rv:'Confirmed',ac:'TBC',tr:'TBC',ev:{paath:1,maiyan:1,mehndi:1,jaggo:1,wedding:1,reception:1},nt:''},
-    {id:8,n:'Kanika',r:'Core Family',c:1,rv:'TBC',ac:'TBC',tr:'TBC',ev:{paath:null,maiyan:null,mehndi:null,jaggo:null,wedding:null,reception:null},nt:'Surma ceremony — shagan envelope needed'},
-    {id:9,n:'Tejinder',r:'Core Family',c:1,rv:'TBC',ac:'TBC',tr:'TBC',ev:{paath:1,maiyan:1,mehndi:1,jaggo:1,wedding:1,reception:1},nt:''},
-    {id:10,n:'Surinder',r:'Core Family',c:1,rv:'TBC',ac:'TBC',tr:'TBC',ev:{paath:1,maiyan:1,mehndi:1,jaggo:1,wedding:1,reception:1},nt:''},
-    {id:11,n:'Manpreet + Jaiveer',r:'Core Family',c:2,rv:'TBC',ac:'TBC',tr:'TBC',ev:{paath:null,maiyan:null,mehndi:null,jaggo:null,wedding:null,reception:null},nt:''},
-    {id:12,n:'Yad',r:'Core Family',c:1,rv:'TBC',ac:'TBC',tr:'TBC',ev:{paath:1,maiyan:1,mehndi:0,jaggo:1,wedding:1,reception:1},nt:''},
-    {id:13,n:'Pabi',r:'Core Family',c:1,rv:'TBC',ac:'TBC',tr:'TBC',ev:{paath:1,maiyan:1,mehndi:0,jaggo:1,wedding:1,reception:1},nt:''},
-    {id:14,n:'Nagi + Family',r:'Family Friends',c:4,rv:'Confirmed',ac:'TBC',tr:'Van',ev:{paath:1,maiyan:1,mehndi:0,jaggo:1,wedding:1,reception:1},nt:'Researching speaker for home. Furniture Bickhams 15-26 May.'},
-    {id:15,n:'Grover + Family',r:'Family Friends',c:5,rv:'Confirmed',ac:'Bickhams/Oakville',tr:'Van',ev:{paath:1,maiyan:1,mehndi:1,jaggo:1,wedding:1,reception:1},nt:'Food + catering responsibility'},
-    {id:16,n:'Rupika',r:'Family Friends',c:1,rv:'Confirmed',ac:'TBC',tr:'TBC',ev:{paath:1,maiyan:1,mehndi:1,jaggo:0,wedding:0,reception:1},nt:'Catering responsibility'},
-    {id:17,n:'Shota + Family',r:'Family Friends',c:4,rv:'Confirmed',ac:'TBC',tr:'Van Driver',ev:{paath:1,maiyan:1,mehndi:0,jaggo:0,wedding:1,reception:1},nt:'Van driver confirmed ✅'},
-    {id:18,n:'Amrinder + Family',r:'Family Friends',c:4,rv:'TBC',ac:'TBC',tr:'Van',ev:{paath:1,maiyan:0,mehndi:0,jaggo:1,wedding:1,reception:1},nt:'Transport coordinator'},
-    {id:19,n:'Pamma Nijjar + Family',r:'Family Friends',c:5,rv:'TBC',ac:'TBC',tr:'Own',ev:{paath:1,maiyan:1,mehndi:0,jaggo:1,wedding:1,reception:1},nt:'Has 30 chairs to donate'},
-    {id:20,n:'Emanuel',r:'Friends',c:1,rv:'Confirmed',ac:'TBC',tr:'Own',ev:{paath:0,maiyan:0,mehndi:0,jaggo:1,wedding:1,reception:1},nt:'Kurta pajama to deliver'},
-    {id:21,n:'Shawqi + Partner',r:'Friends',c:2,rv:'Confirmed',ac:'Oakville/Kimberley',tr:'Own',ev:{paath:0,maiyan:0,mehndi:0,jaggo:1,wedding:1,reception:1},nt:'Box delivered Altona North ✅'},
-    {id:22,n:'John Ho',r:'Friends',c:1,rv:'Confirmed',ac:'Oakville',tr:'Own',ev:{paath:0,maiyan:0,mehndi:0,jaggo:1,wedding:1,reception:1},nt:'ERA card sent. Oakville confirmed.'},
-    {id:23,n:'Roger',r:'Friends',c:1,rv:'TBC',ac:'TBC',tr:'Own',ev:{paath:1,maiyan:1,mehndi:1,jaggo:0,wedding:0,reception:1},nt:'All events'},
-    {id:24,n:'Suba',r:'Friends',c:1,rv:'TBC',ac:'TBC',tr:'Own',ev:{paath:0,maiyan:0,mehndi:0,jaggo:0,wedding:0,reception:1},nt:'Needs formal Paath invite.'},
-    {id:25,n:'Baljeet + Family',r:'UK Guests',c:3,rv:'Confirmed',ac:'Oakville/Kimberley',tr:'Flight',ev:{paath:0,maiyan:0,mehndi:0,jaggo:1,wedding:1,reception:1},nt:''},
-    {id:26,n:'Kuldeep + Wife',r:'UK Guests',c:2,rv:'TBC',ac:'TBC',tr:'Flight',ev:{paath:null,maiyan:null,mehndi:null,jaggo:null,wedding:null,reception:null},nt:''},
-    {id:27,n:'Pinky + Husband',r:'UK Guests',c:2,rv:'TBC',ac:'TBC',tr:'Flight',ev:{paath:null,maiyan:null,mehndi:null,jaggo:null,wedding:null,reception:null},nt:''},
-    {id:28,n:'Satti Bhaji + Wife',r:'Canada Guests',c:2,rv:'Confirmed',ac:'Oakville',tr:'Flight',ev:{paath:0,maiyan:0,mehndi:0,jaggo:1,wedding:1,reception:1},nt:''},
-    {id:29,n:'Harpreet (CAN) + Family',r:'Canada Guests',c:3,rv:'Confirmed',ac:'Oakville',tr:'Flight',ev:{paath:0,maiyan:0,mehndi:0,jaggo:1,wedding:1,reception:1},nt:'Going straight to Sydney'},
-    {id:30,n:'Bholi Didi + Husband',r:'Canada Guests',c:2,rv:'TBC',ac:'TBC',tr:'Flight',ev:{paath:null,maiyan:null,mehndi:null,jaggo:null,wedding:null,reception:null},nt:''},
-    {id:31,n:'Niku + Partner',r:'Canada Guests',c:2,rv:'TBC',ac:'TBC',tr:'Flight',ev:{paath:null,maiyan:null,mehndi:null,jaggo:null,wedding:null,reception:null},nt:''},
-    {id:32,n:'Aman + Husband',r:'Canada Guests',c:2,rv:'TBC',ac:'TBC',tr:'Flight',ev:{paath:null,maiyan:null,mehndi:null,jaggo:null,wedding:null,reception:null},nt:''},
-    {id:33,n:'Jasveer Didi + Family',r:'India Guests',c:2,rv:'TBC',ac:'TBC',tr:'Flight',ev:{paath:null,maiyan:null,mehndi:null,jaggo:null,wedding:null,reception:null},nt:''},
-    {id:34,n:'Beera Bhaji + Family',r:'India Guests',c:2,rv:'TBC',ac:'TBC',tr:'Flight',ev:{paath:null,maiyan:null,mehndi:null,jaggo:null,wedding:null,reception:null},nt:''},
-    {id:35,n:'Jogga + Family',r:'NZ Guests',c:3,rv:'TBC',ac:'TBC',tr:'Flight',ev:{paath:null,maiyan:null,mehndi:null,jaggo:null,wedding:null,reception:null},nt:''},
-    {id:36,n:'Baga + Wife',r:'NZ Guests',c:2,rv:'TBC',ac:'TBC',tr:'Flight',ev:{paath:null,maiyan:null,mehndi:null,jaggo:null,wedding:null,reception:null},nt:''},
-    {id:37,n:'Alicia (Channel 9)',r:'Networking',c:1,rv:'TBC',ac:'TBC',tr:'Own',ev:{paath:0,maiyan:0,mehndi:0,jaggo:0,wedding:0,reception:1},nt:'No reply. Follow up.'},
-  ]);
+function sbh(){return {'apikey':SK,'Authorization':'Bearer '+SK,'Content-Type':'application/json','Prefer':'return=representation'};}
+function sbget(tbl,q){return fetch(SB+'/rest/v1/'+tbl+'?'+(q||'select=*'),{headers:sbh()}).then(function(r){return r.json();});}
+function sbpost(tbl,data){return fetch(SB+'/rest/v1/'+tbl,{method:'POST',headers:sbh(),body:JSON.stringify(data)}).then(function(r){return r.json();});}
+function sbpatch(tbl,id,data){return fetch(SB+'/rest/v1/'+tbl+'?id=eq.'+id,{method:'PATCH',headers:sbh(),body:JSON.stringify(data)});}
 
-  if(!ld('t')) sv('t',[
-    {id:1,d:'Book 2–3 black cars with ribbons — Glenwood Gurdwara 22 May',a:'Mani',du:'',p:'urgent',s:'todo',n:'Must not arrive in vans. Confirm return transport.'},
-    {id:2,d:'DJ call tonight 7–8pm — confirm package',a:'Mani',du:'',p:'urgent',s:'todo',n:'Elite $6k / Platinum $4.5k / Diamond $2.5k / Emerald $1.5k / Standard $800'},
-    {id:3,d:'White Diamond Palace courier — confirm arrived',a:'Mani',du:'',p:'urgent',s:'todo',n:''},
-    {id:4,d:'Marquee — confirm status and lock in',a:'Mani',du:'',p:'urgent',s:'todo',n:'Mum got quote $950 Dandenong. Tarun getting 3 quotes.'},
-    {id:5,d:'Mithai 150kg — who orders, packs, stores?',a:'Mani',du:'2026-05-12',p:'urgent',s:'todo',n:'Must lock by 12 May'},
-    {id:6,d:'Mattress details from Mum — how many, which rooms',a:'Mani',du:'',p:'urgent',s:'todo',n:''},
-    {id:7,d:'Book Airbnb Sydney for Canada + NZ guests',a:'Mani',du:'',p:'urgent',s:'todo',n:'Canada (6) + NZ (6-8) have no beds'},
-    {id:8,d:'Assign command roles — Transport/Food/Accom/Event leads',a:'Mani',du:'',p:'urgent',s:'todo',n:'Dad: 1 person per job'},
-    {id:9,d:'Confirm photographer — send event dates, confirm 2hr shoot',a:'Mani',du:'',p:'soon',s:'todo',n:''},
-    {id:10,d:'Deliver kurta pajama + box to Emanuel',a:'Mani',du:'',p:'soon',s:'todo',n:'Shawqi done'},
-    {id:11,d:'Give physical box to Kosta',a:'Mani',du:'',p:'soon',s:'todo',n:''},
-    {id:12,d:'Follow up Alicia Channel 9 — no reply',a:'Mani',du:'',p:'soon',s:'todo',n:''},
-    {id:13,d:'Confirm 100 sit cross-legged at Bickhams for Paath',a:'Mani',du:'2026-05-16',p:'soon',s:'todo',n:''},
-    {id:14,d:'Invite Bickhams neighbours to Paath (7, 6, 9 Bickhams Ct)',a:'Mani',du:'2026-05-16',p:'soon',s:'todo',n:'Give boxes'},
-    {id:15,d:'Coordinate Pamma Nijjar chairs pickup (30 chairs)',a:'Mani',du:'2026-05-15',p:'soon',s:'todo',n:''},
-    {id:16,d:'Order dry fruit welcome packs + fancy boxes',a:'Mani',du:'2026-05-15',p:'soon',s:'todo',n:'Macadamias, pistachios, cashews, almonds'},
-    {id:17,d:'Cover upstairs carpet at Bickhams (Bunnings ~$50)',a:'Mani/AJ',du:'2026-05-15',p:'soon',s:'todo',n:''},
-    {id:18,d:'Confirm shagan envelope amount with Mum',a:'Mani',du:'2026-05-22',p:'soon',s:'todo',n:'$500 or $1000'},
-    {id:19,d:'Send Suba Melbourne Paath details card',a:'Mani',du:'',p:'soon',s:'todo',n:'WhatsApp only'},
-    {id:20,d:'Collect flight times from all overseas guests',a:'Mani',du:'',p:'soon',s:'todo',n:'UK, Canada, NZ, India'},
-    {id:21,d:'Milni list — family pairings for Gurdwara',a:'Mani',du:'2026-05-22',p:'soon',s:'todo',n:''},
-    {id:22,d:'21 May — Chunni Chadai + Path',a:'Mani',du:'2026-05-21',p:'soon',s:'todo',n:''},
-    {id:23,d:'Pack all ceremony items',a:'Mani',du:'2026-05-15',p:'soon',s:'todo',n:''},
-    {id:24,d:'Confirm Nanky return plan',a:'Mani',du:'',p:'soon',s:'todo',n:'Call — do not message'},
-    {id:25,d:'Confirm Yad + in-laws travel plan',a:'Mani',du:'',p:'soon',s:'todo',n:'Call — do not message'},
-    {id:26,d:'Confirm Manpreet + Jaiveer travel plan',a:'Mani',du:'',p:'soon',s:'todo',n:'Call — do not message'},
-    {id:27,d:'Discuss back-up shoe plan with Navi',a:'Mani+Navi',du:'2026-05-22',p:'soon',s:'todo',n:''},
-    {id:28,d:'Confirm honeymoon — Tasmania? Dates?',a:'Mani+Navi',du:'',p:'later',s:'todo',n:''},
-    {id:29,d:'Book makeup + hair for Navi 24 May',a:'Jas',du:'',p:'urgent',s:'done',n:'✅ Jas booked Nav, Raj, Jas, Aman, Harpreet'},
-    {id:30,d:'16, 18 & 25 May catering via Ajay',a:'Mani',du:'',p:'urgent',s:'done',n:'✅ Done'},
-    {id:31,d:'Suits spreadsheet check with Mum',a:'Mani',du:'',p:'urgent',s:'done',n:'✅ Done'},
-    {id:32,d:'Confirm Mehndi 19 May format',a:'Mani',du:'',p:'soon',s:'done',n:'✅ Done'},
-  ]);
+function gMap(r){return {id:r.id,n:r.name,r:r.relation||'',c:r.headcount||1,rv:r.rsvp||'TBC',ac:r.accommodation||'TBC',tr:r.transport||'TBC',ev:r.events||{},nt:r.notes||''};}
+function tMap(r){return {id:r.id,d:r.description,a:r.assigned_to||'',du:r.due_date||'',p:r.priority||'soon',s:r.status||'todo',n:r.notes||''};}
+function vMap(r){return {id:r.id,n:r.name,c:r.category||'',ct:r.contact||'',co:Number(r.cost)||0,s:r.status||'Pending',nt:r.notes||''};}
+function lMap(r){return {id:r.id,d:r.decision,c:r.category||'',b:r.decided_by||'',dt:r.created_at?new Date(r.created_at).toLocaleDateString('en-AU'):''};}
+function dpMap(r){return {id:r.id,f:r.from_person||'',t:r.content,dt:r.created_at?new Date(r.created_at).toLocaleString('en-AU',{dateStyle:'short',timeStyle:'short'}):''};}
 
-  if(!ld('v')) sv('v',[
-    {id:1,n:'Baraat Cars (Black + Ribbons)',c:'Transport',ct:'TBC',co:0,s:'Pending',nt:'2–3 black cars with ribbons for baraat to Glenwood Gurdwara 22 May. ⚠️ BOOK NOW'},
-    {id:2,n:'Shota (Van Driver)',c:'Transport',ct:'',co:0,s:'Confirmed',nt:'✅ Melb→Sydney 19 May morning'},
-    {id:3,n:'Gurdwara Catering — 16 May',c:'Catering',ct:'',co:875,s:'Confirmed',nt:'✅ Via Ajay'},
-    {id:4,n:'Catering — 18 & 25 May',c:'Catering',ct:'Ajay',co:0,s:'Confirmed',nt:'✅ Done'},
-    {id:5,n:'House Help',c:'Catering',ct:'',co:0,s:'Confirmed',nt:'✅ 16–19 May + 25 May'},
-    {id:6,n:'Kimberley Hotel',c:'Accommodation',ct:'',co:993,s:'Confirmed',nt:'✅ 12 rooms. $976 + 1.8%. Card check-in 24 May. Extra room Penrith.'},
-    {id:7,n:'Oakville Airbnb',c:'Accommodation',ct:'',co:0,s:'Confirmed',nt:'✅ Sydney 4 nights. Confirm cap >8.'},
-    {id:8,n:'Click Rentals — Mattresses',c:'Accommodation',ct:'Peter 03 9362 1818',co:126,s:'Pending',nt:'Pending Mum info on quantity.'},
-    {id:9,n:'DJ — Reception Package',c:'DJ / Music',ct:'',co:0,s:'Pending',nt:'CALL TONIGHT 7-8pm. Elite $6k / Platinum $4.5k / Diamond $2.5k / Emerald $1.5k / Standard $800'},
-    {id:10,n:'Dhol Player',c:'DJ / Music',ct:'',co:0,s:'Confirmed',nt:'✅ Grand entry + reception sets'},
-    {id:11,n:'White Diamond Palace / Khalsa',c:'Decorations',ct:'',co:0,s:'Pending',nt:'Reception decor from India. Courier UNKNOWN. Khalsa backup. ⚠️'},
-    {id:12,n:'Marquee Hire',c:'Decorations',ct:'Dandenong warehouse',co:950,s:'Pending',nt:'6m×3m. Mum quote $950. ⚠️ Status unknown'},
-    {id:13,n:'Photographer',c:'Photography',ct:'',co:0,s:'Confirmed',nt:'✅ Send event dates. Confirm 2hr shoot.'},
-    {id:14,n:'Makeup — Navi + bridal party',c:'Hair & Makeup',ct:'Jas',co:0,s:'Confirmed',nt:'✅ 24 May. Nav, Raj, Jas, Aman, Harpreet.'},
-    {id:15,n:'Carpet Cleaning — Clematis',c:'Other',ct:'',co:0,s:'Confirmed',nt:'✅ Wednesday 11am'},
-  ]);
+function ld(k){return DB[k]||[];}
 
-  if(!ld('l')) sv('l',[
-    {id:1,c:'Catering',d:'Catering for 16, 18 and 25 May confirmed via Ajay',b:'Mani',dt:'Apr 2026'},
-    {id:2,c:'Hair & Makeup',d:'Jas booked makeup + hair for Nav, Raj, Jas, Aman, Harpreet for 24 May',b:'Jas',dt:'Apr 2026'},
-    {id:3,c:'Accommodation',d:'Kimberley Hotel confirmed — 12 rooms. Extra room at Penrith.',b:'Mum',dt:'Apr 2026'},
-    {id:4,c:'Accommodation',d:'Oakville Airbnb confirmed — Sydney 4 nights',b:'Mum',dt:'Apr 2026'},
-    {id:5,c:'Vendors',d:'Dhol player confirmed for baraat + reception',b:'Mani',dt:'Apr 2026'},
-    {id:6,c:'Transport',d:'Shota confirmed as Van 1 driver Melbourne→Sydney 19 May',b:'Mani',dt:'Apr 2026'},
-    {id:7,c:'Venues',d:'Anand Karaj confirmed at Glenwood Gurdwara NSW',b:'Family',dt:'Apr 2026'},
-    {id:8,c:'Other',d:'Carpet cleaning at Clematis booked Wednesday 11am',b:'Mum',dt:'Apr 2026'},
-    {id:9,c:'Other',d:'House help hired 16–19 May and 25 May',b:'Mum',dt:'Apr 2026'},
-    {id:10,c:'Guests',d:'Shawqi kurta pajama and box delivered — Altona North done',b:'Mani',dt:'Apr 2026'},
-  ]);
-
-  if(!ld('dp')) sv('dp',[]);
+function loadAll(){
+  var n=0;
+  function check(){n++;if(n===5){renderCD();setInterval(renderCD,60000);renderHome();renderGuests();renderTasks();renderVendors();renderLogs();renderDumps();}}
+  sbget('guests','select=*&order=created_at.asc').then(function(r){DB.g=Array.isArray(r)?r.map(gMap):[];check();}).catch(function(){check();});
+  sbget('tasks','select=*&order=created_at.asc').then(function(r){DB.t=Array.isArray(r)?r.map(tMap):[];check();}).catch(function(){check();});
+  sbget('vendors','select=*&order=created_at.asc').then(function(r){DB.v=Array.isArray(r)?r.map(vMap):[];check();}).catch(function(){check();});
+  sbget('decision_log','select=*&order=created_at.desc').then(function(r){DB.l=Array.isArray(r)?r.map(lMap):[];check();}).catch(function(){check();});
+  sbget('brain_dumps','select=*&order=created_at.desc').then(function(r){DB.dp=Array.isArray(r)?r.map(dpMap):[];check();}).catch(function(){check();});
 }
 
 // EVENTS DATA
@@ -560,17 +475,15 @@ function renderCD(){
 
 // HOME
 function renderHome(){
-  var gs=ld('g')||[],ts=ld('t')||[],vs=ld('v')||[];
+  var gs=ld('g'),ts=ld('t'),vs=ld('v');
   document.getElementById('s1').textContent=gs.filter(function(g){return g.rv!=='Declined';}).length;
   document.getElementById('s2').textContent=gs.filter(function(g){return g.rv==='Confirmed';}).length;
   document.getElementById('s3').textContent=ts.filter(function(t){return t.s!=='done';}).length;
   document.getElementById('s4').textContent=vs.filter(function(v){return v.s==='Confirmed';}).length+'/'+vs.length;
-
-  var gs2=ld('g')||[];
   document.getElementById('evts').innerHTML=EVTS.map(function(e){
-    var att=gs2.filter(function(g){return g.ev&&g.ev[e.id]===1;});
+    var att=gs.filter(function(g){return g.ev&&g.ev[e.id]===1;});
     var heads=att.reduce(function(s,g){return s+(g.c||1);},0)||e.h;
-    return '<div class="evt"><div style="display:flex;justify-content:space-between;align-items:flex-start" onclick="toggleEvt(\''+e.id+'\')"><div><div class="evt-name">'+e.n+'</div><div class="evt-date">'+e.dt+'</div><div class="evt-loc">📍 '+e.loc+'</div></div><span class="heads">'+heads+'</span></div><div class="evt-body" id="eb-'+e.id+'"><div class="erow"><b>🚗 Transport</b><span>'+e.tr+'</span></div><div class="erow"><b>🛏️ Accom</b><span>'+e.ac+'</span></div><div style="color:#7A5500;font-size:12px;margin-top:4px">'+e.nt+'</div><div style="margin-top:8px;font-size:12px;font-weight:700;color:#8A7968">Attending ('+heads+' people)</div>'+att.slice(0,6).map(function(g){return '<div style="font-size:12px;padding:3px 0;border-bottom:1px solid #E8DDD0">'+g.n+' <span style="color:#8A7968">('+g.c+')</span></div>';}).join('')+(att.length>6?'<div style="font-size:11px;color:#8A7968">+'+( att.length-6)+' more</div>':'')+'</div></div>';
+    return '<div class="evt"><div style="display:flex;justify-content:space-between;align-items:flex-start" onclick="toggleEvt(\''+e.id+'\')"><div><div class="evt-name">'+e.n+'</div><div class="evt-date">'+e.dt+'</div><div class="evt-loc">📍 '+e.loc+'</div></div><span class="heads">'+heads+'</span></div><div class="evt-body" id="eb-'+e.id+'"><div class="erow"><b>🚗 Transport</b><span>'+e.tr+'</span></div><div class="erow"><b>🛏️ Accom</b><span>'+e.ac+'</span></div><div style="color:#7A5500;font-size:12px;margin-top:4px">'+e.nt+'</div><div style="margin-top:8px;font-size:12px;font-weight:700;color:#8A7968">Attending ('+heads+' people)</div>'+att.slice(0,6).map(function(g){return '<div style="font-size:12px;padding:3px 0;border-bottom:1px solid #E8DDD0">'+g.n+' <span style="color:#8A7968">('+g.c+')</span></div>';}).join('')+(att.length>6?'<div style="font-size:11px;color:#8A7968">+'+(att.length-6)+' more</div>':'')+'</div></div>';
   }).join('');
 }
 
@@ -581,28 +494,25 @@ function setGF(f,el){gf=f;document.querySelectorAll('#pg-guests .chip').forEach(
 function filterG(v){gsearch=v.toLowerCase();renderGuests();}
 
 function renderGuests(){
-  var gs=ld('g')||[];
+  var gs=ld('g');
   var total=gs.filter(function(g){return g.rv!=='Declined';}).length;
   var conf=gs.filter(function(g){return g.rv==='Confirmed';}).length;
   var pax=gs.filter(function(g){return g.rv==='Confirmed';}).reduce(function(s,g){return s+(g.c||1);},0);
   document.getElementById('gsub').textContent=total+' groups · '+conf+' confirmed · '+pax+' heads';
-
   var list=gs.slice();
   if(gf==='Confirmed') list=list.filter(function(g){return g.rv==='Confirmed';});
   else if(gf==='TBC') list=list.filter(function(g){return g.rv==='TBC';});
   else if(gf==='Family') list=list.filter(function(g){return g.r==='Core Family'||g.r==='Family Friends';});
   else if(gf==='Overseas') list=list.filter(function(g){return g.r==='UK Guests'||g.r==='Canada Guests'||g.r==='India Guests'||g.r==='NZ Guests';});
   if(gsearch) list=list.filter(function(g){return g.n.toLowerCase().indexOf(gsearch)>=0;});
-
   var rb={Confirmed:'bg',TBC:'ba',Declined:'br'};
   var groups={};
   list.forEach(function(g){if(!groups[g.r])groups[g.r]=[];groups[g.r].push(g);});
   var el=document.getElementById('glist');
   if(!list.length){el.innerHTML='<div style="text-align:center;padding:30px;color:#8A7968">No guests found</div>';return;}
-
   el.innerHTML=Object.keys(groups).map(function(rel){
     return '<div class="div">'+rel+'</div>'+groups[rel].map(function(g){
-      return '<div class="gi"><div style="display:flex;justify-content:space-between" onclick="toggleG('+g.id+')"><div><div class="gi-name">'+g.n+'</div><div class="gi-meta">'+(g.c>1?g.c+' people · ':'')+g.tr+(g.ac&&g.ac!=='TBC'?' · 🏨 '+g.ac:'')+'</div></div><span class="badge '+(rb[g.rv]||'ba')+'">'+g.rv+'</span></div><div class="gi-body" id="gb-'+g.id+'"><div class="egrid">'+EK.map(function(e){var v=g.ev&&g.ev[e];return '<div class="ec '+(v===1?'ey':v===0?'en':'et')+'">'+EL[e]+'</div>';}).join('')+'</div>'+(g.nt?'<div style="font-size:12px;color:#8A7968;margin-top:6px;font-style:italic">'+g.nt+'</div>':'')+'<div class="rbx"><button class="rgy" onclick="event.stopPropagation();updRSVP('+g.id+',\'Confirmed\')">✓ Yes</button><button class="rga" onclick="event.stopPropagation();updRSVP('+g.id+',\'TBC\')">? TBC</button><button class="rgn" onclick="event.stopPropagation();updRSVP('+g.id+',\'Declined\')">✗ No</button></div></div></div>';
+      return '<div class="gi"><div style="display:flex;justify-content:space-between" onclick="toggleG(\''+g.id+'\')"><div><div class="gi-name">'+g.n+'</div><div class="gi-meta">'+(g.c>1?g.c+' people · ':'')+g.tr+(g.ac&&g.ac!=='TBC'?' · 🏨 '+g.ac:'')+'</div></div><span class="badge '+(rb[g.rv]||'ba')+'">'+g.rv+'</span></div><div class="gi-body" id="gb-'+g.id+'"><div class="egrid">'+EK.map(function(e){var v=g.ev&&g.ev[e];return '<div class="ec '+(v===1?'ey':v===0?'en':'et')+'">'+EL[e]+'</div>';}).join('')+'</div>'+(g.nt?'<div style="font-size:12px;color:#8A7968;margin-top:6px;font-style:italic">'+g.nt+'</div>':'')+'<div class="rbx"><button class="rgy" onclick="event.stopPropagation();updRSVP(\''+g.id+'\',\'Confirmed\')">✓ Yes</button><button class="rga" onclick="event.stopPropagation();updRSVP(\''+g.id+'\',\'TBC\')">? TBC</button><button class="rgn" onclick="event.stopPropagation();updRSVP(\''+g.id+'\',\'Declined\')">✗ No</button></div></div></div>';
     }).join('');
   }).join('');
 }
@@ -610,16 +520,18 @@ function renderGuests(){
 function toggleG(id){var el=document.getElementById('gb-'+id);if(el)el.classList.toggle('on');}
 
 function updRSVP(id,status){
-  var gs=ld('g')||[];sv('g',gs.map(function(g){return g.id===id?Object.assign({},g,{rv:status}):g;}));
+  DB.g=DB.g.map(function(g){return g.id===id?Object.assign({},g,{rv:status}):g;});
   renderGuests();renderHome();toast('RSVP → '+status);
+  sbpatch('guests',id,{rsvp:status});
 }
 
 function saveGuest(){
   var n=document.getElementById('ag-n').value.trim();if(!n){toast('Name required');return;}
-  var gs=ld('g')||[];
   var ev={paath:document.getElementById('e-p').checked?1:0,maiyan:document.getElementById('e-m').checked?1:0,mehndi:document.getElementById('e-h').checked?1:0,jaggo:document.getElementById('e-j').checked?1:0,wedding:document.getElementById('e-w').checked?1:0,reception:document.getElementById('e-r').checked?1:0};
-  gs.push({id:Date.now(),n:n,r:document.getElementById('ag-r').value,c:parseInt(document.getElementById('ag-c').value)||1,rv:document.getElementById('ag-rv').value,ac:document.getElementById('ag-ac').value,tr:document.getElementById('ag-tr').value,ev:ev,nt:document.getElementById('ag-nt').value.trim()});
-  sv('g',gs);renderGuests();renderHome();closeM('mg');toast('Guest added ✦');
+  sbpost('guests',{name:n,relation:document.getElementById('ag-r').value,headcount:parseInt(document.getElementById('ag-c').value)||1,rsvp:document.getElementById('ag-rv').value,accommodation:document.getElementById('ag-ac').value,transport:document.getElementById('ag-tr').value,events:ev,notes:document.getElementById('ag-nt').value.trim()}).then(function(rows){
+    if(rows&&rows[0]){DB.g.push(gMap(rows[0]));renderGuests();renderHome();}
+  });
+  closeM('mg');toast('Guest added ✦');
   document.getElementById('ag-n').value='';document.getElementById('ag-nt').value='';
 }
 
@@ -627,30 +539,30 @@ function saveGuest(){
 function setTF(f,el){tf=f;document.querySelectorAll('#pg-tasks .chip').forEach(function(c){c.classList.remove('on');});el.classList.add('on');renderTasks();}
 
 function renderTasks(){
-  var ts=ld('t')||[];
+  var ts=ld('t').slice();
   if(tf==='open') ts=ts.filter(function(t){return t.s!=='done';});
   else if(tf==='urgent') ts=ts.filter(function(t){return t.p==='urgent'&&t.s!=='done';});
   else if(tf==='soon') ts=ts.filter(function(t){return t.p==='soon'&&t.s!=='done';});
   else if(tf==='done') ts=ts.filter(function(t){return t.s==='done';});
   ts.sort(function(a,b){var p={urgent:0,soon:1,later:2};return (p[a.p]||1)-(p[b.p]||1);});
-
   var el=document.getElementById('tlist');
   if(!ts.length){el.innerHTML='<div style="text-align:center;padding:30px;color:#8A7968">Nothing here</div>';return;}
   var sl={todo:'To Do',inprogress:'In Progress',blocked:'Blocked',done:'Done ✓'};
   el.innerHTML=ts.map(function(t){
-    return '<div class="ti '+t.p+' '+(t.s==='done'?'done':'')+'" onclick="toggleT('+t.id+')"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><div class="ti-desc">'+t.d+'</div><span class="badge '+(t.s==='done'?'bg':t.p==='urgent'?'br':'ba')+'" style="flex-shrink:0">'+(sl[t.s]||t.s)+'</span></div><div class="ti-meta">'+(t.a?'👤 '+t.a+' ':'')+' '+(t.du?'📅 '+new Date(t.du+'T00:00:00').toLocaleDateString('en-AU'):'' )+'</div><div class="ti-body" id="tb-'+t.id+'">'+(t.n?'<div style="font-size:12px;color:#8A7968;margin-bottom:8px;font-style:italic">'+t.n+'</div>':'')+'<div class="tbx">'+(t.s!=='done'?'<button class="btn-sm btn-done" onclick="event.stopPropagation();setTS('+t.id+',\'done\')">✓ Done</button>':'')+(t.s==='todo'?'<button class="btn-sm btn-prog" onclick="event.stopPropagation();setTS('+t.id+',\'inprogress\')">▶ In Progress</button>':'')+'<button class="btn-sm btn-edit" onclick="event.stopPropagation();editT('+t.id+')">✏️ Edit</button></div></div></div>';
+    return '<div class="ti '+t.p+' '+(t.s==='done'?'done':'')+'" onclick="toggleT(\''+t.id+'\')"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><div class="ti-desc">'+t.d+'</div><span class="badge '+(t.s==='done'?'bg':t.p==='urgent'?'br':'ba')+'" style="flex-shrink:0">'+(sl[t.s]||t.s)+'</span></div><div class="ti-meta">'+(t.a?'👤 '+t.a+' ':'')+' '+(t.du?'📅 '+new Date(t.du+'T00:00:00').toLocaleDateString('en-AU'):'')+'</div><div class="ti-body" id="tb-'+t.id+'">'+(t.n?'<div style="font-size:12px;color:#8A7968;margin-bottom:8px;font-style:italic">'+t.n+'</div>':'')+'<div class="tbx">'+(t.s!=='done'?'<button class="btn-sm btn-done" onclick="event.stopPropagation();setTS(\''+t.id+'\',\'done\')">✓ Done</button>':'')+(t.s==='todo'?'<button class="btn-sm btn-prog" onclick="event.stopPropagation();setTS(\''+t.id+'\',\'inprogress\')">▶ In Progress</button>':'')+'<button class="btn-sm btn-edit" onclick="event.stopPropagation();editT(\''+t.id+'\')">✏️ Edit</button></div></div></div>';
   }).join('');
 }
 
 function toggleT(id){var el=document.getElementById('tb-'+id);if(el)el.classList.toggle('on');}
 
 function setTS(id,status){
-  var ts=ld('t')||[];sv('t',ts.map(function(t){return t.id===id?Object.assign({},t,{s:status}):t;}));
+  DB.t=DB.t.map(function(t){return t.id===id?Object.assign({},t,{s:status}):t;});
   renderTasks();renderHome();toast(status==='done'?'Done ✓':'Updated');
+  sbpatch('tasks',id,{status:status});
 }
 
 function editT(id){
-  var t=(ld('t')||[]).find(function(x){return x.id===id;});if(!t)return;
+  var t=DB.t.filter(function(x){return x.id===id;})[0];if(!t)return;
   document.getElementById('tt').textContent='Edit Task';
   document.getElementById('teid').value=id;
   document.getElementById('at-d').value=t.d||'';
@@ -664,12 +576,19 @@ function editT(id){
 
 function saveTask(){
   var d=document.getElementById('at-d').value.trim();if(!d){toast('Task required');return;}
-  var ts=ld('t')||[];
-  var eid=parseInt(document.getElementById('teid').value);
-  var row={d:d,a:document.getElementById('at-a').value.trim(),du:document.getElementById('at-du').value,p:document.getElementById('at-p').value,s:document.getElementById('at-s').value,n:document.getElementById('at-n').value.trim()};
-  if(eid){sv('t',ts.map(function(t){return t.id===eid?Object.assign({},t,row):t;}));toast('Updated ✦');}
-  else{ts.unshift(Object.assign({id:Date.now()},row));sv('t',ts);toast('Task added ✦');}
-  renderTasks();renderHome();closeM('mt');resetTF();
+  var eid=document.getElementById('teid').value;
+  var row={description:d,assigned_to:document.getElementById('at-a').value.trim(),due_date:document.getElementById('at-du').value||null,priority:document.getElementById('at-p').value,status:document.getElementById('at-s').value,notes:document.getElementById('at-n').value.trim()};
+  if(eid){
+    DB.t=DB.t.map(function(t){return t.id===eid?Object.assign({},t,{d:row.description,a:row.assigned_to,du:row.due_date||'',p:row.priority,s:row.status,n:row.notes}):t;});
+    sbpatch('tasks',eid,row);
+    toast('Updated ✦');renderTasks();renderHome();
+  } else {
+    sbpost('tasks',row).then(function(rows){
+      if(rows&&rows[0]){DB.t.unshift(tMap(rows[0]));renderTasks();renderHome();}
+    });
+    toast('Task added ✦');
+  }
+  closeM('mt');resetTF();
 }
 
 function resetTF(){
@@ -687,7 +606,7 @@ function setVV(v,el){vv=v;document.querySelectorAll('#pg-vendors .chip').forEach
   document.getElementById('vv-accom').style.display=v==='accom'?'block':'none';}
 
 function renderVendors(){
-  var vs=ld('v')||[];
+  var vs=ld('v');
   var groups={};vs.forEach(function(v){if(!groups[v.c])groups[v.c]=[];groups[v.c].push(v);});
   var sb={Confirmed:'bg',Pending:'ba',Enquiring:'bgold',Cancelled:'br'};
   document.getElementById('vlist').innerHTML=Object.keys(groups).map(function(cat){
@@ -699,15 +618,16 @@ function renderVendors(){
 
 function saveVendor(){
   var n=document.getElementById('av-n').value.trim();if(!n){toast('Name required');return;}
-  var vs=ld('v')||[];
-  vs.unshift({id:Date.now(),n:n,c:document.getElementById('av-c').value,ct:document.getElementById('av-ct').value.trim(),co:parseFloat(document.getElementById('av-co').value)||0,s:document.getElementById('av-s').value,nt:document.getElementById('av-nt').value.trim()});
-  sv('v',vs);renderVendors();closeM('mv');toast('Vendor added ✦');
+  sbpost('vendors',{name:n,category:document.getElementById('av-c').value,contact:document.getElementById('av-ct').value.trim(),cost:parseFloat(document.getElementById('av-co').value)||0,status:document.getElementById('av-s').value,notes:document.getElementById('av-nt').value.trim()}).then(function(rows){
+    if(rows&&rows[0]){DB.v.unshift(vMap(rows[0]));renderVendors();}
+  });
+  closeM('mv');toast('Vendor added ✦');
   ['av-n','av-ct','av-co','av-nt'].forEach(function(id){document.getElementById(id).value='';});
 }
 
 // LOGS
 function renderLogs(){
-  var ls=ld('l')||[];
+  var ls=ld('l');
   var el=document.getElementById('llist');
   if(!ls.length){el.innerHTML='<div style="text-align:center;padding:30px;color:#8A7968">No decisions logged yet</div>';return;}
   el.innerHTML=ls.map(function(l){
@@ -717,9 +637,10 @@ function renderLogs(){
 
 function saveLog(){
   var d=document.getElementById('dl-d').value.trim();if(!d){toast('Decision required');return;}
-  var ls=ld('l')||[];
-  ls.unshift({id:Date.now(),d:d,c:document.getElementById('dl-c').value,b:document.getElementById('dl-b').value.trim(),dt:new Date().toLocaleDateString('en-AU')});
-  sv('l',ls);renderLogs();closeM('ml');toast('Logged ✦');
+  sbpost('decision_log',{decision:d,category:document.getElementById('dl-c').value,decided_by:document.getElementById('dl-b').value.trim()}).then(function(rows){
+    if(rows&&rows[0]){DB.l.unshift(lMap(rows[0]));renderLogs();}
+  });
+  closeM('ml');toast('Logged ✦');
   document.getElementById('dl-d').value='';document.getElementById('dl-b').value='';
 }
 
@@ -729,13 +650,14 @@ function setHV(v,el){hv=v;document.querySelectorAll('#pg-hub .chip').forEach(fun
 
 function saveDump(){
   var text=document.getElementById('dtext').value.trim();if(!text){toast('Add some info first');return;}
-  var ds=ld('dp')||[];
-  ds.unshift({id:Date.now(),f:document.getElementById('dfrom').value,t:text,dt:new Date().toLocaleString('en-AU',{dateStyle:'short',timeStyle:'short'})});
-  sv('dp',ds);renderDumps();document.getElementById('dtext').value='';toast('Saved ✦');
+  sbpost('brain_dumps',{from_person:document.getElementById('dfrom').value,content:text}).then(function(rows){
+    if(rows&&rows[0]){DB.dp.unshift(dpMap(rows[0]));renderDumps();}
+  });
+  document.getElementById('dtext').value='';toast('Saved ✦');
 }
 
 function renderDumps(){
-  var ds=ld('dp')||[];
+  var ds=ld('dp');
   var el=document.getElementById('dlist');
   if(!ds.length){el.innerHTML='<div style="text-align:center;padding:20px;color:#8A7968;font-size:13px">No dumps yet</div>';return;}
   el.innerHTML=ds.map(function(d){return '<div class="dump-item"><div class="dump-from">'+d.f+' · '+d.dt+'</div><div class="dump-text">'+d.t+'</div></div>';}).join('');
@@ -768,16 +690,7 @@ function closeM(id){document.getElementById(id).classList.remove('on');}
 // TOAST
 function toast(msg){var el=document.getElementById('toast');el.textContent=msg;el.classList.add('on');setTimeout(function(){el.classList.remove('on');},2500);}
 
-// INIT
-init();
-renderCD();
-setInterval(renderCD,60000);
-renderHome();
-renderGuests();
-renderTasks();
-renderVendors();
-renderLogs();
-renderDumps();
+loadAll();
 </script>
 </body>
 </html>
