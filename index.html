@@ -153,10 +153,10 @@ label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5
     <p>🍬 Mithai 150kg — who orders/packs/stores? Lock by 12 May</p>
   </div>
   <div class="stats">
-    <div class="stat"><div class="stat-n" id="s1">—</div><div class="stat-l">Guests</div></div>
-    <div class="stat"><div class="stat-n" id="s2">—</div><div class="stat-l">Yes</div></div>
-    <div class="stat"><div class="stat-n" id="s3">—</div><div class="stat-l">Tasks</div></div>
-    <div class="stat"><div class="stat-n" id="s4">—</div><div class="stat-l">Vendors</div></div>
+    <div class="stat" style="cursor:pointer" onclick="jumpTo('guests','all')"><div class="stat-n" id="s1">—</div><div class="stat-l">Guests</div></div>
+    <div class="stat" style="cursor:pointer" onclick="jumpTo('guests','Confirmed')"><div class="stat-n" id="s2">—</div><div class="stat-l">Yes</div></div>
+    <div class="stat" style="cursor:pointer" onclick="jumpTo('tasks','open')"><div class="stat-n" id="s3">—</div><div class="stat-l">Tasks</div></div>
+    <div class="stat" style="cursor:pointer" onclick="jumpTo('vendors','v')"><div class="stat-n" id="s4">—</div><div class="stat-l">Vendors</div></div>
   </div>
   <div style="font-size:16px;font-weight:700;margin-bottom:8px">Events — tap to expand</div>
   <div id="evts"></div>
@@ -271,6 +271,7 @@ label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5
     <button class="chip" onclick="setHV('blind',this)">👁️ Blind Spots</button>
     <button class="chip" onclick="setHV('wa',this)">📱 WhatsApp</button>
     <button class="chip" onclick="setHV('rsvp',this)">📞 RSVP Chase</button>
+    <button class="chip" onclick="setHV('fb',this)">🛠️ Site Feedback</button>
   </div>
   <div id="hv-q">
     <p style="font-size:12px;color:#8A7968;margin-bottom:8px">Any family member can answer — tap mic to speak or type. No need to wait for Mani.</p>
@@ -340,6 +341,21 @@ Please start:
 
 Love ❤️</div>
     <button class="btn btn-gold" onclick="copyWA()">📋 Copy Message</button>
+  </div>
+  <div id="hv-fb" style="display:none">
+    <p style="font-size:12px;color:#8A7968;margin-bottom:8px">Tell Charlie what to fix or add to this site. Anyone can submit. Charlie processes nightly at 6pm.</p>
+    <label>From</label>
+    <select id="fbfrom"><option>Mani</option><option>Mum</option><option>Dad</option><option>Amrit</option><option>Jas</option><option>Family member</option></select>
+    <label>Type</label>
+    <select id="fbtype"><option>Bug — something doesn't work</option><option>Missing field — need to track X</option><option>UI — hard to use / confusing</option><option>New feature</option><option>Other</option></select>
+    <label>What needs to change?</label>
+    <div style="position:relative">
+      <textarea id="fbtext" rows="3" placeholder="e.g. Add a column for dietary requirements..." style="padding-right:50px"></textarea>
+      <button class="mic-btn" id="fb-mic" onclick="fbMic()">🎤</button>
+    </div>
+    <button class="btn btn-gold" onclick="saveFB()">📤 Submit Feedback</button>
+    <div class="div">Recent Feedback</div>
+    <div id="fblist"></div>
   </div>
   <div id="hv-rsvp" style="display:none">
     <div class="urgent">
@@ -457,7 +473,7 @@ var gf='all',gsearch='',tf='open',vv='v',hv='q';
 // ---- SUPABASE ----
 var SB='https://pecvorberttcojnkdgpm.supabase.co';
 var SK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBlY3ZvcmJlcnR0Y29qbmtkZ3BtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzczNTY1NDcsImV4cCI6MjA5MjkzMjU0N30.E8k_S_qFzAwQfsfqw2yzMx7PxDk7UTsMsFd0eAB9zqk';
-var DB={g:[],t:[],v:[],l:[],dp:[],q:[]};
+var DB={g:[],t:[],v:[],l:[],dp:[],q:[],gc:[],fb:[]};
 var qf='open';
 
 function sbh(){return {'apikey':SK,'Authorization':'Bearer '+SK,'Content-Type':'application/json','Prefer':'return=representation'};}
@@ -467,6 +483,8 @@ function sbpatch(tbl,id,data){return fetch(SB+'/rest/v1/'+tbl+'?id=eq.'+id,{meth
 
 function gMap(r){return {id:r.id,n:r.name,r:r.relation||'',c:r.headcount||1,rv:r.rsvp||'TBC',ac:r.accommodation||'TBC',tr:r.transport||'TBC',ev:r.events||{},nt:r.notes||'',mb:r.members||[]};}
 function qMap(r){return {id:r.id,q:r.question,a:r.answer||'',ab:r.answered_by||'',s:r.status||'open',c:r.category||'',dt:r.created_at?new Date(r.created_at).toLocaleDateString('en-AU'):''};}
+function gcMap(r){return {id:r.id,gid:r.guest_id,f:r.from_person||'',t:r.content,p:!!r.processed,dt:r.created_at?new Date(r.created_at).toLocaleString('en-AU',{dateStyle:'short',timeStyle:'short'}):''};}
+function fbMap(r){return {id:r.id,f:r.from_person||'',ft:r.feedback_type||'',t:r.content,s:r.status||'open',dt:r.created_at?new Date(r.created_at).toLocaleString('en-AU',{dateStyle:'short',timeStyle:'short'}):''};}
 function tMap(r){return {id:r.id,d:r.description,a:r.assigned_to||'',du:r.due_date||'',p:r.priority||'soon',s:r.status||'todo',n:r.notes||''};}
 function vMap(r){return {id:r.id,n:r.name,c:r.category||'',ct:r.contact||'',co:Number(r.cost)||0,s:r.status||'Pending',nt:r.notes||''};}
 function lMap(r){return {id:r.id,d:r.decision,c:r.category||'',b:r.decided_by||'',dt:r.created_at?new Date(r.created_at).toLocaleDateString('en-AU'):''};}
@@ -476,13 +494,15 @@ function ld(k){return DB[k]||[];}
 
 function loadAll(){
   var n=0;
-  function check(){n++;if(n===6){renderCD();setInterval(renderCD,60000);renderHome();renderGuests();renderTasks();renderVendors();renderLogs();renderDumps();renderQ();}}
+  function check(){n++;if(n===8){renderCD();setInterval(renderCD,60000);renderHome();renderGuests();renderTasks();renderVendors();renderLogs();renderDumps();renderQ();renderFB();}}
   sbget('guests','select=*&order=created_at.asc').then(function(r){DB.g=Array.isArray(r)?r.map(gMap):[];check();}).catch(function(){check();});
   sbget('tasks','select=*&order=created_at.asc').then(function(r){DB.t=Array.isArray(r)?r.map(tMap):[];check();}).catch(function(){check();});
   sbget('vendors','select=*&order=created_at.asc').then(function(r){DB.v=Array.isArray(r)?r.map(vMap):[];check();}).catch(function(){check();});
   sbget('decision_log','select=*&order=created_at.desc').then(function(r){DB.l=Array.isArray(r)?r.map(lMap):[];check();}).catch(function(){check();});
   sbget('brain_dumps','select=*&order=created_at.desc').then(function(r){DB.dp=Array.isArray(r)?r.map(dpMap):[];check();}).catch(function(){check();});
   sbget('questions','select=*&order=created_at.desc').then(function(r){DB.q=Array.isArray(r)?r.map(qMap):[];check();}).catch(function(){check();});
+  sbget('guest_comments','select=*&order=created_at.desc').then(function(r){DB.gc=Array.isArray(r)?r.map(gcMap):[];check();}).catch(function(){check();});
+  sbget('site_feedback','select=*&order=created_at.desc').then(function(r){DB.fb=Array.isArray(r)?r.map(fbMap):[];check();}).catch(function(){check();});
 }
 
 // EVENTS DATA
@@ -565,7 +585,10 @@ function renderGuests(){
   el.innerHTML=Object.keys(groups).map(function(rel){
     return '<div class="div">'+rel+'</div>'+groups[rel].map(function(g){
       var mem=(g.mb&&g.mb.length)?'<div style="font-size:11px;color:#8A6318;margin-top:3px">👥 '+g.mb.join(' · ')+'</div>':'';
-      return '<div class="gi"><div style="display:flex;justify-content:space-between" onclick="toggleG(\''+g.id+'\')"><div style="flex:1"><div class="gi-name">'+g.n+'</div><div class="gi-meta">'+(g.c>1?g.c+' ppl · ':'')+g.tr+(g.ac&&g.ac!=='TBC'?' · 🏨 '+g.ac:'')+'</div>'+mem+'</div><span class="badge '+(rb[g.rv]||'ba')+'">'+g.rv+'</span></div><div class="gi-body" id="gb-'+g.id+'"><div style="font-size:11px;color:#8A7968;margin-bottom:4px">Tap an event to toggle attending</div><div class="egrid">'+EK.map(function(e){var v=g.ev&&g.ev[e];return '<div class="ec '+(v===1?'ey':v===0?'en':'et')+'" style="cursor:pointer" onclick="event.stopPropagation();togEv(\''+g.id+'\',\''+e+'\')">'+EL[e]+'</div>';}).join('')+'</div>'+(g.nt?'<div style="font-size:12px;color:#8A7968;margin-top:6px;font-style:italic">'+g.nt+'</div>':'')+'<div class="rbx"><button class="rgy" onclick="event.stopPropagation();updRSVP(\''+g.id+'\',\'Confirmed\')">✓ Yes</button><button class="rga" onclick="event.stopPropagation();updRSVP(\''+g.id+'\',\'TBC\')">? TBC</button><button class="rgn" onclick="event.stopPropagation();updRSVP(\''+g.id+'\',\'Declined\')">✗ No</button></div></div></div>';
+      var coms=(DB.gc||[]).filter(function(c){return c.gid===g.id;});
+      var comBadge=coms.length?'<span class="badge bgold" style="margin-left:4px">💬 '+coms.length+'</span>':'';
+      var comList=coms.length?'<div style="margin-top:8px;border-top:1px dashed #E8DDD0;padding-top:8px">'+coms.map(function(c){return '<div style="background:#FFF4D4;border-radius:8px;padding:6px 8px;margin-bottom:4px;font-size:12px"><b style="color:#7A5500">'+c.f+':</b> '+c.t+'<div style="font-size:10px;color:#8A7968;margin-top:2px">'+c.dt+(c.p?' · ✓ processed':'')+'</div></div>';}).join('')+'</div>':'';
+      return '<div class="gi"><div style="display:flex;justify-content:space-between" onclick="toggleG(\''+g.id+'\')"><div style="flex:1"><div class="gi-name">'+g.n+comBadge+'</div><div class="gi-meta">'+(g.c>1?g.c+' ppl · ':'')+g.tr+(g.ac&&g.ac!=='TBC'?' · 🏨 '+g.ac:'')+'</div>'+mem+'</div><span class="badge '+(rb[g.rv]||'ba')+'">'+g.rv+'</span></div><div class="gi-body" id="gb-'+g.id+'"><div style="font-size:11px;color:#8A7968;margin-bottom:4px">Tap an event to toggle attending</div><div class="egrid">'+EK.map(function(e){var v=g.ev&&g.ev[e];return '<div class="ec '+(v===1?'ey':v===0?'en':'et')+'" style="cursor:pointer" onclick="event.stopPropagation();togEv(\''+g.id+'\',\''+e+'\')">'+EL[e]+'</div>';}).join('')+'</div>'+(g.nt?'<div style="font-size:12px;color:#8A7968;margin-top:6px;font-style:italic">'+g.nt+'</div>':'')+'<div class="rbx"><button class="rgy" onclick="event.stopPropagation();updRSVP(\''+g.id+'\',\'Confirmed\')">✓ Yes</button><button class="rga" onclick="event.stopPropagation();updRSVP(\''+g.id+'\',\'TBC\')">? TBC</button><button class="rgn" onclick="event.stopPropagation();updRSVP(\''+g.id+'\',\'Declined\')">✗ No</button></div>'+comList+'<div style="margin-top:8px;border-top:1px dashed #E8DDD0;padding-top:8px"><label style="margin-top:0">💬 Add note about this guest</label><select id="cf-'+g.id+'" onclick="event.stopPropagation()" style="margin-bottom:4px"><option>Mani</option><option>Mum</option><option>Dad</option><option>Amrit</option><option>Family member</option></select><div style="position:relative" onclick="event.stopPropagation()"><textarea id="ct-'+g.id+'" rows="2" placeholder="e.g. Grover wants to be picked up..." style="padding-right:50px"></textarea><button class="mic-btn" id="cm-'+g.id+'" onclick="event.stopPropagation();cMic(\''+g.id+'\')">🎤</button></div><button class="btn btn-gold" onclick="event.stopPropagation();addCom(\''+g.id+'\')" style="margin-top:6px">+ Add Note</button></div></div></div>';
     }).join('');
   }).join('');
 }
@@ -719,7 +742,7 @@ function saveLog(){
 
 // HUB
 function setHV(v,el){hv=v;document.querySelectorAll('#pg-hub .chip').forEach(function(c){c.classList.remove('on');});el.classList.add('on');
-  ['q','dump','blind','wa','rsvp'].forEach(function(id){document.getElementById('hv-'+id).style.display=id===v?'block':'none';});}
+  ['q','dump','blind','wa','rsvp','fb'].forEach(function(id){document.getElementById('hv-'+id).style.display=id===v?'block':'none';});}
 
 function saveDump(){
   var text=document.getElementById('dtext').value.trim();if(!text){toast('Add some info first');return;}
@@ -783,6 +806,68 @@ function addQ(){
   document.getElementById('qnew').value='';toast('Question added ✦');
 }
 
+// GUEST COMMENTS
+function addCom(gid){
+  var t=document.getElementById('ct-'+gid).value.trim();if(!t){toast('Type or speak a note');return;}
+  var f=document.getElementById('cf-'+gid).value;
+  sbpost('guest_comments',{guest_id:gid,from_person:f,content:t}).then(function(rows){
+    if(rows&&rows[0]){DB.gc.unshift(gcMap(rows[0]));renderGuests();setTimeout(function(){var b=document.getElementById('gb-'+gid);if(b)b.classList.add('on');},10);}
+  });
+  document.getElementById('ct-'+gid).value='';toast('Note added — Charlie will process at 6pm ✦');
+}
+
+var cMicRec=null,cMicId=null;
+function cMic(gid){
+  if(!window.SpeechRecognition&&!window.webkitSpeechRecognition){toast('Voice not supported here');return;}
+  if(cMicId===gid&&cMicRec){cMicRec.stop();return;}
+  if(cMicRec){cMicRec.stop();}
+  var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  cMicRec=new SR();cMicRec.continuous=true;cMicRec.interimResults=false;cMicRec.lang='en-AU';
+  cMicId=gid;
+  cMicRec.onresult=function(e){
+    var txt='';for(var i=e.resultIndex;i<e.results.length;i++){if(e.results[i].isFinal)txt+=e.results[i][0].transcript+' ';}
+    var ta=document.getElementById('ct-'+gid);if(ta)ta.value=(ta.value?ta.value+' ':'')+txt.trim();
+  };
+  cMicRec.onstart=function(){var b=document.getElementById('cm-'+gid);if(b){b.textContent='⏹️';b.classList.add('on');}toast('Listening…');};
+  cMicRec.onend=function(){var b=document.getElementById('cm-'+gid);if(b){b.textContent='🎤';b.classList.remove('on');}cMicId=null;};
+  cMicRec.onerror=function(e){toast('Mic: '+e.error);var b=document.getElementById('cm-'+gid);if(b){b.textContent='🎤';b.classList.remove('on');}cMicId=null;};
+  cMicRec.start();
+}
+
+// SITE FEEDBACK
+function renderFB(){
+  var fbs=DB.fb||[];
+  var el=document.getElementById('fblist');if(!el)return;
+  if(!fbs.length){el.innerHTML='<div style="text-align:center;padding:14px;color:#8A7968;font-size:13px">No feedback yet — be first 👇</div>';return;}
+  el.innerHTML=fbs.slice(0,20).map(function(f){
+    return '<div class="dump-item"><div class="dump-from">'+f.f+(f.ft?' · '+f.ft:'')+' · '+f.dt+(f.s==='done'?' · ✓ done':'')+'</div><div class="dump-text">'+f.t+'</div></div>';
+  }).join('');
+}
+
+function saveFB(){
+  var t=document.getElementById('fbtext').value.trim();if(!t){toast('Type or speak feedback first');return;}
+  sbpost('site_feedback',{from_person:document.getElementById('fbfrom').value,feedback_type:document.getElementById('fbtype').value,content:t}).then(function(rows){
+    if(rows&&rows[0]){DB.fb.unshift(fbMap(rows[0]));renderFB();}
+  });
+  document.getElementById('fbtext').value='';toast('Feedback sent — Charlie processes at 6pm ✦');
+}
+
+var fbMicRec=null,fbMicOn=false;
+function fbMic(){
+  if(!window.SpeechRecognition&&!window.webkitSpeechRecognition){toast('Voice not supported here');return;}
+  if(fbMicOn){if(fbMicRec)fbMicRec.stop();return;}
+  var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  fbMicRec=new SR();fbMicRec.continuous=true;fbMicRec.interimResults=false;fbMicRec.lang='en-AU';
+  fbMicRec.onresult=function(e){
+    var txt='';for(var i=e.resultIndex;i<e.results.length;i++){if(e.results[i].isFinal)txt+=e.results[i][0].transcript+' ';}
+    var ta=document.getElementById('fbtext');ta.value=(ta.value?ta.value+' ':'')+txt.trim();
+  };
+  fbMicRec.onstart=function(){fbMicOn=true;var b=document.getElementById('fb-mic');if(b){b.textContent='⏹️';b.classList.add('on');}toast('Listening…');};
+  fbMicRec.onend=function(){fbMicOn=false;var b=document.getElementById('fb-mic');if(b){b.textContent='🎤';b.classList.remove('on');}};
+  fbMicRec.onerror=function(e){toast('Mic: '+e.error);fbMicOn=false;var b=document.getElementById('fb-mic');if(b){b.textContent='🎤';b.classList.remove('on');}};
+  fbMicRec.start();
+}
+
 // Per-question voice mic — independent of brain dump mic
 var qMicRec=null,qMicId=null;
 function qMic(id){
@@ -843,6 +928,30 @@ function goPage(name,el){
   if(name==='tasks')renderTasks();
   if(name==='vendors'){renderVendors();renderLogs();}
   if(name==='hub'){renderDumps();renderQ();}
+}
+
+// JUMP from home stat tile to filtered tab
+function jumpTo(page,filter){
+  var navLinks=document.querySelectorAll('nav a');
+  var idx={home:0,guests:1,tasks:2,vendors:3,hub:4}[page];
+  if(navLinks[idx])goPage(page,navLinks[idx]);
+  setTimeout(function(){
+    if(page==='guests'){
+      gf=filter;document.querySelectorAll('#pg-guests .chip').forEach(function(c){c.classList.remove('on');});
+      var labels={all:'All',Confirmed:'✓ Yes',TBC:'? TBC',Family:'Family',Overseas:'Overseas'};
+      document.querySelectorAll('#pg-guests .chip').forEach(function(c){if(c.textContent.trim()===labels[filter])c.classList.add('on');});
+      renderGuests();
+    } else if(page==='tasks'){
+      tf=filter;document.querySelectorAll('#pg-tasks .chip').forEach(function(c){c.classList.remove('on');});
+      document.querySelectorAll('#pg-tasks .chip')[0].classList.add('on');renderTasks();
+    } else if(page==='vendors'){
+      vv=filter;document.querySelectorAll('#pg-vendors .chip').forEach(function(c){c.classList.remove('on');});
+      document.querySelectorAll('#pg-vendors .chip')[0].classList.add('on');
+      document.getElementById('vv-v').style.display='block';
+      document.getElementById('vv-log').style.display='none';
+      document.getElementById('vv-accom').style.display='none';
+    }
+  },50);
 }
 
 // MODALS
