@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mani + Navi Wedding Hub</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:#FAF7F2;color:#18120C;max-width:480px;margin:0 auto;padding-bottom:80px}
+
+header{background:linear-gradient(160deg,#18120C,#2A1A0E);padding:14px 16px 10px;text-align:center}
+header h1{font-size:22px;color:#fff;font-weight:300;letter-spacing:1px}
+header h1 b{color:#C4983A;font-style:italic;font-weight:300}
+.cd{display:flex;justify-content:center;gap:20px;margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.1)}
+.cdn{color:#C4983A;font-size:18px;font-weight:700;line-height:1;text-align:center}
+.cdl{color:rgba(255,255,255,0.4);font-size:10px;text-transform:uppercase}
+
+nav{position:fixed;bottom:0;left:0;right:0;max-width:480px;margin:0 auto;background:#fff;border-top:1px solid #E8DDD0;display:grid;grid-template-columns:repeat(5,1fr);z-index:100}
+nav a{display:flex;flex-direction:column;align-items:center;padding:8px 4px 6px;text-decoration:none;color:#8A7968;font-size:10px;gap:2px;cursor:pointer}
+nav a.on{color:#8A6318;font-weight:700}
+nav a span:first-child{font-size:20px}
+
+.page{display:none;padding:12px}
+.page.on{display:block}
+
+.urgent{background:#FFF4D4;border:2px solid #C4983A;border-radius:12px;padding:12px 14px;margin-bottom:12px}
+.urgent h3{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#7A5500;margin-bottom:8px}
+.urgent p{font-size:13px;padding:3px 0;line-height:1.4}
+
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
+.stat{background:#fff;border-radius:10px;padding:10px 4px;text-align:center;border:1px solid #E8DDD0}
+.stat-n{font-size:22px;font-weight:700;color:#8A6318}
+.stat-l{font-size:9px;color:#8A7968;text-transform:uppercase}
+
+.card{background:#fff;border-radius:12px;padding:12px 14px;margin-bottom:10px;border:1px solid #E8DDD0}
+
+.evt{border-radius:12px;padding:12px 14px;margin-bottom:10px;border:1px solid #E8DDD0;border-left:4px solid #C4983A;background:#fff}
+.evt-name{font-size:16px;font-weight:700}
+.evt-date{font-size:12px;color:#C4983A;font-weight:600;margin-top:2px}
+.evt-loc{font-size:12px;color:#8A7968;margin-top:2px}
+.evt-body{display:none;margin-top:10px;padding-top:10px;border-top:1px solid #E8DDD0;font-size:13px;line-height:1.6}
+.evt-body.on{display:block}
+.erow{display:flex;gap:6px;margin-bottom:5px}
+.erow b{min-width:70px;color:#8A7968;font-size:12px;flex-shrink:0}
+.heads{background:#F2DFA8;color:#8A6318;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap}
+
+.gi{background:#fff;border-radius:12px;padding:11px 13px;margin-bottom:8px;border:1px solid #E8DDD0;cursor:pointer}
+.gi-name{font-size:14px;font-weight:600}
+.gi-meta{font-size:11px;color:#8A7968;margin-top:2px}
+.gi-body{display:none;margin-top:10px;padding-top:10px;border-top:1px solid #E8DDD0}
+.gi-body.on{display:block}
+.egrid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin:6px 0}
+.ec{text-align:center;padding:4px 2px;border-radius:6px;font-size:10px;font-weight:700;text-transform:uppercase}
+.ey{background:#E8F2EA;color:#2E6B3E}
+.en{background:#f0ede8;color:#bbb}
+.et{background:#FFF4D4;color:#7A5500}
+.rbx{display:flex;gap:6px;margin-top:8px}
+.rbx button{flex:1;padding:8px;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit}
+.rgy{background:#E8F2EA;color:#2E6B3E}
+.rga{background:#FFF4D4;color:#7A5500}
+.rgn{background:#F5E8E8;color:#8B2E2E}
+
+.badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;text-transform:uppercase}
+.bg{background:#E8F2EA;color:#2E6B3E}
+.ba{background:#FFF4D4;color:#7A5500}
+.br{background:#F5E8E8;color:#8B2E2E}
+.bgold{background:#F2DFA8;color:#8A6318}
+
+.ti{background:#fff;border-radius:12px;padding:11px 13px;margin-bottom:8px;border:1px solid #E8DDD0;border-left:4px solid #C4983A;cursor:pointer}
+.ti.urgent{border-left-color:#8B2E2E}
+.ti.done{opacity:0.45}
+.ti-desc{font-size:13px;font-weight:500;line-height:1.4}
+.ti.done .ti-desc{text-decoration:line-through}
+.ti-meta{font-size:11px;color:#8A7968;margin-top:3px}
+.ti-body{display:none;margin-top:8px;padding-top:8px;border-top:1px solid #E8DDD0}
+.ti-body.on{display:block}
+.tbx{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.tbx button{padding:6px 12px;border:none;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit}
+
+.vi{background:#fff;border-radius:12px;padding:11px 13px;margin-bottom:8px;border:1px solid #E8DDD0}
+
+.div{display:flex;align-items:center;gap:8px;margin:10px 0 6px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#8A7968}
+.div::before,.div::after{content:'';flex:1;height:1px;background:#E8DDD0}
+
+.chips{margin-bottom:10px}
+.chip{display:inline-block;padding:5px 12px;border-radius:20px;font-size:11px;font-weight:700;border:1.5px solid #E8DDD0;background:#fff;color:#8A7968;cursor:pointer;margin:0 4px 4px 0;font-family:inherit}
+.chip.on{background:#18120C;color:#fff;border-color:#18120C}
+
+input,select,textarea{width:100%;padding:10px 12px;border:1.5px solid #E8DDD0;border-radius:8px;font-size:14px;font-family:inherit;color:#18120C;background:#FAF7F2;outline:none;-webkit-appearance:none;display:block;margin-top:4px}
+input:focus,select:focus,textarea:focus{border-color:#C4983A;background:#fff}
+textarea{resize:vertical;min-height:80px}
+label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:#8A7968;display:block;margin-top:10px}
+
+.btn{display:block;width:100%;padding:12px;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;margin-top:10px;font-family:inherit;text-align:center}
+.btn-gold{background:#C4983A;color:#18120C}
+.btn-ghost{background:#f0ede8;color:#18120C}
+.btn-sm{display:inline-block;width:auto;padding:6px 12px;font-size:12px;border-radius:7px;margin-top:0;border:none;cursor:pointer;font-family:inherit;font-weight:700}
+.btn-done{background:#E8F2EA;color:#2E6B3E}
+.btn-prog{background:#E6EFF8;color:#1C4D7A}
+.btn-edit{background:#f0ede8;color:#18120C}
+
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;align-items:flex-end;justify-content:center}
+.modal.on{display:flex}
+.mbox{background:#fff;border-radius:20px 20px 0 0;padding:16px 14px 30px;width:100%;max-width:480px;max-height:88vh;overflow-y:auto}
+.mhandle{width:36px;height:4px;background:#E8DDD0;border-radius:2px;margin:0 auto 14px}
+.mtitle{font-size:20px;font-weight:700;margin-bottom:10px}
+
+.search{position:relative;margin-bottom:10px}
+.search input{padding-left:32px}
+.sico{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:#8A7968;pointer-events:none}
+
+.dump-item{background:#fff;border-radius:12px;padding:12px;margin-bottom:8px;border:1px solid #E8DDD0}
+.dump-from{font-size:11px;font-weight:700;color:#C4983A;margin-bottom:4px}
+.dump-text{font-size:13px;white-space:pre-wrap;line-height:1.5}
+
+.log-item{border-radius:12px;padding:11px 13px;margin-bottom:8px;border:1px solid #E8DDD0;border-left:3px solid #C4983A;background:#fff}
+
+.wa-box{background:#FFF4D4;border:1.5px solid #C4983A;border-radius:12px;padding:14px;font-size:13px;line-height:1.7;white-space:pre-wrap;margin-bottom:10px}
+
+.blind-item{font-size:13px;padding:5px 0;border-bottom:1px solid #E8DDD0;display:flex;gap:6px;line-height:1.4}
+
+#toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(60px);background:#18120C;color:#fff;padding:8px 20px;border-radius:25px;font-size:13px;font-weight:600;z-index:999;transition:transform 0.25s;white-space:nowrap}
+#toast.on{transform:translateX(-50%) translateY(0)}
+
+.accom-row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #E8DDD0;font-size:13px}
+.accom-row:last-child{border:none}
+</style>
+</head>
+<body>
+
+<header>
+  <h1><b>Mani</b> + <b>Navi</b> 💍</h1>
+  <div class="cd" id="cd"></div>
+</header>
+
+<div id="pg-home" class="page on">
+  <div style="height:12px"></div>
+  <div class="urgent">
+    <h3>⚠️ Urgent — Act Now</h3>
+    <p>🚗 Book 2–3 black cars + ribbons for baraat — Glenwood Gurdwara 22 May</p>
+    <p>🎧 DJ call tonight 7–8pm — lock package (Elite $6k → Standard $800)</p>
+    <p>📦 White Diamond Palace courier — confirm arrived?</p>
+    <p>💐 Marquee status — confirm + lock in</p>
+    <p>🛏️ Mattress details from Mum — how many, which rooms</p>
+    <p>🍬 Mithai 150kg — who orders/packs/stores? Lock by 12 May</p>
+  </div>
+  <div class="stats">
+    <div class="stat"><div class="stat-n" id="s1">—</div><div class="stat-l">Guests</div></div>
+    <div class="stat"><div class="stat-n" id="s2">—</div><div class="stat-l">Yes</div></div>
+    <div class="stat"><div class="stat-n" id="s3">—</div><div class="stat-l">Tasks</div></div>
+    <div class="stat"><div class="stat-n" id="s4">—</div><div class="stat-l">Vendors</div></div>
+  </div>
+  <div style="font-size:16px;font-weight:700;margin-bottom:8px">Events — tap to expand</div>
+  <div id="evts"></div>
+</div>
+
+<div id="pg-guests" class="page">
+  <div style="height:12px"></div>
+  <div style="font-size:20px;font-weight:700;margin-bottom:4px">Guests</div>
+  <div id="gsub" style="font-size:12px;color:#8A7968;margin-bottom:10px"></div>
+  <div class="search"><span class="sico">🔍</span><input placeholder="Search..." oninput="filterG(this.value)" id="gsearch"></div>
+  <div class="chips">
+    <button class="chip on" onclick="setGF('all',this)">All</button>
+    <button class="chip" onclick="setGF('Confirmed',this)">✓ Yes</button>
+    <button class="chip" onclick="setGF('TBC',this)">? TBC</button>
+    <button class="chip" onclick="setGF('Family',this)">Family</button>
+    <button class="chip" onclick="setGF('Overseas',this)">Overseas</button>
+  </div>
+  <div id="glist"></div>
+  <button class="btn btn-gold" onclick="openM('mg')">+ Add Guest</button>
+</div>
+
+<div id="pg-tasks" class="page">
+  <div style="height:12px"></div>
+  <div style="font-size:20px;font-weight:700;margin-bottom:8px">Tasks — tap to update</div>
+  <div class="chips">
+    <button class="chip on" onclick="setTF('open',this)">Open</button>
+    <button class="chip" onclick="setTF('urgent',this)">🔴 Urgent</button>
+    <button class="chip" onclick="setTF('soon',this)">🟡 Soon</button>
+    <button class="chip" onclick="setTF('done',this)">✅ Done</button>
+  </div>
+  <div id="tlist"></div>
+  <button class="btn btn-gold" onclick="openM('mt')">+ Add Task</button>
+</div>
+
+<div id="pg-vendors" class="page">
+  <div style="height:12px"></div>
+  <div style="font-size:20px;font-weight:700;margin-bottom:8px">Vendors & More</div>
+  <div class="chips">
+    <button class="chip on" onclick="setVV('v',this)">Vendors</button>
+    <button class="chip" onclick="setVV('log',this)">📖 Decisions</button>
+    <button class="chip" onclick="setVV('accom',this)">🛏️ Rooms</button>
+  </div>
+  <div id="vv-v">
+    <div id="vlist"></div>
+    <button class="btn btn-gold" onclick="openM('mv')">+ Add Vendor</button>
+  </div>
+  <div id="vv-log" style="display:none">
+    <div id="llist"></div>
+    <button class="btn btn-gold" onclick="openM('ml')">+ Log Decision</button>
+  </div>
+  <div id="vv-accom" style="display:none">
+    <div class="urgent" style="background:#E6EFF8;border-color:#1C4D7A">
+      <h3 style="color:#1C4D7A">❗ Accommodation Gaps</h3>
+      <p>❗ Canada (6) — no beds confirmed post-wedding</p>
+      <p>❗ NZ guests (6–8) — no beds confirmed</p>
+      <p>❗ Mattress count right unit — pending Mum</p>
+      <p>❗ Slinky St / Kandy / Suni capacities unknown</p>
+      <p>❗ Bathroom rosters not assigned (20+ people)</p>
+    </div>
+    <div class="div">Bickhams Pre-Wedding</div>
+    <div class="card" style="font-size:13px">
+      <b>Unit 1 (Left)</b> — Furniture via Click Rentals<br>
+      <div style="color:#8A7968;font-size:12px;margin-bottom:8px">Bed + dining + couch + coffee table</div>
+      <b>Unit 2 (Right)</b> — Primary family stay
+      <div class="accom-row"><span>🛏️ Room 1 — Gurpreet family</span><span style="color:#8A7968">1 Dbl + 1 Sgl</span></div>
+      <div class="accom-row"><span>🛏️ Room 2 — Satu paji + Saberwal</span><span style="color:#8A7968">1 Dbl + 1 Sgl</span></div>
+      <div class="accom-row"><span>🛏️ Room 3 — Supreet family</span><span style="color:#8A7968">2 Dbl + 1 Sgl</span></div>
+      <div class="accom-row" style="color:#8A7968"><span>🛋️ Living area</span><span>Emergency only</span></div>
+    </div>
+    <div class="div">Melbourne Post-Reception</div>
+    <div class="card" style="font-size:13px">
+      <div class="accom-row"><span>🏠 Bickhams</span><span style="color:#8A7968">Elders + close family</span></div>
+      <div class="accom-row"><span>🏠 Altona North</span><span style="color:#8A7968">Family overflow</span></div>
+      <div class="accom-row"><span>🏠 Slinky St</span><span style="color:#7A5500">10–13 mattresses ⚠️</span></div>
+      <div class="accom-row"><span>🏠 Kandy house</span><span style="color:#7A5500">Capacity TBC ⚠️</span></div>
+      <div class="accom-row"><span>🏠 Suni house</span><span style="color:#7A5500">Capacity TBC ⚠️</span></div>
+    </div>
+    <div class="div">Sydney 20–24 May</div>
+    <div class="card" style="font-size:13px">
+      <div class="accom-row"><span>🏠 Oakville Airbnb ✅</span><span style="color:#7A5500">Cap >8 unconfirmed</span></div>
+      <div class="accom-row"><span>🏨 Kimberley Hotel ✅</span><span style="color:#8A7968">12 rooms</span></div>
+      <div class="accom-row"><span>🏨 Penrith Hotel ✅</span><span style="color:#8A7968">Extra room</span></div>
+      <div class="accom-row" style="color:#8B2E2E;font-weight:700"><span>❗ Canada + NZ — NO beds booked</span></div>
+    </div>
+  </div>
+</div>
+
+<div id="pg-hub" class="page">
+  <div style="height:12px"></div>
+  <div style="font-size:20px;font-weight:700;margin-bottom:8px">Hub</div>
+  <div class="chips">
+    <button class="chip on" onclick="setHV('dump',this)">💬 Brain Dump</button>
+    <button class="chip" onclick="setHV('blind',this)">👁️ Blind Spots</button>
+    <button class="chip" onclick="setHV('wa',this)">📱 WhatsApp</button>
+    <button class="chip" onclick="setHV('rsvp',this)">📞 RSVP Chase</button>
+  </div>
+  <div id="hv-dump">
+    <p style="font-size:12px;color:#8A7968;margin-bottom:8px">Drop any info here — visible to everyone on this device</p>
+    <label>From</label>
+    <select id="dfrom"><option>Dad</option><option>Mum</option><option>Mani</option><option>Jas</option><option>Family member</option><option>Other</option></select>
+    <label>Message / Info</label>
+    <textarea id="dtext" rows="4" placeholder="Paste WhatsApp message, any info..."></textarea>
+    <button class="btn btn-gold" onclick="saveDump()">💾 Save Brain Dump</button>
+    <div class="div">Recent Dumps</div>
+    <div id="dlist"></div>
+  </div>
+  <div id="hv-blind" style="display:none">
+    <div class="card">
+      <div style="font-size:13px;font-weight:700;color:#1C4D7A;margin-bottom:8px">👁️ 14 Blind Spots</div>
+      <div class="blind-item">❗ <span><b>Milni list</b> — family pairings for Gurdwara</span></div>
+      <div class="blind-item">❗ <span><b>MC</b> — not confirmed, no script</span></div>
+      <div class="blind-item">❗ <span><b>Wedding cake</b> — not booked</span></div>
+      <div class="blind-item">❗ <span><b>Seating plan</b> — 200 people, not started</span></div>
+      <div class="blind-item">❗ <span><b>Entry + first dance songs</b> — not locked with DJ</span></div>
+      <div class="blind-item">❗ <span><b>Family photo list</b> — not given to photographer</span></div>
+      <div class="blind-item">❗ <span><b>Airport pickups</b> — flight times not collected</span></div>
+      <div class="blind-item">❗ <span><b>Travel food</b> — van Melb→Sydney not planned</span></div>
+      <div class="blind-item">❗ <span><b>Giveaways</b> — who packs + distributes at venue exit</span></div>
+      <div class="blind-item">❗ <span><b>Cultural items</b> — packed? Chunni chadai 21 May</span></div>
+      <div class="blind-item">❗ <span><b>Shagan envelope</b> — amount not confirmed with Mum</span></div>
+      <div class="blind-item">❗ <span><b>Command roles</b> — Transport/Food/Accom/Event leads not assigned</span></div>
+      <div class="blind-item">❗ <span><b>White Diamond courier</b> — arrived or not?</span></div>
+      <div class="blind-item" style="border:none">❗ <span><b>Backup plans</b> — vendor cancels, no contingency</span></div>
+    </div>
+  </div>
+  <div id="hv-wa" style="display:none">
+    <div class="wa-box" id="wa-msg">💍 Family — important message.
+
+We now have ONE central wedding hub for everything.
+
+Open on your phone — works like an app, no download needed.
+
+To add info or suggestions:
+👉 Open app → tap HUB (💬) → Brain Dump → type → Save
+
+Please stop:
+❌ Creating new spreadsheets
+❌ Adding info in random WhatsApp messages
+
+Please start:
+✅ Using the Hub to drop any info or updates
+✅ Updating your RSVP directly in the Guests tab
+
+3 weeks to go — one system, everyone disciplined 🙏
+
+Love ❤️</div>
+    <button class="btn btn-gold" onclick="copyWA()">📋 Copy Message</button>
+  </div>
+  <div id="hv-rsvp" style="display:none">
+    <div class="urgent">
+      <h3>📞 Call These — Don't Message</h3>
+      <p>📞 Nanky — return plan?</p>
+      <p>📞 Yad + in-laws — travel plan?</p>
+      <p>📞 Manpreet + Jaiveer — which events?</p>
+      <p>📞 Kanika — which events?</p>
+      <p>📞 Tejinder, Surinder — all TBC</p>
+      <p>📞 Kuldeep + Wife (UK) — coming?</p>
+      <p>📞 Pinky + Husband (UK) — coming?</p>
+      <p>📞 Bholi Didi, Niku, Aman (Canada)</p>
+      <p>📞 All India guests — flights booked?</p>
+      <p>📞 All NZ guests — flights booked?</p>
+      <p>📞 Sunny + Family — Melbourne only?</p>
+      <div style="margin-top:8px;font-size:13px;font-weight:700;color:#7A5500">Get a yes or no. Today.</div>
+    </div>
+  </div>
+</div>
+
+<!-- MODALS -->
+<div class="modal" id="mg" onclick="if(event.target===this)closeM('mg')">
+  <div class="mbox">
+    <div class="mhandle"></div>
+    <div class="mtitle">Add Guest</div>
+    <label>Name *</label><input id="ag-n" placeholder="e.g. Raj + Family (3)">
+    <label>Group</label>
+    <select id="ag-r"><option>Core Family</option><option>Family Friends</option><option>Friends</option><option>UK Guests</option><option>Canada Guests</option><option>India Guests</option><option>NZ Guests</option><option>Neighbours</option><option>Networking</option></select>
+    <label>Headcount</label><input id="ag-c" type="number" value="1" min="1">
+    <label>RSVP</label>
+    <select id="ag-rv"><option value="TBC">TBC</option><option value="Confirmed">Confirmed</option><option value="Declined">Declined</option></select>
+    <label>Accommodation</label>
+    <select id="ag-ac"><option>TBC</option><option>Bickhams</option><option>Oakville</option><option>Kimberley Hotel</option><option>Penrith Hotel</option><option>Own</option><option>Altona North</option><option>Slinky St</option></select>
+    <label>Transport</label>
+    <select id="ag-tr"><option>TBC</option><option>Own Car</option><option>Van</option><option>Flight</option></select>
+    <label>Events</label>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px">
+      <label style="text-transform:none;letter-spacing:0;font-size:13px;font-weight:400;display:flex;align-items:center;gap:6px;margin-top:0"><input type="checkbox" id="e-p" style="width:auto;margin:0"> Paath 16 May</label>
+      <label style="text-transform:none;letter-spacing:0;font-size:13px;font-weight:400;display:flex;align-items:center;gap:6px;margin-top:0"><input type="checkbox" id="e-m" style="width:auto;margin:0"> Maiyan 18 May</label>
+      <label style="text-transform:none;letter-spacing:0;font-size:13px;font-weight:400;display:flex;align-items:center;gap:6px;margin-top:0"><input type="checkbox" id="e-h" style="width:auto;margin:0"> Mehndi 19 May</label>
+      <label style="text-transform:none;letter-spacing:0;font-size:13px;font-weight:400;display:flex;align-items:center;gap:6px;margin-top:0"><input type="checkbox" id="e-j" style="width:auto;margin:0"> Jaggo 20 May</label>
+      <label style="text-transform:none;letter-spacing:0;font-size:13px;font-weight:400;display:flex;align-items:center;gap:6px;margin-top:0"><input type="checkbox" id="e-w" style="width:auto;margin:0"> Wedding 22 May</label>
+      <label style="text-transform:none;letter-spacing:0;font-size:13px;font-weight:400;display:flex;align-items:center;gap:6px;margin-top:0"><input type="checkbox" id="e-r" style="width:auto;margin:0"> Reception 24 May</label>
+    </div>
+    <label>Notes</label><textarea id="ag-nt" rows="2" placeholder="Dietary, special needs..."></textarea>
+    <button class="btn btn-gold" onclick="saveGuest()">Save Guest</button>
+    <button class="btn btn-ghost" onclick="closeM('mg')">Cancel</button>
+  </div>
+</div>
+
+<div class="modal" id="mt" onclick="if(event.target===this)closeM('mt');resetTF()">
+  <div class="mbox">
+    <div class="mhandle"></div>
+    <div class="mtitle" id="tt">Add Task</div>
+    <input type="hidden" id="teid">
+    <label>Task *</label><input id="at-d" placeholder="What needs to happen?">
+    <label>Assigned To</label><input id="at-a" placeholder="Who owns this?">
+    <label>Due By</label><input id="at-du" type="date">
+    <label>Priority</label>
+    <select id="at-p"><option value="urgent">🔴 Urgent</option><option value="soon" selected>🟡 Soon</option><option value="later">🟢 Later</option></select>
+    <label>Status</label>
+    <select id="at-s"><option value="todo">To Do</option><option value="inprogress">In Progress</option><option value="blocked">Blocked</option><option value="done">Done ✓</option></select>
+    <label>Notes</label><textarea id="at-n" rows="2" placeholder="Context, blockers..."></textarea>
+    <button class="btn btn-gold" onclick="saveTask()">Save Task</button>
+    <button class="btn btn-ghost" onclick="closeM('mt');resetTF()">Cancel</button>
+  </div>
+</div>
+
+<div class="modal" id="mv" onclick="if(event.target===this)closeM('mv')">
+  <div class="mbox">
+    <div class="mhandle"></div>
+    <div class="mtitle">Add Vendor</div>
+    <label>Name *</label><input id="av-n" placeholder="Vendor name">
+    <label>Category</label>
+    <select id="av-c"><option>Transport</option><option>Venue</option><option>Catering</option><option>DJ / Music</option><option>Photography</option><option>Decorations</option><option>Hair & Makeup</option><option>Accommodation</option><option>Clothing</option><option>Other</option></select>
+    <label>Contact</label><input id="av-ct" placeholder="Phone or email">
+    <label>Cost (AUD)</label><input id="av-co" type="number" placeholder="0">
+    <label>Status</label>
+    <select id="av-s"><option value="Pending">Pending</option><option value="Confirmed">Confirmed ✓</option><option value="Enquiring">Enquiring</option><option value="Cancelled">Cancelled</option></select>
+    <label>Notes</label><textarea id="av-nt" rows="2"></textarea>
+    <button class="btn btn-gold" onclick="saveVendor()">Save Vendor</button>
+    <button class="btn btn-ghost" onclick="closeM('mv')">Cancel</button>
+  </div>
+</div>
+
+<div class="modal" id="ml" onclick="if(event.target===this)closeM('ml')">
+  <div class="mbox">
+    <div class="mhandle"></div>
+    <div class="mtitle">Log Decision</div>
+    <label>Decision *</label><textarea id="dl-d" rows="3" placeholder="What was decided?"></textarea>
+    <label>Category</label>
+    <select id="dl-c"><option>Transport</option><option>Accommodation</option><option>Vendors</option><option>Guests</option><option>Food</option><option>Decorations</option><option>General</option></select>
+    <label>Decided By</label><input id="dl-b" placeholder="Who decided?">
+    <button class="btn btn-gold" onclick="saveLog()">Log It</button>
+    <button class="btn btn-ghost" onclick="closeM('ml')">Cancel</button>
+  </div>
+</div>
+
+<nav>
+  <a onclick="goPage('home',this)" class="on"><span>🏠</span><span>Home</span></a>
+  <a onclick="goPage('guests',this)"><span>👥</span><span>Guests</span></a>
+  <a onclick="goPage('tasks',this)"><span>✅</span><span>Tasks</span></a>
+  <a onclick="goPage('vendors',this)"><span>📋</span><span>Vendors</span></a>
+  <a onclick="goPage('hub',this)"><span>💬</span><span>Hub</span></a>
+</nav>
+
+<div id="toast"></div>
+
+<script>
+var EK=['paath','maiyan','mehndi','jaggo','wedding','reception'];
+var EL={paath:'Paath 16/5',maiyan:'Maiyan 18/5',mehndi:'Mehndi 19/5',jaggo:'Jaggo 20/5',wedding:'Wed 22/5',reception:'Recept 24/5'};
+var gf='all',gsearch='',tf='open',vv='v',hv='dump';
+
+function ld(k){try{var r=localStorage.getItem('w_'+k);return r?JSON.parse(r):null;}catch(e){return null;}}
+function sv(k,d){try{localStorage.setItem('w_'+k,JSON.stringify(d));}catch(e){}}
+
+function init(){
+  if(!ld('g')) sv('g',[
+    {id:1,n:'Mani (Groom)',r:'Core Family',c:1,rv:'Confirmed',ac:'Bickhams',tr:'Own',ev:{paath:1,maiyan:1,mehndi:1,jaggo:1,wedding:1,reception:1},nt:''},
+    {id:2,n:'Ajmer',r:'Core Family',c:1,rv:'Confirmed',ac:'Bickhams',tr:'Own',ev:{paath:1,maiyan:1,mehndi:1,jaggo:1,wedding:1,reception:1},nt:''},
+    {id:3,n:'Raj',r:'Core Family',c:1,rv:'Confirmed',ac:'TBC',tr:'TBC',ev:{paath:1,maiyan:1,mehndi:1,jaggo:1,wedding:1,reception:1},nt:''},
+    {id:4,n:'Jas (Sister)',r:'Core Family',c:1,rv:'Confirmed',ac:'TBC',tr:'TBC',ev:{paath:1,maiyan:1,mehndi:0,jaggo:1,wedding:1,reception:1},nt:''},
+    {id:5,n:'Gurnam',r:'Core Family',c:1,rv:'Confirmed',ac:'TBC',tr:'TBC',ev:{paath:1,maiyan:1,mehndi:1,jaggo:1,wedding:1,reception:1},nt:''},
+    {id:6,n:'Mohinder',r:'Core Family',c:1,rv:'Confirmed',ac:'TBC',tr:'TBC',ev:{paath:1,maiyan:1,mehndi:1,jaggo:1,wedding:1,reception:1},nt:''},
+    {id:7,n:'Amritpal',r:'Core Family',c:1,rv:'Confirmed',ac:'TBC',tr:'TBC',ev:{paath:1,maiyan:1,mehndi:1,jaggo:1,wedding:1,reception:1},nt:''},
+    {id:8,n:'Kanika',r:'Core Family',c:1,rv:'TBC',ac:'TBC',tr:'TBC',ev:{paath:null,maiyan:null,mehndi:null,jaggo:null,wedding:null,reception:null},nt:'Surma ceremony — shagan envelope needed'},
+    {id:9,n:'Tejinder',r:'Core Family',c:1,rv:'TBC',ac:'TBC',tr:'TBC',ev:{paath:1,maiyan:1,mehndi:1,jaggo:1,wedding:1,reception:1},nt:''},
+    {id:10,n:'Surinder',r:'Core Family',c:1,rv:'TBC',ac:'TBC',tr:'TBC',ev:{paath:1,maiyan:1,mehndi:1,jaggo:1,wedding:1,reception:1},nt:''},
+    {id:11,n:'Manpreet + Jaiveer',r:'Core Family',c:2,rv:'TBC',ac:'TBC',tr:'TBC',ev:{paath:null,maiyan:null,mehndi:null,jaggo:null,wedding:null,reception:null},nt:''},
+    {id:12,n:'Yad',r:'Core Family',c:1,rv:'TBC',ac:'TBC',tr:'TBC',ev:{paath:1,maiyan:1,mehndi:0,jaggo:1,wedding:1,reception:1},nt:''},
+    {id:13,n:'Pabi',r:'Core Family',c:1,rv:'TBC',ac:'TBC',tr:'TBC',ev:{paath:1,maiyan:1,mehndi:0,jaggo:1,wedding:1,reception:1},nt:''},
+    {id:14,n:'Nagi + Family',r:'Family Friends',c:4,rv:'Confirmed',ac:'TBC',tr:'Van',ev:{paath:1,maiyan:1,mehndi:0,jaggo:1,wedding:1,reception:1},nt:'Researching speaker for home. Furniture Bickhams 15-26 May.'},
+    {id:15,n:'Grover + Family',r:'Family Friends',c:5,rv:'Confirmed',ac:'Bickhams/Oakville',tr:'Van',ev:{paath:1,maiyan:1,mehndi:1,jaggo:1,wedding:1,reception:1},nt:'Food + catering responsibility'},
+    {id:16,n:'Rupika',r:'Family Friends',c:1,rv:'Confirmed',ac:'TBC',tr:'TBC',ev:{paath:1,maiyan:1,mehndi:1,jaggo:0,wedding:0,reception:1},nt:'Catering responsibility'},
+    {id:17,n:'Shota + Family',r:'Family Friends',c:4,rv:'Confirmed',ac:'TBC',tr:'Van Driver',ev:{paath:1,maiyan:1,mehndi:0,jaggo:0,wedding:1,reception:1},nt:'Van driver confirmed ✅'},
+    {id:18,n:'Amrinder + Family',r:'Family Friends',c:4,rv:'TBC',ac:'TBC',tr:'Van',ev:{paath:1,maiyan:0,mehndi:0,jaggo:1,wedding:1,reception:1},nt:'Transport coordinator'},
+    {id:19,n:'Pamma Nijjar + Family',r:'Family Friends',c:5,rv:'TBC',ac:'TBC',tr:'Own',ev:{paath:1,maiyan:1,mehndi:0,jaggo:1,wedding:1,reception:1},nt:'Has 30 chairs to donate'},
+    {id:20,n:'Emanuel',r:'Friends',c:1,rv:'Confirmed',ac:'TBC',tr:'Own',ev:{paath:0,maiyan:0,mehndi:0,jaggo:1,wedding:1,reception:1},nt:'Kurta pajama to deliver'},
+    {id:21,n:'Shawqi + Partner',r:'Friends',c:2,rv:'Confirmed',ac:'Oakville/Kimberley',tr:'Own',ev:{paath:0,maiyan:0,mehndi:0,jaggo:1,wedding:1,reception:1},nt:'Box delivered Altona North ✅'},
+    {id:22,n:'John Ho',r:'Friends',c:1,rv:'Confirmed',ac:'Oakville',tr:'Own',ev:{paath:0,maiyan:0,mehndi:0,jaggo:1,wedding:1,reception:1},nt:'ERA card sent. Oakville confirmed.'},
+    {id:23,n:'Roger',r:'Friends',c:1,rv:'TBC',ac:'TBC',tr:'Own',ev:{paath:1,maiyan:1,mehndi:1,jaggo:0,wedding:0,reception:1},nt:'All events'},
+    {id:24,n:'Suba',r:'Friends',c:1,rv:'TBC',ac:'TBC',tr:'Own',ev:{paath:0,maiyan:0,mehndi:0,jaggo:0,wedding:0,reception:1},nt:'Needs formal Paath invite.'},
+    {id:25,n:'Baljeet + Family',r:'UK Guests',c:3,rv:'Confirmed',ac:'Oakville/Kimberley',tr:'Flight',ev:{paath:0,maiyan:0,mehndi:0,jaggo:1,wedding:1,reception:1},nt:''},
+    {id:26,n:'Kuldeep + Wife',r:'UK Guests',c:2,rv:'TBC',ac:'TBC',tr:'Flight',ev:{paath:null,maiyan:null,mehndi:null,jaggo:null,wedding:null,reception:null},nt:''},
+    {id:27,n:'Pinky + Husband',r:'UK Guests',c:2,rv:'TBC',ac:'TBC',tr:'Flight',ev:{paath:null,maiyan:null,mehndi:null,jaggo:null,wedding:null,reception:null},nt:''},
+    {id:28,n:'Satti Bhaji + Wife',r:'Canada Guests',c:2,rv:'Confirmed',ac:'Oakville',tr:'Flight',ev:{paath:0,maiyan:0,mehndi:0,jaggo:1,wedding:1,reception:1},nt:''},
+    {id:29,n:'Harpreet (CAN) + Family',r:'Canada Guests',c:3,rv:'Confirmed',ac:'Oakville',tr:'Flight',ev:{paath:0,maiyan:0,mehndi:0,jaggo:1,wedding:1,reception:1},nt:'Going straight to Sydney'},
+    {id:30,n:'Bholi Didi + Husband',r:'Canada Guests',c:2,rv:'TBC',ac:'TBC',tr:'Flight',ev:{paath:null,maiyan:null,mehndi:null,jaggo:null,wedding:null,reception:null},nt:''},
+    {id:31,n:'Niku + Partner',r:'Canada Guests',c:2,rv:'TBC',ac:'TBC',tr:'Flight',ev:{paath:null,maiyan:null,mehndi:null,jaggo:null,wedding:null,reception:null},nt:''},
+    {id:32,n:'Aman + Husband',r:'Canada Guests',c:2,rv:'TBC',ac:'TBC',tr:'Flight',ev:{paath:null,maiyan:null,mehndi:null,jaggo:null,wedding:null,reception:null},nt:''},
+    {id:33,n:'Jasveer Didi + Family',r:'India Guests',c:2,rv:'TBC',ac:'TBC',tr:'Flight',ev:{paath:null,maiyan:null,mehndi:null,jaggo:null,wedding:null,reception:null},nt:''},
+    {id:34,n:'Beera Bhaji + Family',r:'India Guests',c:2,rv:'TBC',ac:'TBC',tr:'Flight',ev:{paath:null,maiyan:null,mehndi:null,jaggo:null,wedding:null,reception:null},nt:''},
+    {id:35,n:'Jogga + Family',r:'NZ Guests',c:3,rv:'TBC',ac:'TBC',tr:'Flight',ev:{paath:null,maiyan:null,mehndi:null,jaggo:null,wedding:null,reception:null},nt:''},
+    {id:36,n:'Baga + Wife',r:'NZ Guests',c:2,rv:'TBC',ac:'TBC',tr:'Flight',ev:{paath:null,maiyan:null,mehndi:null,jaggo:null,wedding:null,reception:null},nt:''},
+    {id:37,n:'Alicia (Channel 9)',r:'Networking',c:1,rv:'TBC',ac:'TBC',tr:'Own',ev:{paath:0,maiyan:0,mehndi:0,jaggo:0,wedding:0,reception:1},nt:'No reply. Follow up.'},
+  ]);
+
+  if(!ld('t')) sv('t',[
+    {id:1,d:'Book 2–3 black cars with ribbons — Glenwood Gurdwara 22 May',a:'Mani',du:'',p:'urgent',s:'todo',n:'Must not arrive in vans. Confirm return transport.'},
+    {id:2,d:'DJ call tonight 7–8pm — confirm package',a:'Mani',du:'',p:'urgent',s:'todo',n:'Elite $6k / Platinum $4.5k / Diamond $2.5k / Emerald $1.5k / Standard $800'},
+    {id:3,d:'White Diamond Palace courier — confirm arrived',a:'Mani',du:'',p:'urgent',s:'todo',n:''},
+    {id:4,d:'Marquee — confirm status and lock in',a:'Mani',du:'',p:'urgent',s:'todo',n:'Mum got quote $950 Dandenong. Tarun getting 3 quotes.'},
+    {id:5,d:'Mithai 150kg — who orders, packs, stores?',a:'Mani',du:'2026-05-12',p:'urgent',s:'todo',n:'Must lock by 12 May'},
+    {id:6,d:'Mattress details from Mum — how many, which rooms',a:'Mani',du:'',p:'urgent',s:'todo',n:''},
+    {id:7,d:'Book Airbnb Sydney for Canada + NZ guests',a:'Mani',du:'',p:'urgent',s:'todo',n:'Canada (6) + NZ (6-8) have no beds'},
+    {id:8,d:'Assign command roles — Transport/Food/Accom/Event leads',a:'Mani',du:'',p:'urgent',s:'todo',n:'Dad: 1 person per job'},
+    {id:9,d:'Confirm photographer — send event dates, confirm 2hr shoot',a:'Mani',du:'',p:'soon',s:'todo',n:''},
+    {id:10,d:'Deliver kurta pajama + box to Emanuel',a:'Mani',du:'',p:'soon',s:'todo',n:'Shawqi done'},
+    {id:11,d:'Give physical box to Kosta',a:'Mani',du:'',p:'soon',s:'todo',n:''},
+    {id:12,d:'Follow up Alicia Channel 9 — no reply',a:'Mani',du:'',p:'soon',s:'todo',n:''},
+    {id:13,d:'Confirm 100 sit cross-legged at Bickhams for Paath',a:'Mani',du:'2026-05-16',p:'soon',s:'todo',n:''},
+    {id:14,d:'Invite Bickhams neighbours to Paath (7, 6, 9 Bickhams Ct)',a:'Mani',du:'2026-05-16',p:'soon',s:'todo',n:'Give boxes'},
+    {id:15,d:'Coordinate Pamma Nijjar chairs pickup (30 chairs)',a:'Mani',du:'2026-05-15',p:'soon',s:'todo',n:''},
+    {id:16,d:'Order dry fruit welcome packs + fancy boxes',a:'Mani',du:'2026-05-15',p:'soon',s:'todo',n:'Macadamias, pistachios, cashews, almonds'},
+    {id:17,d:'Cover upstairs carpet at Bickhams (Bunnings ~$50)',a:'Mani/AJ',du:'2026-05-15',p:'soon',s:'todo',n:''},
+    {id:18,d:'Confirm shagan envelope amount with Mum',a:'Mani',du:'2026-05-22',p:'soon',s:'todo',n:'$500 or $1000'},
+    {id:19,d:'Send Suba Melbourne Paath details card',a:'Mani',du:'',p:'soon',s:'todo',n:'WhatsApp only'},
+    {id:20,d:'Collect flight times from all overseas guests',a:'Mani',du:'',p:'soon',s:'todo',n:'UK, Canada, NZ, India'},
+    {id:21,d:'Milni list — family pairings for Gurdwara',a:'Mani',du:'2026-05-22',p:'soon',s:'todo',n:''},
+    {id:22,d:'21 May — Chunni Chadai + Path',a:'Mani',du:'2026-05-21',p:'soon',s:'todo',n:''},
+    {id:23,d:'Pack all ceremony items',a:'Mani',du:'2026-05-15',p:'soon',s:'todo',n:''},
+    {id:24,d:'Confirm Nanky return plan',a:'Mani',du:'',p:'soon',s:'todo',n:'Call — do not message'},
+    {id:25,d:'Confirm Yad + in-laws travel plan',a:'Mani',du:'',p:'soon',s:'todo',n:'Call — do not message'},
+    {id:26,d:'Confirm Manpreet + Jaiveer travel plan',a:'Mani',du:'',p:'soon',s:'todo',n:'Call — do not message'},
+    {id:27,d:'Discuss back-up shoe plan with Navi',a:'Mani+Navi',du:'2026-05-22',p:'soon',s:'todo',n:''},
+    {id:28,d:'Confirm honeymoon — Tasmania? Dates?',a:'Mani+Navi',du:'',p:'later',s:'todo',n:''},
+    {id:29,d:'Book makeup + hair for Navi 24 May',a:'Jas',du:'',p:'urgent',s:'done',n:'✅ Jas booked Nav, Raj, Jas, Aman, Harpreet'},
+    {id:30,d:'16, 18 & 25 May catering via Ajay',a:'Mani',du:'',p:'urgent',s:'done',n:'✅ Done'},
+    {id:31,d:'Suits spreadsheet check with Mum',a:'Mani',du:'',p:'urgent',s:'done',n:'✅ Done'},
+    {id:32,d:'Confirm Mehndi 19 May format',a:'Mani',du:'',p:'soon',s:'done',n:'✅ Done'},
+  ]);
+
+  if(!ld('v')) sv('v',[
+    {id:1,n:'Baraat Cars (Black + Ribbons)',c:'Transport',ct:'TBC',co:0,s:'Pending',nt:'2–3 black cars with ribbons for baraat to Glenwood Gurdwara 22 May. ⚠️ BOOK NOW'},
+    {id:2,n:'Shota (Van Driver)',c:'Transport',ct:'',co:0,s:'Confirmed',nt:'✅ Melb→Sydney 19 May morning'},
+    {id:3,n:'Gurdwara Catering — 16 May',c:'Catering',ct:'',co:875,s:'Confirmed',nt:'✅ Via Ajay'},
+    {id:4,n:'Catering — 18 & 25 May',c:'Catering',ct:'Ajay',co:0,s:'Confirmed',nt:'✅ Done'},
+    {id:5,n:'House Help',c:'Catering',ct:'',co:0,s:'Confirmed',nt:'✅ 16–19 May + 25 May'},
+    {id:6,n:'Kimberley Hotel',c:'Accommodation',ct:'',co:993,s:'Confirmed',nt:'✅ 12 rooms. $976 + 1.8%. Card check-in 24 May. Extra room Penrith.'},
+    {id:7,n:'Oakville Airbnb',c:'Accommodation',ct:'',co:0,s:'Confirmed',nt:'✅ Sydney 4 nights. Confirm cap >8.'},
+    {id:8,n:'Click Rentals — Mattresses',c:'Accommodation',ct:'Peter 03 9362 1818',co:126,s:'Pending',nt:'Pending Mum info on quantity.'},
+    {id:9,n:'DJ — Reception Package',c:'DJ / Music',ct:'',co:0,s:'Pending',nt:'CALL TONIGHT 7-8pm. Elite $6k / Platinum $4.5k / Diamond $2.5k / Emerald $1.5k / Standard $800'},
+    {id:10,n:'Dhol Player',c:'DJ / Music',ct:'',co:0,s:'Confirmed',nt:'✅ Grand entry + reception sets'},
+    {id:11,n:'White Diamond Palace / Khalsa',c:'Decorations',ct:'',co:0,s:'Pending',nt:'Reception decor from India. Courier UNKNOWN. Khalsa backup. ⚠️'},
+    {id:12,n:'Marquee Hire',c:'Decorations',ct:'Dandenong warehouse',co:950,s:'Pending',nt:'6m×3m. Mum quote $950. ⚠️ Status unknown'},
+    {id:13,n:'Photographer',c:'Photography',ct:'',co:0,s:'Confirmed',nt:'✅ Send event dates. Confirm 2hr shoot.'},
+    {id:14,n:'Makeup — Navi + bridal party',c:'Hair & Makeup',ct:'Jas',co:0,s:'Confirmed',nt:'✅ 24 May. Nav, Raj, Jas, Aman, Harpreet.'},
+    {id:15,n:'Carpet Cleaning — Clematis',c:'Other',ct:'',co:0,s:'Confirmed',nt:'✅ Wednesday 11am'},
+  ]);
+
+  if(!ld('l')) sv('l',[
+    {id:1,c:'Catering',d:'Catering for 16, 18 and 25 May confirmed via Ajay',b:'Mani',dt:'Apr 2026'},
+    {id:2,c:'Hair & Makeup',d:'Jas booked makeup + hair for Nav, Raj, Jas, Aman, Harpreet for 24 May',b:'Jas',dt:'Apr 2026'},
+    {id:3,c:'Accommodation',d:'Kimberley Hotel confirmed — 12 rooms. Extra room at Penrith.',b:'Mum',dt:'Apr 2026'},
+    {id:4,c:'Accommodation',d:'Oakville Airbnb confirmed — Sydney 4 nights',b:'Mum',dt:'Apr 2026'},
+    {id:5,c:'Vendors',d:'Dhol player confirmed for baraat + reception',b:'Mani',dt:'Apr 2026'},
+    {id:6,c:'Transport',d:'Shota confirmed as Van 1 driver Melbourne→Sydney 19 May',b:'Mani',dt:'Apr 2026'},
+    {id:7,c:'Venues',d:'Anand Karaj confirmed at Glenwood Gurdwara NSW',b:'Family',dt:'Apr 2026'},
+    {id:8,c:'Other',d:'Carpet cleaning at Clematis booked Wednesday 11am',b:'Mum',dt:'Apr 2026'},
+    {id:9,c:'Other',d:'House help hired 16–19 May and 25 May',b:'Mum',dt:'Apr 2026'},
+    {id:10,c:'Guests',d:'Shawqi kurta pajama and box delivered — Altona North done',b:'Mani',dt:'Apr 2026'},
+  ]);
+
+  if(!ld('dp')) sv('dp',[]);
+}
+
+// EVENTS DATA
+var EVTS=[
+  {id:'paath',n:'Sukhmani Paath',dt:'Sat 16 May • 12:00–3:00pm',loc:'Bickhams Left Unit, St Kilda East VIC',h:'~81',
+   tr:'Own cars. Neighbours walking. Invite 7,6,9 Bickhams Ct.',
+   ac:'Core family Bickhams. Local Melbourne guests own homes.',
+   nt:'⚠️ Confirm 100 sit cross-legged. Chairs + floor mix.'},
+  {id:'maiyan',n:'Maiyan / Vatna',dt:'Mon 18 May • 11:00am',loc:'Bickhams Right Unit, St Kilda East VIC',h:'~46',
+   tr:'Own cars. House help starts today.',
+   ac:'Core family Bickhams both units. Overseas guests arriving — Kimberley Hotel from now.',
+   nt:'⚠️ Use both units + decking.'},
+  {id:'mehndi',n:'Mehndi',dt:'Tue 19 May • Morning → Depart Sydney 9pm',loc:'Bickhams VIC',h:'~28',
+   tr:'Depart Sydney 9pm. Van (Shota). Pack food + water.',
+   ac:'Last night Bickhams. Overseas move to Oakville/Kimberley.',
+   nt:'⚠️ Pack everything for Sydney tonight.'},
+  {id:'jaggo',n:'Jaggo',dt:'Wed 20 May • 6:00pm',loc:'Londonderry NSW — Khera family hosts',h:'~53',
+   tr:'Arrive Sydney morning. Van from Melbourne. Sydney guests own cars.',
+   ac:'Oakville (core). Kimberley (overseas). Penrith (overflow). ⚠️ Canada + NZ Airbnb needed.',
+   nt:'⚠️ Chaj + matke confirmed. Baraat cars for tomorrow being arranged.'},
+  {id:'wedding',n:'✨ Anand Karaj — The Wedding',dt:'Fri 22 May • 9:00am',loc:'Glenwood Gurdwara NSW ✅',h:'~52',
+   tr:'⚠️ 2–3 BLACK cars + ribbons NOT BOOKED. Sehrabandi 7am. Return transport needed.',
+   ac:'Oakville (core + friends). Kimberley (overseas). Milni list needed.',
+   nt:'2hr photoshoot after. Pani warna Oakville evening. Ribbon-cutting for camera.'},
+  {id:'reception',n:'Reception',dt:'Sun 24 May • 6:00pm',loc:'Ultima Function Centre VIC',h:'~200',
+   tr:'After: Audi + 2 BMWs + vans. Drops: Bickhams, Altona, Slinky, Kandy, Suni. Elders FIRST.',
+   ac:'Bickhams (elders), Altona North, Slinky (10-13 mattresses), Kandy, Suni.',
+   nt:'⚠️ DJ call tonight. Wedding cake not booked. Seating plan not started. MC not confirmed.'},
+];
+
+// COUNTDOWN
+function renderCD(){
+  var w=new Date('2026-05-22T09:00:00'),now=new Date(),diff=w-now;
+  if(diff<0){document.getElementById('cd').innerHTML='🎉';return;}
+  var d=Math.floor(diff/86400000),h=Math.floor((diff%86400000)/3600000),m=Math.floor((diff%3600000)/60000);
+  document.getElementById('cd').innerHTML='<div class="cdn">'+d+'<div class="cdl">Days</div></div><div class="cdn">'+h+'<div class="cdl">Hrs</div></div><div class="cdn">'+m+'<div class="cdl">Min</div></div>';
+}
+
+// HOME
+function renderHome(){
+  var gs=ld('g')||[],ts=ld('t')||[],vs=ld('v')||[];
+  document.getElementById('s1').textContent=gs.filter(function(g){return g.rv!=='Declined';}).length;
+  document.getElementById('s2').textContent=gs.filter(function(g){return g.rv==='Confirmed';}).length;
+  document.getElementById('s3').textContent=ts.filter(function(t){return t.s!=='done';}).length;
+  document.getElementById('s4').textContent=vs.filter(function(v){return v.s==='Confirmed';}).length+'/'+vs.length;
+
+  var gs2=ld('g')||[];
+  document.getElementById('evts').innerHTML=EVTS.map(function(e){
+    var att=gs2.filter(function(g){return g.ev&&g.ev[e.id]===1;});
+    var heads=att.reduce(function(s,g){return s+(g.c||1);},0)||e.h;
+    return '<div class="evt"><div style="display:flex;justify-content:space-between;align-items:flex-start" onclick="toggleEvt(\''+e.id+'\')"><div><div class="evt-name">'+e.n+'</div><div class="evt-date">'+e.dt+'</div><div class="evt-loc">📍 '+e.loc+'</div></div><span class="heads">'+heads+'</span></div><div class="evt-body" id="eb-'+e.id+'"><div class="erow"><b>🚗 Transport</b><span>'+e.tr+'</span></div><div class="erow"><b>🛏️ Accom</b><span>'+e.ac+'</span></div><div style="color:#7A5500;font-size:12px;margin-top:4px">'+e.nt+'</div><div style="margin-top:8px;font-size:12px;font-weight:700;color:#8A7968">Attending ('+heads+' people)</div>'+att.slice(0,6).map(function(g){return '<div style="font-size:12px;padding:3px 0;border-bottom:1px solid #E8DDD0">'+g.n+' <span style="color:#8A7968">('+g.c+')</span></div>';}).join('')+(att.length>6?'<div style="font-size:11px;color:#8A7968">+'+( att.length-6)+' more</div>':'')+'</div></div>';
+  }).join('');
+}
+
+function toggleEvt(id){var el=document.getElementById('eb-'+id);if(el)el.classList.toggle('on');}
+
+// GUESTS
+function setGF(f,el){gf=f;document.querySelectorAll('#pg-guests .chip').forEach(function(c){c.classList.remove('on');});el.classList.add('on');renderGuests();}
+function filterG(v){gsearch=v.toLowerCase();renderGuests();}
+
+function renderGuests(){
+  var gs=ld('g')||[];
+  var total=gs.filter(function(g){return g.rv!=='Declined';}).length;
+  var conf=gs.filter(function(g){return g.rv==='Confirmed';}).length;
+  var pax=gs.filter(function(g){return g.rv==='Confirmed';}).reduce(function(s,g){return s+(g.c||1);},0);
+  document.getElementById('gsub').textContent=total+' groups · '+conf+' confirmed · '+pax+' heads';
+
+  var list=gs.slice();
+  if(gf==='Confirmed') list=list.filter(function(g){return g.rv==='Confirmed';});
+  else if(gf==='TBC') list=list.filter(function(g){return g.rv==='TBC';});
+  else if(gf==='Family') list=list.filter(function(g){return g.r==='Core Family'||g.r==='Family Friends';});
+  else if(gf==='Overseas') list=list.filter(function(g){return g.r==='UK Guests'||g.r==='Canada Guests'||g.r==='India Guests'||g.r==='NZ Guests';});
+  if(gsearch) list=list.filter(function(g){return g.n.toLowerCase().indexOf(gsearch)>=0;});
+
+  var rb={Confirmed:'bg',TBC:'ba',Declined:'br'};
+  var groups={};
+  list.forEach(function(g){if(!groups[g.r])groups[g.r]=[];groups[g.r].push(g);});
+  var el=document.getElementById('glist');
+  if(!list.length){el.innerHTML='<div style="text-align:center;padding:30px;color:#8A7968">No guests found</div>';return;}
+
+  el.innerHTML=Object.keys(groups).map(function(rel){
+    return '<div class="div">'+rel+'</div>'+groups[rel].map(function(g){
+      return '<div class="gi"><div style="display:flex;justify-content:space-between" onclick="toggleG('+g.id+')"><div><div class="gi-name">'+g.n+'</div><div class="gi-meta">'+(g.c>1?g.c+' people · ':'')+g.tr+(g.ac&&g.ac!=='TBC'?' · 🏨 '+g.ac:'')+'</div></div><span class="badge '+(rb[g.rv]||'ba')+'">'+g.rv+'</span></div><div class="gi-body" id="gb-'+g.id+'"><div class="egrid">'+EK.map(function(e){var v=g.ev&&g.ev[e];return '<div class="ec '+(v===1?'ey':v===0?'en':'et')+'">'+EL[e]+'</div>';}).join('')+'</div>'+(g.nt?'<div style="font-size:12px;color:#8A7968;margin-top:6px;font-style:italic">'+g.nt+'</div>':'')+'<div class="rbx"><button class="rgy" onclick="event.stopPropagation();updRSVP('+g.id+',\'Confirmed\')">✓ Yes</button><button class="rga" onclick="event.stopPropagation();updRSVP('+g.id+',\'TBC\')">? TBC</button><button class="rgn" onclick="event.stopPropagation();updRSVP('+g.id+',\'Declined\')">✗ No</button></div></div></div>';
+    }).join('');
+  }).join('');
+}
+
+function toggleG(id){var el=document.getElementById('gb-'+id);if(el)el.classList.toggle('on');}
+
+function updRSVP(id,status){
+  var gs=ld('g')||[];sv('g',gs.map(function(g){return g.id===id?Object.assign({},g,{rv:status}):g;}));
+  renderGuests();renderHome();toast('RSVP → '+status);
+}
+
+function saveGuest(){
+  var n=document.getElementById('ag-n').value.trim();if(!n){toast('Name required');return;}
+  var gs=ld('g')||[];
+  var ev={paath:document.getElementById('e-p').checked?1:0,maiyan:document.getElementById('e-m').checked?1:0,mehndi:document.getElementById('e-h').checked?1:0,jaggo:document.getElementById('e-j').checked?1:0,wedding:document.getElementById('e-w').checked?1:0,reception:document.getElementById('e-r').checked?1:0};
+  gs.push({id:Date.now(),n:n,r:document.getElementById('ag-r').value,c:parseInt(document.getElementById('ag-c').value)||1,rv:document.getElementById('ag-rv').value,ac:document.getElementById('ag-ac').value,tr:document.getElementById('ag-tr').value,ev:ev,nt:document.getElementById('ag-nt').value.trim()});
+  sv('g',gs);renderGuests();renderHome();closeM('mg');toast('Guest added ✦');
+  document.getElementById('ag-n').value='';document.getElementById('ag-nt').value='';
+}
+
+// TASKS
+function setTF(f,el){tf=f;document.querySelectorAll('#pg-tasks .chip').forEach(function(c){c.classList.remove('on');});el.classList.add('on');renderTasks();}
+
+function renderTasks(){
+  var ts=ld('t')||[];
+  if(tf==='open') ts=ts.filter(function(t){return t.s!=='done';});
+  else if(tf==='urgent') ts=ts.filter(function(t){return t.p==='urgent'&&t.s!=='done';});
+  else if(tf==='soon') ts=ts.filter(function(t){return t.p==='soon'&&t.s!=='done';});
+  else if(tf==='done') ts=ts.filter(function(t){return t.s==='done';});
+  ts.sort(function(a,b){var p={urgent:0,soon:1,later:2};return (p[a.p]||1)-(p[b.p]||1);});
+
+  var el=document.getElementById('tlist');
+  if(!ts.length){el.innerHTML='<div style="text-align:center;padding:30px;color:#8A7968">Nothing here</div>';return;}
+  var sl={todo:'To Do',inprogress:'In Progress',blocked:'Blocked',done:'Done ✓'};
+  el.innerHTML=ts.map(function(t){
+    return '<div class="ti '+t.p+' '+(t.s==='done'?'done':'')+'" onclick="toggleT('+t.id+')"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><div class="ti-desc">'+t.d+'</div><span class="badge '+(t.s==='done'?'bg':t.p==='urgent'?'br':'ba')+'" style="flex-shrink:0">'+(sl[t.s]||t.s)+'</span></div><div class="ti-meta">'+(t.a?'👤 '+t.a+' ':'')+' '+(t.du?'📅 '+new Date(t.du+'T00:00:00').toLocaleDateString('en-AU'):'' )+'</div><div class="ti-body" id="tb-'+t.id+'">'+(t.n?'<div style="font-size:12px;color:#8A7968;margin-bottom:8px;font-style:italic">'+t.n+'</div>':'')+'<div class="tbx">'+(t.s!=='done'?'<button class="btn-sm btn-done" onclick="event.stopPropagation();setTS('+t.id+',\'done\')">✓ Done</button>':'')+(t.s==='todo'?'<button class="btn-sm btn-prog" onclick="event.stopPropagation();setTS('+t.id+',\'inprogress\')">▶ In Progress</button>':'')+'<button class="btn-sm btn-edit" onclick="event.stopPropagation();editT('+t.id+')">✏️ Edit</button></div></div></div>';
+  }).join('');
+}
+
+function toggleT(id){var el=document.getElementById('tb-'+id);if(el)el.classList.toggle('on');}
+
+function setTS(id,status){
+  var ts=ld('t')||[];sv('t',ts.map(function(t){return t.id===id?Object.assign({},t,{s:status}):t;}));
+  renderTasks();renderHome();toast(status==='done'?'Done ✓':'Updated');
+}
+
+function editT(id){
+  var t=(ld('t')||[]).find(function(x){return x.id===id;});if(!t)return;
+  document.getElementById('tt').textContent='Edit Task';
+  document.getElementById('teid').value=id;
+  document.getElementById('at-d').value=t.d||'';
+  document.getElementById('at-a').value=t.a||'';
+  document.getElementById('at-du').value=t.du||'';
+  document.getElementById('at-p').value=t.p||'soon';
+  document.getElementById('at-s').value=t.s||'todo';
+  document.getElementById('at-n').value=t.n||'';
+  openM('mt');
+}
+
+function saveTask(){
+  var d=document.getElementById('at-d').value.trim();if(!d){toast('Task required');return;}
+  var ts=ld('t')||[];
+  var eid=parseInt(document.getElementById('teid').value);
+  var row={d:d,a:document.getElementById('at-a').value.trim(),du:document.getElementById('at-du').value,p:document.getElementById('at-p').value,s:document.getElementById('at-s').value,n:document.getElementById('at-n').value.trim()};
+  if(eid){sv('t',ts.map(function(t){return t.id===eid?Object.assign({},t,row):t;}));toast('Updated ✦');}
+  else{ts.unshift(Object.assign({id:Date.now()},row));sv('t',ts);toast('Task added ✦');}
+  renderTasks();renderHome();closeM('mt');resetTF();
+}
+
+function resetTF(){
+  document.getElementById('tt').textContent='Add Task';
+  document.getElementById('teid').value='';
+  ['at-d','at-a','at-du','at-n'].forEach(function(id){document.getElementById(id).value='';});
+  document.getElementById('at-p').value='soon';
+  document.getElementById('at-s').value='todo';
+}
+
+// VENDORS
+function setVV(v,el){vv=v;document.querySelectorAll('#pg-vendors .chip').forEach(function(c){c.classList.remove('on');});el.classList.add('on');
+  document.getElementById('vv-v').style.display=v==='v'?'block':'none';
+  document.getElementById('vv-log').style.display=v==='log'?'block':'none';
+  document.getElementById('vv-accom').style.display=v==='accom'?'block':'none';}
+
+function renderVendors(){
+  var vs=ld('v')||[];
+  var groups={};vs.forEach(function(v){if(!groups[v.c])groups[v.c]=[];groups[v.c].push(v);});
+  var sb={Confirmed:'bg',Pending:'ba',Enquiring:'bgold',Cancelled:'br'};
+  document.getElementById('vlist').innerHTML=Object.keys(groups).map(function(cat){
+    return '<div class="div">'+cat+'</div>'+groups[cat].map(function(v){
+      return '<div class="vi"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><div style="font-size:14px;font-weight:600;flex:1">'+v.n+'</div><div style="text-align:right;flex-shrink:0"><span class="badge '+(sb[v.s]||'ba')+'">'+v.s+'</span>'+(v.co?'<div style="font-size:16px;font-weight:700;color:#8A6318;margin-top:2px">$'+Number(v.co).toLocaleString()+'</div>':'')+'</div></div>'+(v.ct?'<div style="font-size:12px;color:#8A7968;margin-top:2px">📱 '+v.ct+'</div>':'')+(v.nt?'<div style="font-size:12px;color:#8A7968;margin-top:4px;font-style:italic;line-height:1.4">'+v.nt+'</div>':'')+'</div>';
+    }).join('');
+  }).join('');
+}
+
+function saveVendor(){
+  var n=document.getElementById('av-n').value.trim();if(!n){toast('Name required');return;}
+  var vs=ld('v')||[];
+  vs.unshift({id:Date.now(),n:n,c:document.getElementById('av-c').value,ct:document.getElementById('av-ct').value.trim(),co:parseFloat(document.getElementById('av-co').value)||0,s:document.getElementById('av-s').value,nt:document.getElementById('av-nt').value.trim()});
+  sv('v',vs);renderVendors();closeM('mv');toast('Vendor added ✦');
+  ['av-n','av-ct','av-co','av-nt'].forEach(function(id){document.getElementById(id).value='';});
+}
+
+// LOGS
+function renderLogs(){
+  var ls=ld('l')||[];
+  var el=document.getElementById('llist');
+  if(!ls.length){el.innerHTML='<div style="text-align:center;padding:30px;color:#8A7968">No decisions logged yet</div>';return;}
+  el.innerHTML=ls.map(function(l){
+    return '<div class="log-item"><div style="font-size:13px;font-weight:500">'+l.d+'</div><div style="font-size:11px;color:#8A7968;margin-top:4px">'+(l.c?'<span class="badge bgold" style="margin-right:4px">'+l.c+'</span>':'')+(l.b?'By: '+l.b+' · ':'')+l.dt+'</div></div>';
+  }).join('');
+}
+
+function saveLog(){
+  var d=document.getElementById('dl-d').value.trim();if(!d){toast('Decision required');return;}
+  var ls=ld('l')||[];
+  ls.unshift({id:Date.now(),d:d,c:document.getElementById('dl-c').value,b:document.getElementById('dl-b').value.trim(),dt:new Date().toLocaleDateString('en-AU')});
+  sv('l',ls);renderLogs();closeM('ml');toast('Logged ✦');
+  document.getElementById('dl-d').value='';document.getElementById('dl-b').value='';
+}
+
+// HUB
+function setHV(v,el){hv=v;document.querySelectorAll('#pg-hub .chip').forEach(function(c){c.classList.remove('on');});el.classList.add('on');
+  ['dump','blind','wa','rsvp'].forEach(function(id){document.getElementById('hv-'+id).style.display=id===v?'block':'none';});}
+
+function saveDump(){
+  var text=document.getElementById('dtext').value.trim();if(!text){toast('Add some info first');return;}
+  var ds=ld('dp')||[];
+  ds.unshift({id:Date.now(),f:document.getElementById('dfrom').value,t:text,dt:new Date().toLocaleString('en-AU',{dateStyle:'short',timeStyle:'short'})});
+  sv('dp',ds);renderDumps();document.getElementById('dtext').value='';toast('Saved ✦');
+}
+
+function renderDumps(){
+  var ds=ld('dp')||[];
+  var el=document.getElementById('dlist');
+  if(!ds.length){el.innerHTML='<div style="text-align:center;padding:20px;color:#8A7968;font-size:13px">No dumps yet</div>';return;}
+  el.innerHTML=ds.map(function(d){return '<div class="dump-item"><div class="dump-from">'+d.f+' · '+d.dt+'</div><div class="dump-text">'+d.t+'</div></div>';}).join('');
+}
+
+function copyWA(){
+  var msg=document.getElementById('wa-msg').innerText;
+  if(navigator.clipboard){navigator.clipboard.writeText(msg).then(function(){toast('Copied! Paste into WhatsApp');}).catch(function(){fallbackCopy(msg);});}
+  else fallbackCopy(msg);
+}
+function fallbackCopy(t){var ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);toast('Copied!');}
+
+// NAV
+function goPage(name,el){
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('on');});
+  document.querySelectorAll('nav a').forEach(function(a){a.classList.remove('on');});
+  document.getElementById('pg-'+name).classList.add('on');
+  el.classList.add('on');
+  if(name==='home')renderHome();
+  if(name==='guests')renderGuests();
+  if(name==='tasks')renderTasks();
+  if(name==='vendors'){renderVendors();renderLogs();}
+  if(name==='hub')renderDumps();
+}
+
+// MODALS
+function openM(id){document.getElementById(id).classList.add('on');}
+function closeM(id){document.getElementById(id).classList.remove('on');}
+
+// TOAST
+function toast(msg){var el=document.getElementById('toast');el.textContent=msg;el.classList.add('on');setTimeout(function(){el.classList.remove('on');},2500);}
+
+// INIT
+init();
+renderCD();
+setInterval(renderCD,60000);
+renderHome();
+renderGuests();
+renderTasks();
+renderVendors();
+renderLogs();
+renderDumps();
+</script>
+</body>
+</html>
