@@ -124,6 +124,11 @@ label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5
 
 .accom-row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #E8DDD0;font-size:13px}
 .accom-row:last-child{border:none}
+
+.vi-body{display:none;margin-top:8px;padding-top:8px;border-top:1px solid #E8DDD0}
+.vi-body.on{display:block}
+.mic-btn{position:absolute;right:8px;bottom:8px;background:#C4983A;color:#fff;border:none;border-radius:50%;width:36px;height:36px;font-size:18px;cursor:pointer;line-height:36px;text-align:center;font-family:inherit;padding:0}
+.mic-btn.on{background:#8B2E2E}
 </style>
 </head>
 <body>
@@ -250,7 +255,10 @@ label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5
     <label>From</label>
     <select id="dfrom"><option>Dad</option><option>Mum</option><option>Mani</option><option>Jas</option><option>Family member</option><option>Other</option></select>
     <label>Message / Info</label>
-    <textarea id="dtext" rows="4" placeholder="Paste WhatsApp message, any info..."></textarea>
+    <div style="position:relative">
+      <textarea id="dtext" rows="4" placeholder="Paste WhatsApp message, any info..." style="padding-right:50px"></textarea>
+      <button id="mic-btn" class="mic-btn" onclick="toggleMic()">🎤</button>
+    </div>
     <button class="btn btn-gold" onclick="saveDump()">💾 Save Brain Dump</button>
     <div class="div">Recent Dumps</div>
     <div id="dlist"></div>
@@ -339,6 +347,7 @@ Love ❤️</div>
       <label style="text-transform:none;letter-spacing:0;font-size:13px;font-weight:400;display:flex;align-items:center;gap:6px;margin-top:0"><input type="checkbox" id="e-j" style="width:auto;margin:0"> Jaggo 20 May</label>
       <label style="text-transform:none;letter-spacing:0;font-size:13px;font-weight:400;display:flex;align-items:center;gap:6px;margin-top:0"><input type="checkbox" id="e-w" style="width:auto;margin:0"> Wedding 22 May</label>
       <label style="text-transform:none;letter-spacing:0;font-size:13px;font-weight:400;display:flex;align-items:center;gap:6px;margin-top:0"><input type="checkbox" id="e-r" style="width:auto;margin:0"> Reception 24 May</label>
+      <label style="text-transform:none;letter-spacing:0;font-size:13px;font-weight:400;display:flex;align-items:center;gap:6px;margin-top:0"><input type="checkbox" id="e-mk" style="width:auto;margin:0"> Muklawa 25 May</label>
     </div>
     <label>Notes</label><textarea id="ag-nt" rows="2" placeholder="Dietary, special needs..."></textarea>
     <button class="btn btn-gold" onclick="saveGuest()">Save Guest</button>
@@ -405,8 +414,8 @@ Love ❤️</div>
 <div id="toast"></div>
 
 <script>
-var EK=['paath','maiyan','mehndi','jaggo','wedding','reception'];
-var EL={paath:'Paath 16/5',maiyan:'Maiyan 18/5',mehndi:'Mehndi 19/5',jaggo:'Jaggo 20/5',wedding:'Wed 22/5',reception:'Recept 24/5'};
+var EK=['paath','maiyan','mehndi','jaggo','wedding','reception','muklawa'];
+var EL={paath:'Paath 16/5',maiyan:'Maiyan 18/5',mehndi:'Mehndi 19/5',jaggo:'Jaggo 20/5',wedding:'Wed 22/5',reception:'Recept 24/5',muklawa:'Muklawa 25/5'};
 var gf='all',gsearch='',tf='open',vv='v',hv='dump';
 
 // ---- SUPABASE ----
@@ -463,6 +472,10 @@ var EVTS=[
    tr:'After: Audi + 2 BMWs + vans. Drops: Bickhams, Altona, Slinky, Kandy, Suni. Elders FIRST.',
    ac:'Bickhams (elders), Altona North, Slinky (10-13 mattresses), Kandy, Suni.',
    nt:'⚠️ DJ call tonight. Wedding cake not booked. Seating plan not started. MC not confirmed.'},
+  {id:'muklawa',n:'Muklawa',dt:'Mon 25 May • TBC',loc:'Bickhams VIC',h:'~70',
+   tr:'Own cars. Local Melbourne guests.',
+   ac:'Bickhams (family). Local guests own homes.',
+   nt:'Post-wedding event. Details TBC.'},
 ];
 
 // COUNTDOWN
@@ -527,7 +540,7 @@ function updRSVP(id,status){
 
 function saveGuest(){
   var n=document.getElementById('ag-n').value.trim();if(!n){toast('Name required');return;}
-  var ev={paath:document.getElementById('e-p').checked?1:0,maiyan:document.getElementById('e-m').checked?1:0,mehndi:document.getElementById('e-h').checked?1:0,jaggo:document.getElementById('e-j').checked?1:0,wedding:document.getElementById('e-w').checked?1:0,reception:document.getElementById('e-r').checked?1:0};
+  var ev={paath:document.getElementById('e-p').checked?1:0,maiyan:document.getElementById('e-m').checked?1:0,mehndi:document.getElementById('e-h').checked?1:0,jaggo:document.getElementById('e-j').checked?1:0,wedding:document.getElementById('e-w').checked?1:0,reception:document.getElementById('e-r').checked?1:0,muklawa:document.getElementById('e-mk').checked?1:0};
   sbpost('guests',{name:n,relation:document.getElementById('ag-r').value,headcount:parseInt(document.getElementById('ag-c').value)||1,rsvp:document.getElementById('ag-rv').value,accommodation:document.getElementById('ag-ac').value,transport:document.getElementById('ag-tr').value,events:ev,notes:document.getElementById('ag-nt').value.trim()}).then(function(rows){
     if(rows&&rows[0]){DB.g.push(gMap(rows[0]));renderGuests();renderHome();}
   });
@@ -611,10 +624,12 @@ function renderVendors(){
   var sb={Confirmed:'bg',Pending:'ba',Enquiring:'bgold',Cancelled:'br'};
   document.getElementById('vlist').innerHTML=Object.keys(groups).map(function(cat){
     return '<div class="div">'+cat+'</div>'+groups[cat].map(function(v){
-      return '<div class="vi"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><div style="font-size:14px;font-weight:600;flex:1">'+v.n+'</div><div style="text-align:right;flex-shrink:0"><span class="badge '+(sb[v.s]||'ba')+'">'+v.s+'</span>'+(v.co?'<div style="font-size:16px;font-weight:700;color:#8A6318;margin-top:2px">$'+Number(v.co).toLocaleString()+'</div>':'')+'</div></div>'+(v.ct?'<div style="font-size:12px;color:#8A7968;margin-top:2px">📱 '+v.ct+'</div>':'')+(v.nt?'<div style="font-size:12px;color:#8A7968;margin-top:4px;font-style:italic;line-height:1.4">'+v.nt+'</div>':'')+'</div>';
+      return '<div class="vi" style="cursor:pointer" onclick="toggleV(\''+v.id+'\')"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><div style="font-size:14px;font-weight:600;flex:1">'+v.n+'</div><div style="text-align:right;flex-shrink:0"><span class="badge '+(sb[v.s]||'ba')+'">'+v.s+'</span>'+(v.co?'<div style="font-size:16px;font-weight:700;color:#8A6318;margin-top:2px">$'+Number(v.co).toLocaleString()+'</div>':'')+'</div></div><div class="vi-body" id="vb-'+v.id+'">'+(v.ct?'<div style="font-size:12px;color:#8A7968;margin-top:2px">📱 '+v.ct+'</div>':'')+(v.nt?'<div style="font-size:12px;color:#8A7968;margin-top:4px;font-style:italic;line-height:1.4">'+v.nt+'</div>':'')+'</div></div>';
     }).join('');
   }).join('');
 }
+
+function toggleV(id){var el=document.getElementById('vb-'+id);if(el)el.classList.toggle('on');}
 
 function saveVendor(){
   var n=document.getElementById('av-n').value.trim();if(!n){toast('Name required');return;}
@@ -661,6 +676,29 @@ function renderDumps(){
   var el=document.getElementById('dlist');
   if(!ds.length){el.innerHTML='<div style="text-align:center;padding:20px;color:#8A7968;font-size:13px">No dumps yet</div>';return;}
   el.innerHTML=ds.map(function(d){return '<div class="dump-item"><div class="dump-from">'+d.f+' · '+d.dt+'</div><div class="dump-text">'+d.t+'</div></div>';}).join('');
+}
+
+// VOICE DICTATION
+var micRec=null;
+var micOn=false;
+function toggleMic(){
+  if(!window.SpeechRecognition&&!window.webkitSpeechRecognition){toast('Voice not supported here — try Safari or Chrome');return;}
+  if(micOn){if(micRec)micRec.stop();return;}
+  var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  micRec=new SR();
+  micRec.continuous=true;
+  micRec.interimResults=false;
+  micRec.lang='en-AU';
+  micRec.onresult=function(e){
+    var txt='';
+    for(var i=e.resultIndex;i<e.results.length;i++){if(e.results[i].isFinal)txt+=e.results[i][0].transcript+' ';}
+    var ta=document.getElementById('dtext');
+    ta.value=(ta.value?ta.value+' ':'')+txt.trim();
+  };
+  micRec.onstart=function(){micOn=true;var b=document.getElementById('mic-btn');b.textContent='⏹️';b.classList.add('on');toast('Listening… tap ⏹️ to stop');};
+  micRec.onend=function(){micOn=false;var b=document.getElementById('mic-btn');if(b){b.textContent='🎤';b.classList.remove('on');}};
+  micRec.onerror=function(e){toast('Mic: '+e.error);micOn=false;var b=document.getElementById('mic-btn');if(b){b.textContent='🎤';b.classList.remove('on');}};
+  micRec.start();
 }
 
 function copyWA(){
