@@ -266,12 +266,27 @@ label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5
   <div style="height:12px"></div>
   <div style="font-size:20px;font-weight:700;margin-bottom:8px">Hub</div>
   <div class="chips">
-    <button class="chip on" onclick="setHV('dump',this)">💬 Brain Dump</button>
+    <button class="chip on" onclick="setHV('q',this)">❓ Questions</button>
+    <button class="chip" onclick="setHV('dump',this)">💬 Brain Dump</button>
     <button class="chip" onclick="setHV('blind',this)">👁️ Blind Spots</button>
     <button class="chip" onclick="setHV('wa',this)">📱 WhatsApp</button>
     <button class="chip" onclick="setHV('rsvp',this)">📞 RSVP Chase</button>
   </div>
-  <div id="hv-dump">
+  <div id="hv-q">
+    <p style="font-size:12px;color:#8A7968;margin-bottom:8px">Any family member can answer — tap mic to speak or type. No need to wait for Mani.</p>
+    <div class="chips" style="margin-bottom:8px">
+      <button class="chip on" onclick="setQF('open',this)">Open</button>
+      <button class="chip" onclick="setQF('answered',this)">✓ Answered</button>
+      <button class="chip" onclick="setQF('all',this)">All</button>
+    </div>
+    <div id="qlist"></div>
+    <div style="margin-top:14px;padding-top:10px;border-top:1px solid #E8DDD0">
+      <label>Got a question of your own? Add it here</label>
+      <input id="qnew" placeholder="e.g. Has anyone confirmed the cake?">
+      <button class="btn btn-gold" onclick="addQ()" style="margin-top:8px">+ Ask Family</button>
+    </div>
+  </div>
+  <div id="hv-dump" style="display:none">
     <p style="font-size:12px;color:#8A7968;margin-bottom:8px">Drop any info here — syncs to all devices</p>
     <label>From</label>
     <select id="dfrom"><option>Dad</option><option>Mum</option><option>Mani</option><option>Jas</option><option>Family member</option><option>Other</option></select>
@@ -437,19 +452,21 @@ Love ❤️</div>
 <script>
 var EK=['paath','maiyan','mehndi','jaggo','wedding','reception','muklawa'];
 var EL={paath:'Paath 16/5',maiyan:'Maiyan 18/5',mehndi:'Mehndi 19/5',jaggo:'Jaggo 20/5',wedding:'Wed 22/5',reception:'Recept 24/5',muklawa:'Muklawa 25/5'};
-var gf='all',gsearch='',tf='open',vv='v',hv='dump';
+var gf='all',gsearch='',tf='open',vv='v',hv='q';
 
 // ---- SUPABASE ----
 var SB='https://pecvorberttcojnkdgpm.supabase.co';
 var SK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBlY3ZvcmJlcnR0Y29qbmtkZ3BtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzczNTY1NDcsImV4cCI6MjA5MjkzMjU0N30.E8k_S_qFzAwQfsfqw2yzMx7PxDk7UTsMsFd0eAB9zqk';
-var DB={g:[],t:[],v:[],l:[],dp:[]};
+var DB={g:[],t:[],v:[],l:[],dp:[],q:[]};
+var qf='open';
 
 function sbh(){return {'apikey':SK,'Authorization':'Bearer '+SK,'Content-Type':'application/json','Prefer':'return=representation'};}
 function sbget(tbl,q){return fetch(SB+'/rest/v1/'+tbl+'?'+(q||'select=*'),{headers:sbh()}).then(function(r){return r.json();});}
 function sbpost(tbl,data){return fetch(SB+'/rest/v1/'+tbl,{method:'POST',headers:sbh(),body:JSON.stringify(data)}).then(function(r){return r.json();});}
 function sbpatch(tbl,id,data){return fetch(SB+'/rest/v1/'+tbl+'?id=eq.'+id,{method:'PATCH',headers:sbh(),body:JSON.stringify(data)});}
 
-function gMap(r){return {id:r.id,n:r.name,r:r.relation||'',c:r.headcount||1,rv:r.rsvp||'TBC',ac:r.accommodation||'TBC',tr:r.transport||'TBC',ev:r.events||{},nt:r.notes||''};}
+function gMap(r){return {id:r.id,n:r.name,r:r.relation||'',c:r.headcount||1,rv:r.rsvp||'TBC',ac:r.accommodation||'TBC',tr:r.transport||'TBC',ev:r.events||{},nt:r.notes||'',mb:r.members||[]};}
+function qMap(r){return {id:r.id,q:r.question,a:r.answer||'',ab:r.answered_by||'',s:r.status||'open',c:r.category||'',dt:r.created_at?new Date(r.created_at).toLocaleDateString('en-AU'):''};}
 function tMap(r){return {id:r.id,d:r.description,a:r.assigned_to||'',du:r.due_date||'',p:r.priority||'soon',s:r.status||'todo',n:r.notes||''};}
 function vMap(r){return {id:r.id,n:r.name,c:r.category||'',ct:r.contact||'',co:Number(r.cost)||0,s:r.status||'Pending',nt:r.notes||''};}
 function lMap(r){return {id:r.id,d:r.decision,c:r.category||'',b:r.decided_by||'',dt:r.created_at?new Date(r.created_at).toLocaleDateString('en-AU'):''};}
@@ -459,12 +476,13 @@ function ld(k){return DB[k]||[];}
 
 function loadAll(){
   var n=0;
-  function check(){n++;if(n===5){renderCD();setInterval(renderCD,60000);renderHome();renderGuests();renderTasks();renderVendors();renderLogs();renderDumps();}}
+  function check(){n++;if(n===6){renderCD();setInterval(renderCD,60000);renderHome();renderGuests();renderTasks();renderVendors();renderLogs();renderDumps();renderQ();}}
   sbget('guests','select=*&order=created_at.asc').then(function(r){DB.g=Array.isArray(r)?r.map(gMap):[];check();}).catch(function(){check();});
   sbget('tasks','select=*&order=created_at.asc').then(function(r){DB.t=Array.isArray(r)?r.map(tMap):[];check();}).catch(function(){check();});
   sbget('vendors','select=*&order=created_at.asc').then(function(r){DB.v=Array.isArray(r)?r.map(vMap):[];check();}).catch(function(){check();});
   sbget('decision_log','select=*&order=created_at.desc').then(function(r){DB.l=Array.isArray(r)?r.map(lMap):[];check();}).catch(function(){check();});
   sbget('brain_dumps','select=*&order=created_at.desc').then(function(r){DB.dp=Array.isArray(r)?r.map(dpMap):[];check();}).catch(function(){check();});
+  sbget('questions','select=*&order=created_at.desc').then(function(r){DB.q=Array.isArray(r)?r.map(qMap):[];check();}).catch(function(){check();});
 }
 
 // EVENTS DATA
@@ -546,12 +564,23 @@ function renderGuests(){
   if(!list.length){el.innerHTML='<div style="text-align:center;padding:30px;color:#8A7968">No guests found</div>';return;}
   el.innerHTML=Object.keys(groups).map(function(rel){
     return '<div class="div">'+rel+'</div>'+groups[rel].map(function(g){
-      return '<div class="gi"><div style="display:flex;justify-content:space-between" onclick="toggleG(\''+g.id+'\')"><div><div class="gi-name">'+g.n+'</div><div class="gi-meta">'+(g.c>1?g.c+' people · ':'')+g.tr+(g.ac&&g.ac!=='TBC'?' · 🏨 '+g.ac:'')+'</div></div><span class="badge '+(rb[g.rv]||'ba')+'">'+g.rv+'</span></div><div class="gi-body" id="gb-'+g.id+'"><div class="egrid">'+EK.map(function(e){var v=g.ev&&g.ev[e];return '<div class="ec '+(v===1?'ey':v===0?'en':'et')+'">'+EL[e]+'</div>';}).join('')+'</div>'+(g.nt?'<div style="font-size:12px;color:#8A7968;margin-top:6px;font-style:italic">'+g.nt+'</div>':'')+'<div class="rbx"><button class="rgy" onclick="event.stopPropagation();updRSVP(\''+g.id+'\',\'Confirmed\')">✓ Yes</button><button class="rga" onclick="event.stopPropagation();updRSVP(\''+g.id+'\',\'TBC\')">? TBC</button><button class="rgn" onclick="event.stopPropagation();updRSVP(\''+g.id+'\',\'Declined\')">✗ No</button></div></div></div>';
+      var mem=(g.mb&&g.mb.length)?'<div style="font-size:11px;color:#8A6318;margin-top:3px">👥 '+g.mb.join(' · ')+'</div>':'';
+      return '<div class="gi"><div style="display:flex;justify-content:space-between" onclick="toggleG(\''+g.id+'\')"><div style="flex:1"><div class="gi-name">'+g.n+'</div><div class="gi-meta">'+(g.c>1?g.c+' ppl · ':'')+g.tr+(g.ac&&g.ac!=='TBC'?' · 🏨 '+g.ac:'')+'</div>'+mem+'</div><span class="badge '+(rb[g.rv]||'ba')+'">'+g.rv+'</span></div><div class="gi-body" id="gb-'+g.id+'"><div style="font-size:11px;color:#8A7968;margin-bottom:4px">Tap an event to toggle attending</div><div class="egrid">'+EK.map(function(e){var v=g.ev&&g.ev[e];return '<div class="ec '+(v===1?'ey':v===0?'en':'et')+'" style="cursor:pointer" onclick="event.stopPropagation();togEv(\''+g.id+'\',\''+e+'\')">'+EL[e]+'</div>';}).join('')+'</div>'+(g.nt?'<div style="font-size:12px;color:#8A7968;margin-top:6px;font-style:italic">'+g.nt+'</div>':'')+'<div class="rbx"><button class="rgy" onclick="event.stopPropagation();updRSVP(\''+g.id+'\',\'Confirmed\')">✓ Yes</button><button class="rga" onclick="event.stopPropagation();updRSVP(\''+g.id+'\',\'TBC\')">? TBC</button><button class="rgn" onclick="event.stopPropagation();updRSVP(\''+g.id+'\',\'Declined\')">✗ No</button></div></div></div>';
     }).join('');
   }).join('');
 }
 
 function toggleG(id){var el=document.getElementById('gb-'+id);if(el)el.classList.toggle('on');}
+
+function togEv(gid,ek){
+  var g=DB.g.filter(function(x){return x.id===gid;})[0];if(!g)return;
+  var ev=Object.assign({},g.ev||{});
+  ev[ek]=ev[ek]===1?0:1;
+  DB.g=DB.g.map(function(x){return x.id===gid?Object.assign({},x,{ev:ev}):x;});
+  renderGuests();renderHome();toast(EL[ek]+' '+(ev[ek]===1?'✓':'✗'));
+  sbpatch('guests',gid,{events:ev});
+  setTimeout(function(){var b=document.getElementById('gb-'+gid);if(b)b.classList.add('on');},10);
+}
 
 function updRSVP(id,status){
   DB.g=DB.g.map(function(g){return g.id===id?Object.assign({},g,{rv:status}):g;});
@@ -578,7 +607,15 @@ function renderTasks(){
   else if(tf==='urgent') ts=ts.filter(function(t){return t.p==='urgent'&&t.s!=='done';});
   else if(tf==='soon') ts=ts.filter(function(t){return t.p==='soon'&&t.s!=='done';});
   else if(tf==='done') ts=ts.filter(function(t){return t.s==='done';});
-  ts.sort(function(a,b){var p={urgent:0,soon:1,later:2};return (p[a.p]||1)-(p[b.p]||1);});
+  ts.sort(function(a,b){
+    if(a.s==='done'&&b.s!=='done')return 1;
+    if(b.s==='done'&&a.s!=='done')return -1;
+    var p={urgent:0,soon:1,later:2};
+    var pd=(p[a.p]||1)-(p[b.p]||1);if(pd!==0)return pd;
+    if(a.du&&b.du)return a.du<b.du?-1:1;
+    if(a.du)return -1;if(b.du)return 1;
+    return 0;
+  });
   var el=document.getElementById('tlist');
   if(!ts.length){el.innerHTML='<div style="text-align:center;padding:30px;color:#8A7968">Nothing here</div>';return;}
   var sl={todo:'To Do',inprogress:'In Progress',blocked:'Blocked',done:'Done ✓'};
@@ -682,7 +719,7 @@ function saveLog(){
 
 // HUB
 function setHV(v,el){hv=v;document.querySelectorAll('#pg-hub .chip').forEach(function(c){c.classList.remove('on');});el.classList.add('on');
-  ['dump','blind','wa','rsvp'].forEach(function(id){document.getElementById('hv-'+id).style.display=id===v?'block':'none';});}
+  ['q','dump','blind','wa','rsvp'].forEach(function(id){document.getElementById('hv-'+id).style.display=id===v?'block':'none';});}
 
 function saveDump(){
   var text=document.getElementById('dtext').value.trim();if(!text){toast('Add some info first');return;}
@@ -697,6 +734,72 @@ function renderDumps(){
   var el=document.getElementById('dlist');
   if(!ds.length){el.innerHTML='<div style="text-align:center;padding:20px;color:#8A7968;font-size:13px">No dumps yet</div>';return;}
   el.innerHTML=ds.map(function(d){return '<div class="dump-item"><div class="dump-from">'+d.f+' · '+d.dt+'</div><div class="dump-text">'+d.t+'</div></div>';}).join('');
+}
+
+// QUESTIONS
+function setQF(f,el){qf=f;document.querySelectorAll('#hv-q .chip').forEach(function(c){c.classList.remove('on');});el.classList.add('on');renderQ();}
+
+function renderQ(){
+  var qs=(DB.q||[]).slice();
+  if(qf==='open')qs=qs.filter(function(q){return q.s==='open';});
+  else if(qf==='answered')qs=qs.filter(function(q){return q.s==='answered';});
+  var el=document.getElementById('qlist');
+  if(!qs.length){el.innerHTML='<div style="text-align:center;padding:30px;color:#8A7968">No '+(qf==='open'?'open':'answered')+' questions</div>';return;}
+  el.innerHTML=qs.map(function(q){
+    var ans=q.a?'<div style="background:#E8F2EA;border-radius:8px;padding:8px 10px;margin-top:6px;font-size:13px;line-height:1.4"><b style="color:#2E6B3E">'+(q.ab||'Family')+':</b> '+q.a+'</div>':'';
+    var cat=q.c?'<span class="badge bgold" style="margin-right:6px">'+q.c+'</span>':'';
+    if(q.s==='answered'){
+      return '<div class="card" style="border-left:3px solid #2E6B3E"><div style="font-size:13px;font-weight:600">✓ '+q.q+'</div><div style="font-size:11px;color:#8A7968;margin-top:3px">'+cat+q.dt+'</div>'+ans+'</div>';
+    }
+    return '<div class="card" style="border-left:3px solid #C4983A">'+
+      '<div style="font-size:13px;font-weight:600">🤔 '+q.q+'</div>'+
+      '<div style="font-size:11px;color:#8A7968;margin:3px 0 8px">'+cat+'asked '+q.dt+'</div>'+
+      '<label style="margin-top:0">Who''s answering?</label>'+
+      '<select id="qb-'+q.id+'"><option>Mani</option><option>Mum</option><option>Dad</option><option>Navi</option><option>Jas</option><option>Family member</option></select>'+
+      '<label>Your answer</label>'+
+      '<div style="position:relative">'+
+        '<textarea id="qa-'+q.id+'" rows="2" placeholder="Type or tap mic to speak..." style="padding-right:50px"></textarea>'+
+        '<button class="mic-btn" onclick="qMic(\''+q.id+'\')" id="qm-'+q.id+'">🎤</button>'+
+      '</div>'+
+      '<button class="btn btn-gold" onclick="ansQ(\''+q.id+'\')" style="margin-top:8px">✓ Submit Answer</button>'+
+    '</div>';
+  }).join('');
+}
+
+function ansQ(id){
+  var ans=document.getElementById('qa-'+id).value.trim();
+  if(!ans){toast('Type or speak an answer first');return;}
+  var by=document.getElementById('qb-'+id).value;
+  DB.q=DB.q.map(function(q){return q.id===id?Object.assign({},q,{a:ans,ab:by,s:'answered'}):q;});
+  renderQ();toast('Thanks '+by+' ✦');
+  sbpatch('questions',id,{answer:ans,answered_by:by,status:'answered',answered_at:new Date().toISOString()});
+}
+
+function addQ(){
+  var q=document.getElementById('qnew').value.trim();if(!q){toast('Type a question');return;}
+  sbpost('questions',{question:q,asked_by:'Family'}).then(function(rows){
+    if(rows&&rows[0]){DB.q.unshift(qMap(rows[0]));renderQ();}
+  });
+  document.getElementById('qnew').value='';toast('Question added ✦');
+}
+
+// Per-question voice mic — independent of brain dump mic
+var qMicRec=null,qMicId=null;
+function qMic(id){
+  if(!window.SpeechRecognition&&!window.webkitSpeechRecognition){toast('Voice not supported here');return;}
+  if(qMicId===id&&qMicRec){qMicRec.stop();return;}
+  if(qMicRec){qMicRec.stop();}
+  var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  qMicRec=new SR();qMicRec.continuous=true;qMicRec.interimResults=false;qMicRec.lang='en-AU';
+  qMicId=id;
+  qMicRec.onresult=function(e){
+    var txt='';for(var i=e.resultIndex;i<e.results.length;i++){if(e.results[i].isFinal)txt+=e.results[i][0].transcript+' ';}
+    var ta=document.getElementById('qa-'+id);if(ta)ta.value=(ta.value?ta.value+' ':'')+txt.trim();
+  };
+  qMicRec.onstart=function(){var b=document.getElementById('qm-'+id);if(b){b.textContent='⏹️';b.classList.add('on');}toast('Listening…');};
+  qMicRec.onend=function(){var b=document.getElementById('qm-'+id);if(b){b.textContent='🎤';b.classList.remove('on');}qMicId=null;};
+  qMicRec.onerror=function(e){toast('Mic: '+e.error);var b=document.getElementById('qm-'+id);if(b){b.textContent='🎤';b.classList.remove('on');}qMicId=null;};
+  qMicRec.start();
 }
 
 // VOICE DICTATION
@@ -739,7 +842,7 @@ function goPage(name,el){
   if(name==='guests')renderGuests();
   if(name==='tasks')renderTasks();
   if(name==='vendors'){renderVendors();renderLogs();}
-  if(name==='hub')renderDumps();
+  if(name==='hub'){renderDumps();renderQ();}
 }
 
 // MODALS
