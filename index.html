@@ -9,6 +9,21 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:#FAF7F2;color:#18120C;max-width:480px;margin:0 auto;padding-bottom:80px}
+@media (min-width:760px){
+  body{max-width:1100px;padding:0 16px 80px}
+  nav{max-width:1100px}
+  .page{padding:16px 20px}
+  .page.on{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}
+  #pg-home.on{grid-template-columns:2fr 1fr}
+  #pg-home>*{grid-column:1/-1}
+  #pg-home #evts{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  #pg-guests.on,#pg-tasks.on,#pg-vendors.on,#pg-hub.on{display:block}
+  #pg-guests #glist,#pg-tasks #tlist{column-count:2;column-gap:14px}
+  #pg-guests .gi,#pg-tasks .ti{break-inside:avoid;display:block}
+  .mbox{max-width:560px;margin:auto;border-radius:20px}
+  .modal{align-items:center}
+  header h1{font-size:28px}
+}
 
 header{background:linear-gradient(160deg,#18120C,#2A1A0E);padding:14px 16px 10px;text-align:center}
 header h1{font-size:22px;color:#fff;font-weight:300;letter-spacing:1px}
@@ -163,9 +178,9 @@ label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5
     <button class="chip" onclick="quickSearch('overseas',this)">✈️ Overseas</button>
   </div>
   <div id="searchres"></div>
-  <div class="urgent" id="urgentbox" style="cursor:pointer" onclick="document.getElementById('urgentlist').classList.toggle('on')">
-    <h3 style="display:flex;justify-content:space-between;align-items:center">⚠️ Urgent — Act Now <span style="font-size:11px;color:#7A5500;font-weight:400">9 items · tap</span></h3>
-    <div id="urgentlist" class="evt-body" onclick="event.stopPropagation()">
+  <div class="urgent" id="urgentbox">
+    <h3>⚠️ Urgent — Act Now <span style="font-size:11px;color:#7A5500;font-weight:400">long-press any item to leave a note</span></h3>
+    <div id="urgentlist">
       <p data-lp="urgent" data-lpid="oakville" data-lplabel="Call Oakville host — upgrade to 12 + early check-in">⭐️ Call Oakville host — upgrade to 12 spots + early check-in (Mani)</p>
       <p data-lp="urgent" data-lpid="baraat-cars" data-lplabel="Book black cars + ribbons for baraat">🚗 Book 2–3 black cars + ribbons for baraat — Glenwood Gurdwara 22 May</p>
       <p data-lp="urgent" data-lpid="classic-car" data-lplabel="Book classic car + chauffeur for groom">🚘 Book classic car + chauffeur for groom (Mani — Dad's ask)</p>
@@ -203,7 +218,12 @@ label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5
     <button class="chip" onclick="setGF('Family',this)">Family</button>
     <button class="chip" onclick="setGF('Overseas',this)">Overseas</button>
   </div>
+  <div class="chips" style="margin-bottom:6px">
+    <button class="chip on" id="vmode-cards" onclick="setVMode('cards')">🃏 Cards</button>
+    <button class="chip" id="vmode-sheet" onclick="setVMode('sheet')">📊 Sheet</button>
+  </div>
   <div id="glist"></div>
+  <div id="gsheet" style="display:none;overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:8px;border:1px solid #E8DDD0"></div>
   <button class="btn btn-gold" onclick="openM('mg')">+ Add Guest</button>
 </div>
 
@@ -244,7 +264,11 @@ label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5
       <button class="chip" onclick="setMV('accom',this)">🏨 Accommodation</button>
     </div>
     <div id="leafmap" style="height:420px;border-radius:12px;overflow:hidden;border:1px solid #E8DDD0;background:#f0ede8"></div>
-    <div style="font-size:11px;color:#8A7968;margin-top:6px;text-align:center">Tap any pin for details + Google Maps link</div>
+    <div style="font-size:11px;color:#8A7968;margin-top:6px;text-align:center;display:flex;justify-content:center;gap:14px;flex-wrap:wrap">
+      <span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#C4983A;border:2px solid #fff;vertical-align:middle"></span> Event</span>
+      <span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#1C4D7A;border:2px solid #fff;vertical-align:middle"></span> Accommodation</span>
+      <span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#8B2E2E;border:2px solid #fff;vertical-align:middle"></span> Wedding ✨</span>
+    </div>
     <div id="mapfallback"></div>
   </div>
   <div id="vv-accom" style="display:none">
@@ -308,118 +332,42 @@ label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5
   <div style="height:12px"></div>
   <div style="font-size:20px;font-weight:700;margin-bottom:8px">Hub</div>
   <div class="chips">
-    <button class="chip on" onclick="setHV('q',this)">❓ Questions</button>
+    <button class="chip on" onclick="setHV('q',this)">❓ Charlie's Questions</button>
     <button class="chip" onclick="setHV('dump',this)">💬 Brain Dump</button>
-    <button class="chip" onclick="setHV('blind',this)">👁️ Blind Spots</button>
-    <button class="chip" onclick="setHV('wa',this)">📱 WhatsApp</button>
-    <button class="chip" onclick="setHV('rsvp',this)">📞 RSVP Chase</button>
-    <button class="chip" onclick="setHV('fb',this)">🛠️ Site Feedback</button>
   </div>
   <div id="hv-q">
-    <p style="font-size:12px;color:#8A7968;margin-bottom:8px">Any family member can answer — tap mic to speak or type. No need to wait for Mani.</p>
+    <div class="card" style="background:#FFF4D4;border:1.5px solid #C4983A;margin-bottom:10px">
+      <div style="font-size:13px;font-weight:700;color:#7A5500;margin-bottom:4px">❓ These are Charlie's questions for the family</div>
+      <div style="font-size:12px;color:#7A5500;line-height:1.4">Anyone can answer — Mani, Mum, Dad, Amrit, Jas, anyone. Tap an open question, pick who you are, type or talk into the mic, hit submit. Charlie applies the answer at 6pm.</div>
+    </div>
     <div class="chips" style="margin-bottom:8px">
       <button class="chip on" onclick="setQF('open',this)">Open</button>
       <button class="chip" onclick="setQF('answered',this)">✓ Answered</button>
       <button class="chip" onclick="setQF('all',this)">All</button>
     </div>
     <div id="qlist"></div>
-    <div style="margin-top:14px;padding-top:10px;border-top:1px solid #E8DDD0">
-      <label>Got a question of your own? Add it here</label>
+    <div class="card" style="margin-top:14px;background:#E6EFF8;border:1.5px solid #1C4D7A">
+      <div style="font-size:13px;font-weight:700;color:#1C4D7A;margin-bottom:6px">💬 Ask the family something yourself</div>
+      <div style="font-size:11px;color:#1C4D7A;margin-bottom:6px">Got a question for someone else in the family? Drop it here — anyone can answer.</div>
       <input id="qnew" placeholder="e.g. Has anyone confirmed the cake?">
-      <button class="btn btn-gold" onclick="addQ()" style="margin-top:8px">+ Ask Family</button>
+      <button class="btn btn-gold" onclick="addQ()" style="margin-top:8px">+ Post Question</button>
     </div>
   </div>
   <div id="hv-dump" style="display:none">
-    <p style="font-size:12px;color:#8A7968;margin-bottom:8px">Drop any info here — syncs to all devices</p>
-    <label>From</label>
-    <select id="dfrom"><option>Dad</option><option>Mum</option><option>Mani</option><option>Jas</option><option>Family member</option><option>Other</option></select>
-    <label>Message / Info</label>
+    <div class="card" style="background:#FFF4D4;border:1.5px solid #C4983A;margin-bottom:10px">
+      <div style="font-size:13px;font-weight:700;color:#7A5500;margin-bottom:4px">💬 Talk about anything</div>
+      <div style="font-size:12px;color:#7A5500;line-height:1.4">Updates, ideas, problems with the site, suggestions, RSVP info, vendor news, anything. Charlie reads everything at 6pm and figures out where it goes — guests, tasks, vendors, decisions, or site fixes.</div>
+    </div>
+    <label>Who is this from?</label>
+    <select id="dfrom"><option>Mani</option><option>Dad</option><option>Amrit</option><option>Mum</option><option>Jas</option><option>Family member</option><option>Other</option></select>
+    <label>What's on your mind?</label>
     <div style="position:relative">
-      <textarea id="dtext" rows="4" placeholder="Paste WhatsApp message, any info..." style="padding-right:50px"></textarea>
+      <textarea id="dtext" rows="5" placeholder="Talk about anything — Charlie figures out what to do with it..." style="padding-right:50px"></textarea>
       <button id="mic-btn" class="mic-btn" onclick="toggleMic()">🎤</button>
     </div>
     <button class="btn btn-gold" onclick="saveDump()">💾 Save Brain Dump</button>
     <div class="div">Recent Dumps</div>
     <div id="dlist"></div>
-  </div>
-  <div id="hv-blind" style="display:none">
-    <div class="card" style="cursor:pointer" onclick="document.getElementById('blindlist').classList.toggle('on')">
-      <div style="font-size:13px;font-weight:700;color:#1C4D7A;display:flex;justify-content:space-between;align-items:center">👁️ 14 Blind Spots <span style="font-size:11px;color:#8A7968;font-weight:400">tap to expand</span></div>
-      <div id="blindlist" class="evt-body" style="margin-top:8px">
-        <div class="blind-item">❗ <span><b>Milni list</b> — family pairings for Gurdwara</span></div>
-        <div class="blind-item">❗ <span><b>MC</b> — not confirmed, no script</span></div>
-        <div class="blind-item">❗ <span><b>Wedding cake</b> — not booked</span></div>
-        <div class="blind-item">❗ <span><b>Seating plan</b> — 200 people, not started</span></div>
-        <div class="blind-item">❗ <span><b>Entry + first dance songs</b> — not locked with DJ</span></div>
-        <div class="blind-item">❗ <span><b>Family photo list</b> — not given to photographer</span></div>
-        <div class="blind-item">❗ <span><b>Airport pickups</b> — flight times not collected</span></div>
-        <div class="blind-item">❗ <span><b>Travel food</b> — van Melb→Sydney not planned</span></div>
-        <div class="blind-item">❗ <span><b>Giveaways</b> — who packs + distributes at venue exit</span></div>
-        <div class="blind-item">❗ <span><b>Cultural items</b> — packed? Chunni chadai 21 May</span></div>
-        <div class="blind-item">❗ <span><b>Shagan envelope</b> — amount not confirmed with Mum</span></div>
-        <div class="blind-item">❗ <span><b>Command roles</b> — Transport/Food/Accom/Event leads not assigned</span></div>
-        <div class="blind-item">❗ <span><b>White Diamond courier</b> — arrived or not?</span></div>
-        <div class="blind-item" style="border:none">❗ <span><b>Backup plans</b> — vendor cancels, no contingency</span></div>
-      </div>
-    </div>
-  </div>
-  <div id="hv-wa" style="display:none">
-    <div class="card" style="cursor:pointer;margin-bottom:8px" onclick="document.getElementById('wa-msg').classList.toggle('on')"><div style="font-size:13px;font-weight:700;display:flex;justify-content:space-between;align-items:center">📱 WhatsApp Family Message <span style="font-size:11px;color:#8A7968;font-weight:400">tap to view</span></div></div>
-    <div class="wa-box evt-body" id="wa-msg">💍 Family — important message.
-
-We now have ONE central wedding hub for everything.
-
-Open on your phone — works like an app, no download needed.
-
-To add info or suggestions:
-👉 Open app → tap HUB (💬) → Brain Dump → type → Save
-
-Please stop:
-❌ Creating new spreadsheets
-❌ Adding info in random WhatsApp messages
-
-Please start:
-✅ Using the Hub to drop any info or updates
-✅ Updating your RSVP directly in the Guests tab
-
-3 weeks to go — one system, everyone disciplined 🙏
-
-Love ❤️</div>
-    <button class="btn btn-gold" onclick="copyWA()">📋 Copy Message</button>
-  </div>
-  <div id="hv-fb" style="display:none">
-    <p style="font-size:12px;color:#8A7968;margin-bottom:8px">Tell Charlie what to fix or add to this site. Anyone can submit. Charlie processes nightly at 6pm.</p>
-    <label>From</label>
-    <select id="fbfrom"><option>Mani</option><option>Mum</option><option>Dad</option><option>Amrit</option><option>Jas</option><option>Family member</option></select>
-    <label>Type</label>
-    <select id="fbtype"><option>Bug — something doesn't work</option><option>Missing field — need to track X</option><option>UI — hard to use / confusing</option><option>New feature</option><option>Other</option></select>
-    <label>What needs to change?</label>
-    <div style="position:relative">
-      <textarea id="fbtext" rows="3" placeholder="e.g. Add a column for dietary requirements..." style="padding-right:50px"></textarea>
-      <button class="mic-btn" id="fb-mic" onclick="fbMic()">🎤</button>
-    </div>
-    <button class="btn btn-gold" onclick="saveFB()">📤 Submit Feedback</button>
-    <div class="div">Recent Feedback</div>
-    <div id="fblist"></div>
-  </div>
-  <div id="hv-rsvp" style="display:none">
-    <div class="urgent" style="cursor:pointer" onclick="document.getElementById('rsvplist').classList.toggle('on')">
-      <h3 style="display:flex;justify-content:space-between;align-items:center">📞 Call These — Don't Message <span style="font-size:11px;color:#7A5500;font-weight:400">tap</span></h3>
-      <div id="rsvplist" class="evt-body">
-        <p>📞 Nanky — return plan?</p>
-        <p>📞 Yad + in-laws — travel plan?</p>
-        <p>📞 Manpreet + Jaiveer — which events?</p>
-        <p>📞 Kanika — which events?</p>
-        <p>📞 Tejinder, Surinder — all TBC</p>
-        <p>📞 Kuldeep + Wife (UK) — coming?</p>
-        <p>📞 Pinky + Husband (UK) — coming?</p>
-        <p>📞 Bholi Didi, Niku, Aman (Canada)</p>
-        <p>📞 All India guests — flights booked?</p>
-        <p>📞 All NZ guests — flights booked?</p>
-        <p>📞 Sunny + Family — Melbourne only?</p>
-        <div style="margin-top:8px;font-size:13px;font-weight:700;color:#7A5500">Get a yes or no. Today.</div>
-      </div>
-    </div>
   </div>
 </div>
 
@@ -667,6 +615,27 @@ function renderGuests(){
 
 function toggleG(id){var el=document.getElementById('gb-'+id);if(el)el.classList.toggle('on');}
 
+var gMode='cards';
+function setVMode(m){
+  gMode=m;
+  document.getElementById('vmode-cards').classList.toggle('on',m==='cards');
+  document.getElementById('vmode-sheet').classList.toggle('on',m==='sheet');
+  document.getElementById('glist').style.display=m==='cards'?'block':'none';
+  document.getElementById('gsheet').style.display=m==='sheet'?'block':'none';
+  if(m==='sheet')renderSheet();
+}
+
+function renderSheet(){
+  var gs=ld('g');
+  var rows='<table style="width:100%;border-collapse:collapse;font-size:12px;background:#fff;min-width:900px"><thead><tr style="background:#18120C;color:#fff;text-align:left"><th style="padding:8px">Family</th><th style="padding:8px">Group</th><th style="padding:8px">Pax</th><th style="padding:8px">RSVP</th><th style="padding:8px">Flight</th><th style="padding:8px">Transport</th><th style="padding:8px">Accom</th>'+EK.map(function(e){return '<th style="padding:8px;text-align:center">'+EL[e].split(' ')[0]+'</th>';}).join('')+'<th style="padding:8px">Notes</th></tr></thead><tbody>';
+  var rb={Confirmed:'#E8F2EA',TBC:'#FFF4D4',Declined:'#F5E8E8'};
+  gs.forEach(function(g){
+    rows+='<tr style="border-bottom:1px solid #E8DDD0;background:'+(rb[g.rv]||'#fff')+'"><td style="padding:8px;font-weight:600">'+g.n+(g.mb&&g.mb.length?'<div style="font-size:10px;color:#8A6318;font-weight:400;margin-top:2px">'+g.mb.join(', ')+'</div>':'')+'</td><td style="padding:8px;color:#8A7968">'+g.r+'</td><td style="padding:8px;text-align:center">'+g.c+'</td><td style="padding:8px"><b>'+g.rv+'</b></td><td style="padding:8px">'+(g.fi||'—')+'</td><td style="padding:8px">'+g.tr+'</td><td style="padding:8px">'+g.ac+'</td>'+EK.map(function(e){var v=g.ev&&g.ev[e];return '<td style="padding:8px;text-align:center;font-weight:700;color:'+(v===1?'#2E6B3E':v===0?'#8B2E2E':'#8A7968')+'">'+(v===1?'✓':v===0?'✗':'—')+'</td>';}).join('')+'<td style="padding:8px;font-size:11px;color:#8A7968">'+(g.nt||'')+'</td></tr>';
+  });
+  rows+='</tbody></table>';
+  document.getElementById('gsheet').innerHTML=rows;
+}
+
 function togEv(gid,ek){
   var g=DB.g.filter(function(x){return x.id===gid;})[0];if(!g)return;
   var ev=Object.assign({},g.ev||{});
@@ -716,7 +685,9 @@ function renderTasks(){
   var sl={todo:'To Do',inprogress:'In Progress',blocked:'Blocked',done:'Done ✓'};
   el.innerHTML=ts.map(function(t){
     var pdot=t.p==='urgent'?'🔴':t.p==='soon'?'🟡':'🟢';
-    return '<div class="ti '+t.p+' '+(t.s==='done'?'done':'')+'" data-lp="task" data-lpid="'+t.id+'" data-lplabel="'+t.d.replace(/"/g,'&quot;').substring(0,60)+'" onclick="toggleT(\''+t.id+'\')"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><div class="ti-desc">'+pdot+' '+t.d+'</div><span class="badge '+(t.s==='done'?'bg':t.p==='urgent'?'br':'ba')+'" style="flex-shrink:0">'+(sl[t.s]||t.s)+'</span></div><div class="ti-body" id="tb-'+t.id+'"><div style="font-size:12px;color:#8A7968;margin-bottom:6px">'+(t.a?'👤 '+t.a:'No owner')+(t.du?' · 📅 '+new Date(t.du+'T00:00:00').toLocaleDateString('en-AU'):'')+'</div>'+(t.n?'<div style="font-size:12px;color:#8A7968;margin-bottom:8px;font-style:italic">'+t.n+'</div>':'')+'<div class="tbx">'+(t.s!=='done'?'<button class="btn-sm btn-done" onclick="event.stopPropagation();setTS(\''+t.id+'\',\'done\')">✓ Done</button>':'')+(t.s==='todo'?'<button class="btn-sm btn-prog" onclick="event.stopPropagation();setTS(\''+t.id+'\',\'inprogress\')">▶ In Progress</button>':'')+'<button class="btn-sm btn-edit" onclick="event.stopPropagation();editT(\''+t.id+'\')">✏️ Edit</button></div></div></div>';
+    var tNotes=(DB.n||[]).filter(function(x){return x.et==='task'&&x.eid===t.id;});
+    var noteList=tNotes.length?'<div style="margin-top:8px;border-top:1px dashed #E8DDD0;padding-top:8px">'+tNotes.map(function(c){return '<div style="background:#FFF4D4;border-radius:8px;padding:6px 8px;margin-bottom:4px;font-size:12px"><b style="color:#7A5500">'+c.f+':</b> '+c.t+'<div style="font-size:10px;color:#8A7968;margin-top:2px">'+c.dt+(c.p?' · ✓ processed':'')+'</div></div>';}).join('')+'</div>':'';
+    return '<div class="ti '+t.p+' '+(t.s==='done'?'done':'')+'" data-lp="task" data-lpid="'+t.id+'" data-lplabel="'+t.d.replace(/"/g,'&quot;').substring(0,60)+'" onclick="toggleT(\''+t.id+'\')"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><div class="ti-desc">'+pdot+' '+t.d+'</div><span class="badge '+(t.s==='done'?'bg':t.p==='urgent'?'br':'ba')+'" style="flex-shrink:0">'+(sl[t.s]||t.s)+'</span></div><div class="ti-body" id="tb-'+t.id+'"><div style="font-size:12px;color:#8A7968;margin-bottom:6px">'+(t.a?'👤 '+t.a:'No owner')+(t.du?' · 📅 '+new Date(t.du+'T00:00:00').toLocaleDateString('en-AU'):'')+'</div>'+(t.n?'<div style="font-size:12px;color:#8A7968;margin-bottom:8px;font-style:italic">'+t.n+'</div>':'')+'<div class="tbx">'+(t.s!=='done'?'<button class="btn-sm btn-done" onclick="event.stopPropagation();setTS(\''+t.id+'\',\'done\')">✓ Done</button>':'')+(t.s==='todo'?'<button class="btn-sm btn-prog" onclick="event.stopPropagation();setTS(\''+t.id+'\',\'inprogress\')">▶ In Progress</button>':'')+'<button class="btn-sm btn-edit" onclick="event.stopPropagation();editT(\''+t.id+'\')">✏️ Edit</button><button class="btn-sm btn-edit" onclick="event.stopPropagation();noteFor(\'task\',\''+t.id+'\')">💬 Add Note</button></div>'+noteList+'</div></div>';
   }).join('');
 }
 
@@ -780,7 +751,9 @@ function renderVendors(){
   var sb={Confirmed:'bg',Pending:'ba',Enquiring:'bgold',Cancelled:'br'};
   document.getElementById('vlist').innerHTML=Object.keys(groups).map(function(cat){
     return '<div class="div">'+cat+'</div>'+groups[cat].map(function(v){
-      return '<div class="vi" data-lp="vendor" data-lpid="'+v.id+'" data-lplabel="'+v.n.replace(/"/g,'&quot;')+'" style="cursor:pointer" onclick="toggleV(\''+v.id+'\')"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><div style="font-size:14px;font-weight:600;flex:1">'+v.n+'</div><div style="text-align:right;flex-shrink:0"><span class="badge '+(sb[v.s]||'ba')+'">'+v.s+'</span>'+(v.co?'<div style="font-size:16px;font-weight:700;color:#8A6318;margin-top:2px">$'+Number(v.co).toLocaleString()+'</div>':'')+'</div></div><div class="vi-body" id="vb-'+v.id+'">'+(v.ct?'<div style="font-size:12px;color:#8A7968;margin-top:2px">📱 '+v.ct+'</div>':'')+(v.nt?'<div style="font-size:12px;color:#8A7968;margin-top:4px;font-style:italic;line-height:1.4">'+v.nt+'</div>':'')+'</div></div>';
+      var vNotes=(DB.n||[]).filter(function(x){return x.et==='vendor'&&x.eid===v.id;});
+      var vNoteList=vNotes.length?'<div style="margin-top:8px;border-top:1px dashed #E8DDD0;padding-top:8px">'+vNotes.map(function(c){return '<div style="background:#FFF4D4;border-radius:8px;padding:6px 8px;margin-bottom:4px;font-size:12px"><b style="color:#7A5500">'+c.f+':</b> '+c.t+'<div style="font-size:10px;color:#8A7968;margin-top:2px">'+c.dt+(c.p?' · ✓ processed':'')+'</div></div>';}).join('')+'</div>':'';
+      return '<div class="vi" data-lp="vendor" data-lpid="'+v.id+'" data-lplabel="'+v.n.replace(/"/g,'&quot;')+'" style="cursor:pointer" onclick="toggleV(\''+v.id+'\')"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><div style="font-size:14px;font-weight:600;flex:1">'+v.n+'</div><div style="text-align:right;flex-shrink:0"><span class="badge '+(sb[v.s]||'ba')+'">'+v.s+'</span>'+(v.co?'<div style="font-size:16px;font-weight:700;color:#8A6318;margin-top:2px">$'+Number(v.co).toLocaleString()+'</div>':'')+'</div></div><div class="vi-body" id="vb-'+v.id+'">'+(v.ct?'<div style="font-size:12px;color:#8A7968;margin-top:2px">📱 '+v.ct+'</div>':'')+(v.nt?'<div style="font-size:12px;color:#8A7968;margin-top:4px;font-style:italic;line-height:1.4">'+v.nt+'</div>':'')+vNoteList+'<button class="btn-sm btn-edit" onclick="event.stopPropagation();noteFor(\'vendor\',\''+v.id+'\')" style="margin-top:8px">💬 Add Note</button></div></div>';
     }).join('');
   }).join('');
 }
@@ -817,7 +790,7 @@ function saveLog(){
 
 // HUB
 function setHV(v,el){hv=v;document.querySelectorAll('#pg-hub .chip').forEach(function(c){c.classList.remove('on');});el.classList.add('on');
-  ['q','dump','blind','wa','rsvp','fb'].forEach(function(id){document.getElementById('hv-'+id).style.display=id===v?'block':'none';});}
+  ['q','dump'].forEach(function(id){var el=document.getElementById('hv-'+id);if(el)el.style.display=id===v?'block':'none';});}
 
 function saveDump(){
   var text=document.getElementById('dtext').value.trim();if(!text){toast('Add some info first');return;}
@@ -1027,6 +1000,14 @@ document.addEventListener('mouseleave',lpEnd);
 document.addEventListener('click',function(e){if(lpTriggered){e.stopPropagation();e.preventDefault();lpTriggered=false;}},true);
 document.addEventListener('contextmenu',function(e){var t=e.target;while(t&&!t.getAttribute('data-lp'))t=t.parentElement;if(t)e.preventDefault();});
 
+function noteFor(et,eid){
+  var label='';
+  if(et==='task'){var t=DB.t.filter(function(x){return x.id===eid;})[0];if(t)label=t.d;}
+  else if(et==='vendor'){var v=DB.v.filter(function(x){return x.id===eid;})[0];if(v)label=v.n;}
+  else if(et==='guest'){var g=DB.g.filter(function(x){return x.id===eid;})[0];if(g)label=g.n;}
+  openLN(et,eid,label);
+}
+
 function openLN(et,eid,elabel){
   document.getElementById('mln-et').value=et;
   document.getElementById('mln-eid').value=eid;
@@ -1080,8 +1061,7 @@ var VENUES=[
   {type:'accom',name:'Kimberley Hotel',lat:-33.751,lng:150.694,beds:'12 rooms',addr:'Sydney NSW'},
   {type:'accom',name:'Select Inn Penrith',lat:-33.7506,lng:150.6940,beds:'12 rooms',addr:'Penrith NSW'},
   {type:'accom',name:'Marsden Park Buffer',lat:-33.696,lng:150.802,beds:'1-2 BR (emergency)',addr:'Marsden Park NSW'},
-  {type:'accom',name:'Altona North',lat:-37.823,lng:144.836,beds:'TBC',addr:'Altona North VIC'},
-  {type:'accom',name:'Clematis (UK family)',lat:-37.969,lng:145.435,beds:'TBC',addr:'Clematis VIC'}
+  {type:'accom',name:'Altona North (aka Clematis)',lat:-37.823,lng:144.836,beds:'TBC — UK family base',addr:'Altona North VIC'}
 ];
 
 var lmap=null,lmarkers=[],lmAttempts=0;
@@ -1118,7 +1098,9 @@ function drawMarkers(filter){
   lmarkers.forEach(function(m){lmap.removeLayer(m);});lmarkers=[];
   VENUES.filter(function(v){return filter==='all'||v.type===filter;}).forEach(function(v){
     var icon=v.type==='event'?'📅':'🏨';if(v.star)icon='✨';
-    var m=L.marker([v.lat,v.lng]).addTo(lmap);
+    var color=v.type==='event'?'#C4983A':'#1C4D7A';
+    if(v.star)color='#8B2E2E';
+    var m=L.circleMarker([v.lat,v.lng],{radius:10,fillColor:color,color:'#fff',weight:2,opacity:1,fillOpacity:0.9}).addTo(lmap);
     var p='<div style="font-size:13px"><b>'+icon+' '+v.name+'</b><br>';
     if(v.date)p+=v.date+'<br>';
     if(v.beds)p+='🛏️ '+v.beds+'<br>';
