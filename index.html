@@ -154,17 +154,19 @@ label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5
     <button class="chip" onclick="quickSearch('overseas',this)">✈️ Overseas</button>
   </div>
   <div id="searchres"></div>
-  <div class="urgent" id="urgentbox">
-    <h3>⚠️ Urgent — Act Now</h3>
-    <p>⭐️ Call Oakville host — upgrade to 12 spots + early check-in (Mani)</p>
-    <p>🚗 Book 2–3 black cars + ribbons for baraat — Glenwood Gurdwara 22 May</p>
-    <p>🚘 Book classic car + chauffeur for groom (Mani — Dad's ask)</p>
-    <p>🎧 DJ call tonight 7–8pm — lock package (Elite $6k → Standard $800)</p>
-    <p>👕 Dry cleaning — pickup by Monday (Mum)</p>
-    <p>📞 Chase RSVP — Suzi + Emmanuel + Nanke (no confirmation)</p>
-    <p>📦 White Diamond Palace courier — confirm arrived?</p>
-    <p>💐 Marquee status — confirm + lock in</p>
-    <p>🍬 Mithai 150kg — who orders/packs/stores? Lock by 12 May</p>
+  <div class="urgent" id="urgentbox" style="cursor:pointer" onclick="document.getElementById('urgentlist').classList.toggle('on')">
+    <h3 style="display:flex;justify-content:space-between;align-items:center">⚠️ Urgent — Act Now <span style="font-size:11px;color:#7A5500;font-weight:400">9 items · tap</span></h3>
+    <div id="urgentlist" class="evt-body">
+      <p>⭐️ Call Oakville host — upgrade to 12 spots + early check-in (Mani)</p>
+      <p>🚗 Book 2–3 black cars + ribbons for baraat — Glenwood Gurdwara 22 May</p>
+      <p>🚘 Book classic car + chauffeur for groom (Mani — Dad's ask)</p>
+      <p>🎧 DJ call tonight 7–8pm — lock package (Elite $6k → Standard $800)</p>
+      <p>👕 Dry cleaning — pickup by Monday (Mum)</p>
+      <p>📞 Chase RSVP — Suzi + Emmanuel + Nanke (no confirmation)</p>
+      <p>📦 White Diamond Palace courier — confirm arrived?</p>
+      <p>💐 Marquee status — confirm + lock in</p>
+      <p>🍬 Mithai 150kg — who orders/packs/stores? Lock by 12 May</p>
+    </div>
   </div>
   <div class="stats">
     <div class="stat" style="cursor:pointer" onclick="jumpTo('guests','all')"><div class="stat-n" id="s1">—</div><div class="stat-l">Guests</div></div>
@@ -233,16 +235,18 @@ label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5
     <div id="mapfallback"></div>
   </div>
   <div id="vv-accom" style="display:none">
-    <div class="urgent" style="background:#E6EFF8;border-color:#1C4D7A">
-      <h3 style="color:#1C4D7A">❗ Accommodation Gaps</h3>
-      <p>❗ Canada (6) — no beds confirmed post-wedding</p>
-      <p>❗ NZ guests (6–8) — no beds confirmed</p>
-      <p>❗ Mattress count right unit — pending Mum</p>
-      <p>❗ Slinky St / Kandy / Suni capacities unknown</p>
-      <p>❗ Bathroom rosters not assigned (20+ people)</p>
+    <div class="urgent" style="background:#E6EFF8;border-color:#1C4D7A;cursor:pointer" onclick="document.getElementById('accomgaps').classList.toggle('on')">
+      <h3 style="color:#1C4D7A;display:flex;justify-content:space-between;align-items:center">❗ Accommodation Gaps <span style="font-size:11px;color:#1C4D7A;font-weight:400">tap</span></h3>
+      <div id="accomgaps" class="evt-body">
+        <p>❗ Canada (6) — no beds confirmed post-wedding</p>
+        <p>❗ NZ guests (6–8) — no beds confirmed</p>
+        <p>❗ Mattress count right unit — pending Mum</p>
+        <p>❗ Slinky St / Kandy / Suni capacities unknown</p>
+        <p>❗ Bathroom rosters not assigned (20+ people)</p>
+      </div>
     </div>
-    <div class="div">Bickhams Pre-Wedding</div>
-    <div class="card" style="font-size:13px">
+    <div class="card" style="cursor:pointer;margin-bottom:8px" onclick="document.getElementById('accom-bickhams').classList.toggle('on')"><div style="font-weight:700;font-size:14px;display:flex;justify-content:space-between;align-items:center">🏠 Bickhams Pre-Wedding <span style="font-size:11px;color:#8A7968;font-weight:400">tap</span></div></div>
+    <div id="accom-bickhams" class="evt-body card" style="font-size:13px">
       <b>Unit 1 (Left)</b> — Fully decorated ✅
       <div class="accom-row"><span>🛏️ Queen bed</span><span style="color:#8A7968">×2</span></div>
       <div class="accom-row"><span>🛏️ Double bed</span><span style="color:#8A7968">×2</span></div>
@@ -252,8 +256,8 @@ label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5
       <div class="accom-row"><span>🛏️ Room 2 — Satu paji + Saberwal</span><span style="color:#8A7968">2 beds</span></div>
       <div class="accom-row"><span>🛏️ Room 3 — Supreet family</span><span style="color:#8A7968">2 beds</span></div>
     </div>
-    <div class="div">Sydney Motel Rooms (per Dad)</div>
-    <div class="card" style="font-size:13px">
+    <div class="card" style="cursor:pointer;margin-bottom:8px" onclick="document.getElementById('accom-syd-motel').classList.toggle('on')"><div style="font-weight:700;font-size:14px;display:flex;justify-content:space-between;align-items:center">🏨 Sydney Motel Rooms (per Dad) <span style="font-size:11px;color:#8A7968;font-weight:400">tap</span></div></div>
+    <div id="accom-syd-motel" class="evt-body card" style="font-size:13px">
       <div class="accom-row"><span>🏨 3-bed</span><span style="color:#8A7968">Harpreet USA, maybe Sattu, Balkar + Saberwal</span></div>
       <div class="accom-row"><span>🏨 4-bed (from 20th)</span><span style="color:#8A7968">Jaskamal FIL/MIL (2 rms, Muskaan 2nd), Gurpreet, Amrit</span></div>
       <div class="accom-row"><span>🛏️ Deepe + Nagi</span><span style="color:#8A7968">1 room</span></div>
@@ -269,16 +273,16 @@ label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5
       <div class="accom-row"><span>🛏️ UK Kiran (Rawalrice)</span><span style="color:#8A7968">1 room</span></div>
       <div class="accom-row" style="color:#7A5500"><span>🆘 Marsden Park 1-2 bed</span><span>Buffer / emergency</span></div>
     </div>
-    <div class="div">Melbourne Post-Reception</div>
-    <div class="card" style="font-size:13px">
+    <div class="card" style="cursor:pointer;margin-bottom:8px" onclick="document.getElementById('accom-mel-post').classList.toggle('on')"><div style="font-weight:700;font-size:14px;display:flex;justify-content:space-between;align-items:center">🏠 Melbourne Post-Reception <span style="font-size:11px;color:#8A7968;font-weight:400">tap</span></div></div>
+    <div id="accom-mel-post" class="evt-body card" style="font-size:13px">
       <div class="accom-row"><span>🏠 Bickhams</span><span style="color:#8A7968">Elders + close family</span></div>
       <div class="accom-row"><span>🏠 Altona North</span><span style="color:#8A7968">Family overflow</span></div>
       <div class="accom-row"><span>🏠 Slinky St</span><span style="color:#7A5500">10–13 mattresses ⚠️</span></div>
       <div class="accom-row"><span>🏠 Kandy house</span><span style="color:#7A5500">Capacity TBC ⚠️</span></div>
       <div class="accom-row"><span>🏠 Suni house</span><span style="color:#7A5500">Capacity TBC ⚠️</span></div>
     </div>
-    <div class="div">Sydney 20–24 May</div>
-    <div class="card" style="font-size:13px">
+    <div class="card" style="cursor:pointer;margin-bottom:8px" onclick="document.getElementById('accom-syd-stay').classList.toggle('on')"><div style="font-weight:700;font-size:14px;display:flex;justify-content:space-between;align-items:center">🏨 Sydney 20–24 May <span style="font-size:11px;color:#8A7968;font-weight:400">tap</span></div></div>
+    <div id="accom-syd-stay" class="evt-body card" style="font-size:13px">
       <div class="accom-row"><span>🏠 Oakville Airbnb ✅</span><span style="color:#7A5500">Cap >8 unconfirmed</span></div>
       <div class="accom-row"><span>🏨 Kimberley Hotel ✅</span><span style="color:#8A7968">12 rooms</span></div>
       <div class="accom-row"><span>🏨 Penrith Hotel ✅</span><span style="color:#8A7968">Extra room</span></div>
@@ -326,26 +330,29 @@ label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5
     <div id="dlist"></div>
   </div>
   <div id="hv-blind" style="display:none">
-    <div class="card">
-      <div style="font-size:13px;font-weight:700;color:#1C4D7A;margin-bottom:8px">👁️ 14 Blind Spots</div>
-      <div class="blind-item">❗ <span><b>Milni list</b> — family pairings for Gurdwara</span></div>
-      <div class="blind-item">❗ <span><b>MC</b> — not confirmed, no script</span></div>
-      <div class="blind-item">❗ <span><b>Wedding cake</b> — not booked</span></div>
-      <div class="blind-item">❗ <span><b>Seating plan</b> — 200 people, not started</span></div>
-      <div class="blind-item">❗ <span><b>Entry + first dance songs</b> — not locked with DJ</span></div>
-      <div class="blind-item">❗ <span><b>Family photo list</b> — not given to photographer</span></div>
-      <div class="blind-item">❗ <span><b>Airport pickups</b> — flight times not collected</span></div>
-      <div class="blind-item">❗ <span><b>Travel food</b> — van Melb→Sydney not planned</span></div>
-      <div class="blind-item">❗ <span><b>Giveaways</b> — who packs + distributes at venue exit</span></div>
-      <div class="blind-item">❗ <span><b>Cultural items</b> — packed? Chunni chadai 21 May</span></div>
-      <div class="blind-item">❗ <span><b>Shagan envelope</b> — amount not confirmed with Mum</span></div>
-      <div class="blind-item">❗ <span><b>Command roles</b> — Transport/Food/Accom/Event leads not assigned</span></div>
-      <div class="blind-item">❗ <span><b>White Diamond courier</b> — arrived or not?</span></div>
-      <div class="blind-item" style="border:none">❗ <span><b>Backup plans</b> — vendor cancels, no contingency</span></div>
+    <div class="card" style="cursor:pointer" onclick="document.getElementById('blindlist').classList.toggle('on')">
+      <div style="font-size:13px;font-weight:700;color:#1C4D7A;display:flex;justify-content:space-between;align-items:center">👁️ 14 Blind Spots <span style="font-size:11px;color:#8A7968;font-weight:400">tap to expand</span></div>
+      <div id="blindlist" class="evt-body" style="margin-top:8px">
+        <div class="blind-item">❗ <span><b>Milni list</b> — family pairings for Gurdwara</span></div>
+        <div class="blind-item">❗ <span><b>MC</b> — not confirmed, no script</span></div>
+        <div class="blind-item">❗ <span><b>Wedding cake</b> — not booked</span></div>
+        <div class="blind-item">❗ <span><b>Seating plan</b> — 200 people, not started</span></div>
+        <div class="blind-item">❗ <span><b>Entry + first dance songs</b> — not locked with DJ</span></div>
+        <div class="blind-item">❗ <span><b>Family photo list</b> — not given to photographer</span></div>
+        <div class="blind-item">❗ <span><b>Airport pickups</b> — flight times not collected</span></div>
+        <div class="blind-item">❗ <span><b>Travel food</b> — van Melb→Sydney not planned</span></div>
+        <div class="blind-item">❗ <span><b>Giveaways</b> — who packs + distributes at venue exit</span></div>
+        <div class="blind-item">❗ <span><b>Cultural items</b> — packed? Chunni chadai 21 May</span></div>
+        <div class="blind-item">❗ <span><b>Shagan envelope</b> — amount not confirmed with Mum</span></div>
+        <div class="blind-item">❗ <span><b>Command roles</b> — Transport/Food/Accom/Event leads not assigned</span></div>
+        <div class="blind-item">❗ <span><b>White Diamond courier</b> — arrived or not?</span></div>
+        <div class="blind-item" style="border:none">❗ <span><b>Backup plans</b> — vendor cancels, no contingency</span></div>
+      </div>
     </div>
   </div>
   <div id="hv-wa" style="display:none">
-    <div class="wa-box" id="wa-msg">💍 Family — important message.
+    <div class="card" style="cursor:pointer;margin-bottom:8px" onclick="document.getElementById('wa-msg').classList.toggle('on')"><div style="font-size:13px;font-weight:700;display:flex;justify-content:space-between;align-items:center">📱 WhatsApp Family Message <span style="font-size:11px;color:#8A7968;font-weight:400">tap to view</span></div></div>
+    <div class="wa-box evt-body" id="wa-msg">💍 Family — important message.
 
 We now have ONE central wedding hub for everything.
 
@@ -383,20 +390,22 @@ Love ❤️</div>
     <div id="fblist"></div>
   </div>
   <div id="hv-rsvp" style="display:none">
-    <div class="urgent">
-      <h3>📞 Call These — Don't Message</h3>
-      <p>📞 Nanky — return plan?</p>
-      <p>📞 Yad + in-laws — travel plan?</p>
-      <p>📞 Manpreet + Jaiveer — which events?</p>
-      <p>📞 Kanika — which events?</p>
-      <p>📞 Tejinder, Surinder — all TBC</p>
-      <p>📞 Kuldeep + Wife (UK) — coming?</p>
-      <p>📞 Pinky + Husband (UK) — coming?</p>
-      <p>📞 Bholi Didi, Niku, Aman (Canada)</p>
-      <p>📞 All India guests — flights booked?</p>
-      <p>📞 All NZ guests — flights booked?</p>
-      <p>📞 Sunny + Family — Melbourne only?</p>
-      <div style="margin-top:8px;font-size:13px;font-weight:700;color:#7A5500">Get a yes or no. Today.</div>
+    <div class="urgent" style="cursor:pointer" onclick="document.getElementById('rsvplist').classList.toggle('on')">
+      <h3 style="display:flex;justify-content:space-between;align-items:center">📞 Call These — Don't Message <span style="font-size:11px;color:#7A5500;font-weight:400">tap</span></h3>
+      <div id="rsvplist" class="evt-body">
+        <p>📞 Nanky — return plan?</p>
+        <p>📞 Yad + in-laws — travel plan?</p>
+        <p>📞 Manpreet + Jaiveer — which events?</p>
+        <p>📞 Kanika — which events?</p>
+        <p>📞 Tejinder, Surinder — all TBC</p>
+        <p>📞 Kuldeep + Wife (UK) — coming?</p>
+        <p>📞 Pinky + Husband (UK) — coming?</p>
+        <p>📞 Bholi Didi, Niku, Aman (Canada)</p>
+        <p>📞 All India guests — flights booked?</p>
+        <p>📞 All NZ guests — flights booked?</p>
+        <p>📞 Sunny + Family — Melbourne only?</p>
+        <div style="margin-top:8px;font-size:13px;font-weight:700;color:#7A5500">Get a yes or no. Today.</div>
+      </div>
     </div>
   </div>
 </div>
@@ -580,7 +589,7 @@ function renderHome(){
   document.getElementById('evts').innerHTML=EVTS.map(function(e){
     var att=gs.filter(function(g){return g.ev&&g.ev[e.id]===1;});
     var heads=att.reduce(function(s,g){return s+(g.c||1);},0)||e.h;
-    return '<div class="evt"><div style="display:flex;justify-content:space-between;align-items:flex-start" onclick="toggleEvt(\''+e.id+'\')"><div><div class="evt-name">'+e.n+'</div><div class="evt-date">'+e.dt+'</div><div class="evt-loc">📍 '+e.loc+'</div></div><span class="heads">'+heads+'</span></div><div class="evt-body" id="eb-'+e.id+'"><div class="erow"><b>🚗 Transport</b><span>'+e.tr+'</span></div><div class="erow"><b>🛏️ Accom</b><span>'+e.ac+'</span></div><div style="color:#7A5500;font-size:12px;margin-top:4px">'+e.nt+'</div><div style="margin-top:8px;font-size:12px;font-weight:700;color:#8A7968">Attending ('+heads+' people)</div>'+att.slice(0,6).map(function(g){return '<div style="font-size:12px;padding:3px 0;border-bottom:1px solid #E8DDD0">'+g.n+' <span style="color:#8A7968">('+g.c+')</span></div>';}).join('')+(att.length>6?'<div style="font-size:11px;color:#8A7968">+'+(att.length-6)+' more</div>':'')+'</div></div>';
+    return '<div class="evt"><div style="display:flex;justify-content:space-between;align-items:center" onclick="toggleEvt(\''+e.id+'\')"><div><div class="evt-name">'+e.n+'</div><div class="evt-date">'+e.dt+'</div></div><span class="heads">'+heads+'</span></div><div class="evt-body" id="eb-'+e.id+'"><div class="erow"><b>📍 Where</b><span>'+e.loc+'</span></div><div class="erow"><b>🚗 Transport</b><span>'+e.tr+'</span></div><div class="erow"><b>🛏️ Accom</b><span>'+e.ac+'</span></div><div style="color:#7A5500;font-size:12px;margin-top:4px">'+e.nt+'</div><div style="margin-top:8px;font-size:12px;font-weight:700;color:#8A7968">Attending ('+heads+' people)</div>'+att.slice(0,6).map(function(g){return '<div style="font-size:12px;padding:3px 0;border-bottom:1px solid #E8DDD0">'+g.n+' <span style="color:#8A7968">('+g.c+')</span></div>';}).join('')+(att.length>6?'<div style="font-size:11px;color:#8A7968">+'+(att.length-6)+' more</div>':'')+'</div></div>';
   }).join('');
 }
 
@@ -609,11 +618,12 @@ function renderGuests(){
   if(!list.length){el.innerHTML='<div style="text-align:center;padding:30px;color:#8A7968">No guests found</div>';return;}
   el.innerHTML=Object.keys(groups).map(function(rel){
     return '<div class="div">'+rel+'</div>'+groups[rel].map(function(g){
-      var mem=(g.mb&&g.mb.length)?'<div style="font-size:11px;color:#8A6318;margin-top:3px">👥 '+g.mb.join(' · ')+'</div>':'';
       var coms=(DB.gc||[]).filter(function(c){return c.gid===g.id;});
       var comBadge=coms.length?'<span class="badge bgold" style="margin-left:4px">💬 '+coms.length+'</span>':'';
       var comList=coms.length?'<div style="margin-top:8px;border-top:1px dashed #E8DDD0;padding-top:8px">'+coms.map(function(c){return '<div style="background:#FFF4D4;border-radius:8px;padding:6px 8px;margin-bottom:4px;font-size:12px"><b style="color:#7A5500">'+c.f+':</b> '+c.t+'<div style="font-size:10px;color:#8A7968;margin-top:2px">'+c.dt+(c.p?' · ✓ processed':'')+'</div></div>';}).join('')+'</div>':'';
-      return '<div class="gi"><div style="display:flex;justify-content:space-between" onclick="toggleG(\''+g.id+'\')"><div style="flex:1"><div class="gi-name">'+g.n+comBadge+'</div><div class="gi-meta">'+(g.c>1?g.c+' ppl · ':'')+g.tr+(g.ac&&g.ac!=='TBC'?' · 🏨 '+g.ac:'')+'</div>'+mem+'</div><span class="badge '+(rb[g.rv]||'ba')+'">'+g.rv+'</span></div><div class="gi-body" id="gb-'+g.id+'"><div style="font-size:11px;color:#8A7968;margin-bottom:4px">Tap an event to toggle attending</div><div class="egrid">'+EK.map(function(e){var v=g.ev&&g.ev[e];return '<div class="ec '+(v===1?'ey':v===0?'en':'et')+'" style="cursor:pointer" onclick="event.stopPropagation();togEv(\''+g.id+'\',\''+e+'\')">'+EL[e]+'</div>';}).join('')+'</div>'+(g.nt?'<div style="font-size:12px;color:#8A7968;margin-top:6px;font-style:italic">'+g.nt+'</div>':'')+'<div class="rbx"><button class="rgy" onclick="event.stopPropagation();updRSVP(\''+g.id+'\',\'Confirmed\')">✓ Yes</button><button class="rga" onclick="event.stopPropagation();updRSVP(\''+g.id+'\',\'TBC\')">? TBC</button><button class="rgn" onclick="event.stopPropagation();updRSVP(\''+g.id+'\',\'Declined\')">✗ No</button></div>'+comList+'<div style="margin-top:8px;border-top:1px dashed #E8DDD0;padding-top:8px"><label style="margin-top:0">💬 Add note about this guest</label><select id="cf-'+g.id+'" onclick="event.stopPropagation()" style="margin-bottom:4px"><option>Mani</option><option>Mum</option><option>Dad</option><option>Amrit</option><option>Family member</option></select><div style="position:relative" onclick="event.stopPropagation()"><textarea id="ct-'+g.id+'" rows="2" placeholder="e.g. Grover wants to be picked up..." style="padding-right:50px"></textarea><button class="mic-btn" id="cm-'+g.id+'" onclick="event.stopPropagation();cMic(\''+g.id+'\')">🎤</button></div><button class="btn btn-gold" onclick="event.stopPropagation();addCom(\''+g.id+'\')" style="margin-top:6px">+ Add Note</button></div></div></div>';
+      var detail='<div style="font-size:12px;color:#8A7968;margin-bottom:6px">'+(g.c>1?'👥 '+g.c+' ppl':'1 person')+(g.tr&&g.tr!=='TBC'?' · 🚗 '+g.tr:'')+(g.ac&&g.ac!=='TBC'?' · 🏨 '+g.ac:'')+'</div>';
+      var mem=(g.mb&&g.mb.length)?'<div style="font-size:12px;color:#8A6318;margin-bottom:6px">👥 '+g.mb.join(' · ')+'</div>':'';
+      return '<div class="gi"><div style="display:flex;justify-content:space-between;align-items:center" onclick="toggleG(\''+g.id+'\')"><div style="flex:1"><div class="gi-name">'+g.n+comBadge+'</div></div><span class="badge '+(rb[g.rv]||'ba')+'">'+g.rv+'</span></div><div class="gi-body" id="gb-'+g.id+'">'+detail+mem+'<div style="font-size:11px;color:#8A7968;margin-bottom:4px">Tap an event to toggle attending</div><div class="egrid">'+EK.map(function(e){var v=g.ev&&g.ev[e];return '<div class="ec '+(v===1?'ey':v===0?'en':'et')+'" style="cursor:pointer" onclick="event.stopPropagation();togEv(\''+g.id+'\',\''+e+'\')">'+EL[e]+'</div>';}).join('')+'</div>'+(g.nt?'<div style="font-size:12px;color:#8A7968;margin-top:6px;font-style:italic">'+g.nt+'</div>':'')+'<div class="rbx"><button class="rgy" onclick="event.stopPropagation();updRSVP(\''+g.id+'\',\'Confirmed\')">✓ Yes</button><button class="rga" onclick="event.stopPropagation();updRSVP(\''+g.id+'\',\'TBC\')">? TBC</button><button class="rgn" onclick="event.stopPropagation();updRSVP(\''+g.id+'\',\'Declined\')">✗ No</button></div>'+comList+'<div style="margin-top:8px;border-top:1px dashed #E8DDD0;padding-top:8px"><label style="margin-top:0">💬 Add note about this guest</label><select id="cf-'+g.id+'" onclick="event.stopPropagation()" style="margin-bottom:4px"><option>Mani</option><option>Mum</option><option>Dad</option><option>Amrit</option><option>Family member</option></select><div style="position:relative" onclick="event.stopPropagation()"><textarea id="ct-'+g.id+'" rows="2" placeholder="e.g. Grover wants to be picked up..." style="padding-right:50px"></textarea><button class="mic-btn" id="cm-'+g.id+'" onclick="event.stopPropagation();cMic(\''+g.id+'\')">🎤</button></div><button class="btn btn-gold" onclick="event.stopPropagation();addCom(\''+g.id+'\')" style="margin-top:6px">+ Add Note</button></div></div></div>';
     }).join('');
   }).join('');
 }
@@ -668,7 +678,8 @@ function renderTasks(){
   if(!ts.length){el.innerHTML='<div style="text-align:center;padding:30px;color:#8A7968">Nothing here</div>';return;}
   var sl={todo:'To Do',inprogress:'In Progress',blocked:'Blocked',done:'Done ✓'};
   el.innerHTML=ts.map(function(t){
-    return '<div class="ti '+t.p+' '+(t.s==='done'?'done':'')+'" onclick="toggleT(\''+t.id+'\')"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><div class="ti-desc">'+t.d+'</div><span class="badge '+(t.s==='done'?'bg':t.p==='urgent'?'br':'ba')+'" style="flex-shrink:0">'+(sl[t.s]||t.s)+'</span></div><div class="ti-meta">'+(t.a?'👤 '+t.a+' ':'')+' '+(t.du?'📅 '+new Date(t.du+'T00:00:00').toLocaleDateString('en-AU'):'')+'</div><div class="ti-body" id="tb-'+t.id+'">'+(t.n?'<div style="font-size:12px;color:#8A7968;margin-bottom:8px;font-style:italic">'+t.n+'</div>':'')+'<div class="tbx">'+(t.s!=='done'?'<button class="btn-sm btn-done" onclick="event.stopPropagation();setTS(\''+t.id+'\',\'done\')">✓ Done</button>':'')+(t.s==='todo'?'<button class="btn-sm btn-prog" onclick="event.stopPropagation();setTS(\''+t.id+'\',\'inprogress\')">▶ In Progress</button>':'')+'<button class="btn-sm btn-edit" onclick="event.stopPropagation();editT(\''+t.id+'\')">✏️ Edit</button></div></div></div>';
+    var pdot=t.p==='urgent'?'🔴':t.p==='soon'?'🟡':'🟢';
+    return '<div class="ti '+t.p+' '+(t.s==='done'?'done':'')+'" onclick="toggleT(\''+t.id+'\')"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><div class="ti-desc">'+pdot+' '+t.d+'</div><span class="badge '+(t.s==='done'?'bg':t.p==='urgent'?'br':'ba')+'" style="flex-shrink:0">'+(sl[t.s]||t.s)+'</span></div><div class="ti-body" id="tb-'+t.id+'"><div style="font-size:12px;color:#8A7968;margin-bottom:6px">'+(t.a?'👤 '+t.a:'No owner')+(t.du?' · 📅 '+new Date(t.du+'T00:00:00').toLocaleDateString('en-AU'):'')+'</div>'+(t.n?'<div style="font-size:12px;color:#8A7968;margin-bottom:8px;font-style:italic">'+t.n+'</div>':'')+'<div class="tbx">'+(t.s!=='done'?'<button class="btn-sm btn-done" onclick="event.stopPropagation();setTS(\''+t.id+'\',\'done\')">✓ Done</button>':'')+(t.s==='todo'?'<button class="btn-sm btn-prog" onclick="event.stopPropagation();setTS(\''+t.id+'\',\'inprogress\')">▶ In Progress</button>':'')+'<button class="btn-sm btn-edit" onclick="event.stopPropagation();editT(\''+t.id+'\')">✏️ Edit</button></div></div></div>';
   }).join('');
 }
 
@@ -938,7 +949,7 @@ function toggleMic(){
 }
 
 function copyWA(){
-  var msg=document.getElementById('wa-msg').innerText;
+  var msg=document.getElementById('wa-msg').textContent||document.getElementById('wa-msg').innerText;
   if(navigator.clipboard){navigator.clipboard.writeText(msg).then(function(){toast('Copied! Paste into WhatsApp');}).catch(function(){fallbackCopy(msg);});}
   else fallbackCopy(msg);
 }
