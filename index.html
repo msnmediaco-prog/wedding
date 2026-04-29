@@ -1141,6 +1141,15 @@ function assigneeEmoji(name){
   return '👤';
 }
 
+function popupNote(kind,id){
+  var label=id;
+  if(kind==='event'){var e=(window.EVTS||EVTS).filter(function(x){return x.id===id;})[0];if(e)label=e.n;}
+  else if(kind==='accom'){var a=ACCOMS.filter(function(x){return x.id===id;})[0];if(a)label=a.n;}
+  else if(kind==='venue')label='Glenwood Gurdwara — The Wedding';
+  if(accMap)accMap.closePopup();
+  openLN(kind,id,label);
+}
+
 function noteFor(et,eid){
   var label='';
   if(et==='task'){var t=DB.t.filter(function(x){return x.id===eid;})[0];if(t)label=t.d;}
@@ -1317,10 +1326,10 @@ function drawAccMap(list){
     if(a.kind==='event'){
       m=L.circleMarker([a.lat,a.lng],{radius:9,fillColor:c,color:'#fff',weight:2,opacity:1,fillOpacity:accSel&&accSel!==a.id?0.35:0.9,dashArray:'2,3'}).addTo(accMap);
       var e=a.evRef;var atts=(DB.g||[]).filter(function(g){return g.ev&&g.ev[e.id]===1;}).length;
-      m.bindPopup('<b>📅 '+e.n+'</b><br>'+e.dt+(e.time?' · '+e.time:'')+'<br><small>'+e.loc+'</small><br>'+atts+' family groups attending<br><a onclick="selectAccom(\''+a.id+'\')" style="color:#C4983A;font-weight:700;cursor:pointer">See attendees →</a><br><a onclick="openLN(\'event\',\''+e.id+'\',\''+e.n.replace(/\\\'/g,\"\")+'\')" style="color:#1C4D7A;font-weight:700;cursor:pointer;font-size:11px">💬 Add note</a>');
+      m.bindPopup('<b>📅 '+e.n+'</b><br>'+e.dt+(e.time?' · '+e.time:'')+'<br><small>'+e.loc+'</small><br>'+atts+' family groups attending<br><a onclick="selectAccom(\''+a.id+'\')" style="color:#C4983A;font-weight:700;cursor:pointer">See attendees →</a><br><a onclick="popupNote(\'event\',\''+e.id+'\')" style="color:#1C4D7A;font-weight:700;cursor:pointer;font-size:11px">💬 Add note</a>');
     } else {
       m=L.circleMarker([a.lat,a.lng],{radius:11,fillColor:c,color:'#fff',weight:3,opacity:1,fillOpacity:accSel&&accSel!==a.id?0.35:0.95}).addTo(accMap);
-      m.bindPopup('<b>🏨 '+a.n+'</b><br>'+(a.region==='syd'?a.distKm+'km from Gurdwara':'Melbourne')+'<br>'+a.filled+'/'+a.cap+' beds<br><a onclick="selectAccom(\''+a.id+'\')" style="color:#C4983A;font-weight:700;cursor:pointer">View rooms →</a><br><a onclick="openLN(\'accom\',\''+a.id+'\',\''+a.n.replace(/\\\'/g,\"\")+'\')" style="color:#1C4D7A;font-weight:700;cursor:pointer;font-size:11px">💬 Add note</a>');
+      m.bindPopup('<b>🏨 '+a.n+'</b><br>'+(a.region==='syd'?a.distKm+'km from Gurdwara':'Melbourne')+'<br>'+a.filled+'/'+a.cap+' beds<br><a onclick="selectAccom(\''+a.id+'\')" style="color:#C4983A;font-weight:700;cursor:pointer">View rooms →</a><br><a onclick="popupNote(\'accom\',\''+a.id+'\')" style="color:#1C4D7A;font-weight:700;cursor:pointer;font-size:11px">💬 Add note</a>');
     }
     m.on('click',function(){selectAccom(a.id);});
     accMarkers[a.id]=m;
