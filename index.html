@@ -154,6 +154,8 @@ label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5
     <button class="chip" onclick="quickSearch('transport',this)">🚗 Transport</button>
     <button class="chip" onclick="quickSearch('accommodation',this)">🏨 Accommodation</button>
     <button class="chip" onclick="quickSearch('catering',this)">🍽️ Catering</button>
+    <button class="chip" onclick="quickSearch('mithai',this)">🍬 Mithai</button>
+    <button class="chip" onclick="quickSearch('cake',this)">🎂 Cake</button>
     <button class="chip" onclick="quickSearch('clothing',this)">👔 Clothing</button>
     <button class="chip" onclick="quickSearch('decoration',this)">💐 Decor</button>
     <button class="chip" onclick="quickSearch('music',this)">🎧 Music/DJ</button>
@@ -163,23 +165,27 @@ label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5
   <div id="searchres"></div>
   <div class="urgent" id="urgentbox" style="cursor:pointer" onclick="document.getElementById('urgentlist').classList.toggle('on')">
     <h3 style="display:flex;justify-content:space-between;align-items:center">⚠️ Urgent — Act Now <span style="font-size:11px;color:#7A5500;font-weight:400">9 items · tap</span></h3>
-    <div id="urgentlist" class="evt-body">
-      <p>⭐️ Call Oakville host — upgrade to 12 spots + early check-in (Mani)</p>
-      <p>🚗 Book 2–3 black cars + ribbons for baraat — Glenwood Gurdwara 22 May</p>
-      <p>🚘 Book classic car + chauffeur for groom (Mani — Dad's ask)</p>
-      <p>🎧 DJ call tonight 7–8pm — lock package (Elite $6k → Standard $800)</p>
-      <p>👕 Dry cleaning — pickup by Monday (Mum)</p>
-      <p>📞 Chase RSVP — Suzi + Emmanuel + Nanke (no confirmation)</p>
-      <p>📦 White Diamond Palace courier — confirm arrived?</p>
-      <p>💐 Marquee status — confirm + lock in</p>
-      <p>🍬 Mithai 150kg — who orders/packs/stores? Lock by 12 May</p>
+    <div id="urgentlist" class="evt-body" onclick="event.stopPropagation()">
+      <p data-lp="urgent" data-lpid="oakville" data-lplabel="Call Oakville host — upgrade to 12 + early check-in">⭐️ Call Oakville host — upgrade to 12 spots + early check-in (Mani)</p>
+      <p data-lp="urgent" data-lpid="baraat-cars" data-lplabel="Book black cars + ribbons for baraat">🚗 Book 2–3 black cars + ribbons for baraat — Glenwood Gurdwara 22 May</p>
+      <p data-lp="urgent" data-lpid="classic-car" data-lplabel="Book classic car + chauffeur for groom">🚘 Book classic car + chauffeur for groom (Mani — Dad's ask)</p>
+      <p data-lp="urgent" data-lpid="dj-call" data-lplabel="DJ call — lock package">🎧 DJ call tonight 7–8pm — lock package (Elite $6k → Standard $800)</p>
+      <p data-lp="urgent" data-lpid="dry-cleaning" data-lplabel="Dry cleaning pickup">👕 Dry cleaning — pickup by Monday (Mum)</p>
+      <p data-lp="urgent" data-lpid="chase-rsvp" data-lplabel="Chase RSVP — Suzi/Emmanuel/Nanke">📞 Chase RSVP — Suzi + Emmanuel + Nanke (no confirmation)</p>
+      <p data-lp="urgent" data-lpid="white-diamond" data-lplabel="White Diamond Palace courier">📦 White Diamond Palace courier — confirm arrived?</p>
+      <p data-lp="urgent" data-lpid="marquee" data-lplabel="Marquee hire status">💐 Marquee status — confirm + lock in</p>
+      <p data-lp="urgent" data-lpid="mithai" data-lplabel="Mithai 150kg — owner / lock 12 May">🍬 Mithai 150kg — who orders/packs/stores? Lock by 12 May</p>
     </div>
   </div>
   <div class="stats">
-    <div class="stat" style="cursor:pointer" onclick="jumpTo('guests','all')"><div class="stat-n" id="s1">—</div><div class="stat-l">Guests</div></div>
-    <div class="stat" style="cursor:pointer" onclick="jumpTo('guests','Confirmed')"><div class="stat-n" id="s2">—</div><div class="stat-l">Yes</div></div>
-    <div class="stat" style="cursor:pointer" onclick="jumpTo('tasks','open')"><div class="stat-n" id="s3">—</div><div class="stat-l">Tasks</div></div>
-    <div class="stat" style="cursor:pointer" onclick="jumpTo('vendors','v')"><div class="stat-n" id="s4">—</div><div class="stat-l">Vendors</div></div>
+    <div class="stat" data-lp="stat" data-lpid="guests-total" data-lplabel="Total Guests" style="cursor:pointer" onclick="jumpTo('guests','all')"><div class="stat-n" id="s1">—</div><div class="stat-l">Guests</div></div>
+    <div class="stat" data-lp="stat" data-lpid="guests-yes" data-lplabel="Confirmed Guests" style="cursor:pointer" onclick="jumpTo('guests','Confirmed')"><div class="stat-n" id="s2">—</div><div class="stat-l">Yes</div></div>
+    <div class="stat" data-lp="stat" data-lpid="tasks-open" data-lplabel="Open Tasks" style="cursor:pointer" onclick="jumpTo('tasks','open')"><div class="stat-n" id="s3">—</div><div class="stat-l">Tasks</div></div>
+    <div class="stat" data-lp="stat" data-lpid="vendors" data-lplabel="Vendors" style="cursor:pointer" onclick="jumpTo('vendors','v')"><div class="stat-n" id="s4">—</div><div class="stat-l">Vendors</div></div>
+  </div>
+  <div class="card" data-lp="topic" data-lpid="mithai" data-lplabel="🍬 Mithai 150kg" style="background:#FFF4D4;border:2px solid #C4983A;cursor:pointer" onclick="quickSearch('mithai',null)">
+    <div style="display:flex;justify-content:space-between;align-items:center"><div style="font-size:14px;font-weight:700;color:#7A5500">🍬 Mithai 150kg — Status</div><span class="badge ba">Pending</span></div>
+    <div style="font-size:12px;color:#8A7968;margin-top:4px">No owner yet · Lock by 12 May · tap to see all related items · long-press to leave a note</div>
   </div>
   <div style="font-size:16px;font-weight:700;margin-bottom:8px">Events — tap to expand</div>
   <div id="evts"></div>
@@ -1133,7 +1139,9 @@ function setMV(f,btn){
 var TOPIC_ALIAS={
   transport:['transport','car','van','vehicle','baraat','flight','pickup','airport','sehrabandi','audi','bmw','ford','ranger','hiace','corvette','sixt','shota','chauffeur','classic car'],
   accommodation:['accommodation','accom','room','bed','motel','hotel','airbnb','bickhams','oakville','kimberley','penrith','marsden','clematis','slinky','altona','kandy','suni','select inn','blue haven','retreat','luxury','mattress'],
-  catering:['catering','food','mithai','meal','breakfast','lunch','dinner','grover','ajay','gurdwara catering','langar'],
+  catering:['catering','food','mithai','meal','breakfast','lunch','dinner','grover','ajay','gurdwara catering','langar','sweets','dessert'],
+  mithai:['mithai','sweets','150kg','dessert','barfi','ladoo','jalebi','gulab jamun'],
+  cake:['cake','wedding cake','dessert','tier'],
   clothing:['clothing','dress','suit','sherwani','outfit','dry clean','tailor','chunni'],
   decoration:['decoration','decor','flower','marquee','white diamond','khalsa','palace','tarun'],
   music:['music','dj','dhol','speaker','song','dance','first dance','entry song','elite','platinum','diamond','emerald'],
