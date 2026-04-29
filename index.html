@@ -129,6 +129,12 @@ label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5
 
 .vi-body{display:none;margin-top:8px;padding-top:8px;border-top:1px solid #E8DDD0}
 .vi-body.on{display:block}
+.gi,.ti,.vi,.evt,.card,.urgent,.log-item{box-shadow:0 1px 2px rgba(24,18,12,0.04);transition:box-shadow 0.15s,transform 0.05s;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
+.gi:active,.ti:active,.vi:active,.evt:active,.card:active{box-shadow:0 2px 6px rgba(24,18,12,0.10)}
+[data-lp]{position:relative}
+[data-lp]::after{content:'';position:absolute;top:6px;right:6px;width:4px;height:4px;border-radius:50%;background:#E8DDD0;opacity:0.6;pointer-events:none}
+.evt-body.on,.gi-body.on,.ti-body.on,.vi-body.on{animation:expand 0.18s ease-out}
+@keyframes expand{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
 .mic-btn{position:absolute;right:8px;bottom:8px;background:#C4983A;color:#fff;border:none;border-radius:50%;width:36px;height:36px;font-size:18px;cursor:pointer;line-height:36px;text-align:center;font-family:inherit;padding:0}
 .mic-btn.on{background:#8B2E2E}
 </style>
@@ -142,6 +148,7 @@ label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5
 
 <div id="pg-home" class="page on">
   <div style="height:12px"></div>
+  <div style="background:#FFF4D4;border-radius:10px;padding:8px 12px;margin-bottom:10px;font-size:12px;color:#7A5500;text-align:center">💡 <b>Long-press</b> any card to leave a note for Charlie</div>
   <div class="search"><span class="sico">🔍</span><input id="hsearch" placeholder="Search anything: transport, cake, oakville..." oninput="hSearch(this.value)"></div>
   <div class="chips" id="topicchips" style="margin-bottom:10px;overflow-x:auto;white-space:nowrap;-webkit-overflow-scrolling:touch">
     <button class="chip" onclick="quickSearch('transport',this)">🚗 Transport</button>
@@ -476,6 +483,24 @@ Love ❤️</div>
   </div>
 </div>
 
+<div class="modal" id="mln" onclick="if(event.target===this)closeM('mln')">
+  <div class="mbox">
+    <div class="mhandle"></div>
+    <div class="mtitle">💬 Quick Note</div>
+    <div id="mln-target" style="font-size:12px;color:#8A7968;margin-bottom:8px"></div>
+    <input type="hidden" id="mln-et"><input type="hidden" id="mln-eid"><input type="hidden" id="mln-elabel">
+    <label>Who's leaving this note?</label>
+    <select id="mln-from"><option>Mani</option><option>Mum</option><option>Dad</option><option>Amrit</option><option>Family member</option></select>
+    <label>Note (Charlie reads at 6pm)</label>
+    <div style="position:relative">
+      <textarea id="mln-text" rows="3" placeholder="Anything to fix, change, or note..." style="padding-right:50px"></textarea>
+      <button class="mic-btn" id="mln-mic" onclick="lnMic()">🎤</button>
+    </div>
+    <button class="btn btn-gold" onclick="saveLN()">💾 Save Note</button>
+    <button class="btn btn-ghost" onclick="closeM('mln')">Cancel</button>
+  </div>
+</div>
+
 <div class="modal" id="ml" onclick="if(event.target===this)closeM('ml')">
   <div class="mbox">
     <div class="mhandle"></div>
@@ -507,7 +532,7 @@ var gf='all',gsearch='',tf='open',vv='v',hv='q';
 // ---- SUPABASE ----
 var SB='https://pecvorberttcojnkdgpm.supabase.co';
 var SK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBlY3ZvcmJlcnR0Y29qbmtkZ3BtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzczNTY1NDcsImV4cCI6MjA5MjkzMjU0N30.E8k_S_qFzAwQfsfqw2yzMx7PxDk7UTsMsFd0eAB9zqk';
-var DB={g:[],t:[],v:[],l:[],dp:[],q:[],gc:[],fb:[]};
+var DB={g:[],t:[],v:[],l:[],dp:[],q:[],gc:[],fb:[],n:[]};
 var qf='open';
 
 function sbh(){return {'apikey':SK,'Authorization':'Bearer '+SK,'Content-Type':'application/json','Prefer':'return=representation'};}
@@ -515,7 +540,8 @@ function sbget(tbl,q){return fetch(SB+'/rest/v1/'+tbl+'?'+(q||'select=*'),{heade
 function sbpost(tbl,data){return fetch(SB+'/rest/v1/'+tbl,{method:'POST',headers:sbh(),body:JSON.stringify(data)}).then(function(r){return r.json();});}
 function sbpatch(tbl,id,data){return fetch(SB+'/rest/v1/'+tbl+'?id=eq.'+id,{method:'PATCH',headers:sbh(),body:JSON.stringify(data)});}
 
-function gMap(r){return {id:r.id,n:r.name,r:r.relation||'',c:r.headcount||1,rv:r.rsvp||'TBC',ac:r.accommodation||'TBC',tr:r.transport||'TBC',ev:r.events||{},nt:r.notes||'',mb:r.members||[]};}
+function gMap(r){return {id:r.id,n:r.name,r:r.relation||'',c:r.headcount||1,rv:r.rsvp||'TBC',ac:r.accommodation||'TBC',tr:r.transport||'TBC',ev:r.events||{},nt:r.notes||'',mb:r.members||[],fi:r.flight_in||''};}
+function nMap(r){return {id:r.id,et:r.entity_type,eid:r.entity_id,el:r.entity_label||'',f:r.from_person||'',t:r.content,p:!!r.processed,dt:r.created_at?new Date(r.created_at).toLocaleString('en-AU',{dateStyle:'short',timeStyle:'short'}):''};}
 function qMap(r){return {id:r.id,q:r.question,a:r.answer||'',ab:r.answered_by||'',s:r.status||'open',c:r.category||'',dt:r.created_at?new Date(r.created_at).toLocaleDateString('en-AU'):''};}
 function gcMap(r){return {id:r.id,gid:r.guest_id,f:r.from_person||'',t:r.content,p:!!r.processed,dt:r.created_at?new Date(r.created_at).toLocaleString('en-AU',{dateStyle:'short',timeStyle:'short'}):''};}
 function fbMap(r){return {id:r.id,f:r.from_person||'',ft:r.feedback_type||'',t:r.content,s:r.status||'open',dt:r.created_at?new Date(r.created_at).toLocaleString('en-AU',{dateStyle:'short',timeStyle:'short'}):''};}
@@ -528,7 +554,7 @@ function ld(k){return DB[k]||[];}
 
 function loadAll(){
   var n=0;
-  function check(){n++;if(n===8){renderCD();setInterval(renderCD,60000);renderHome();renderGuests();renderTasks();renderVendors();renderLogs();renderDumps();renderQ();renderFB();}}
+  function check(){n++;if(n===9){renderCD();setInterval(renderCD,60000);renderHome();renderGuests();renderTasks();renderVendors();renderLogs();renderDumps();renderQ();renderFB();}}
   sbget('guests','select=*&order=created_at.asc').then(function(r){DB.g=Array.isArray(r)?r.map(gMap):[];check();}).catch(function(){check();});
   sbget('tasks','select=*&order=created_at.asc').then(function(r){DB.t=Array.isArray(r)?r.map(tMap):[];check();}).catch(function(){check();});
   sbget('vendors','select=*&order=created_at.asc').then(function(r){DB.v=Array.isArray(r)?r.map(vMap):[];check();}).catch(function(){check();});
@@ -537,35 +563,36 @@ function loadAll(){
   sbget('questions','select=*&order=created_at.desc').then(function(r){DB.q=Array.isArray(r)?r.map(qMap):[];check();}).catch(function(){check();});
   sbget('guest_comments','select=*&order=created_at.desc').then(function(r){DB.gc=Array.isArray(r)?r.map(gcMap):[];check();}).catch(function(){check();});
   sbget('site_feedback','select=*&order=created_at.desc').then(function(r){DB.fb=Array.isArray(r)?r.map(fbMap):[];check();}).catch(function(){check();});
+  sbget('notes','select=*&order=created_at.desc').then(function(r){DB.n=Array.isArray(r)?r.map(nMap):[];check();}).catch(function(){check();});
 }
 
 // EVENTS DATA
 var EVTS=[
-  {id:'paath',n:'Sukhmani Paath',dt:'Sat 16 May • 12:00–3:00pm',loc:'Bickhams Left Unit, St Kilda East VIC',h:'~81',
+  {id:'paath',n:'Sukhmani Paath',dt:'Sat 16 May',time:'12:00–3:00pm',loc:'Bickhams Left Unit, St Kilda East VIC',h:'~81',
    tr:'Own cars. Neighbours walking. Invite 7,6,9 Bickhams Ct.',
    ac:'Core family Bickhams. Local Melbourne guests own homes.',
    nt:'⚠️ Confirm 100 sit cross-legged. Chairs + floor mix.'},
-  {id:'maiyan',n:'Maiyan / Vatna',dt:'Mon 18 May • 11:00am',loc:'Bickhams Right Unit, St Kilda East VIC',h:'~46',
+  {id:'maiyan',n:'Maiyan / Vatna',dt:'Mon 18 May',time:'11:00am',loc:'Bickhams Right Unit, St Kilda East VIC',h:'~46',
    tr:'Own cars. House help starts today.',
    ac:'Core family Bickhams both units. Overseas guests arriving — Kimberley Hotel from now.',
    nt:'⚠️ Use both units + decking.'},
-  {id:'mehndi',n:'Mehndi',dt:'Tue 19 May • Morning → Depart Sydney 9pm',loc:'Bickhams VIC',h:'~28',
+  {id:'mehndi',n:'Mehndi',dt:'Tue 19 May',time:'Morning → Depart Sydney 9pm',loc:'Bickhams VIC',h:'~28',
    tr:'Depart Sydney 9pm. Van (Shota). Pack food + water.',
    ac:'Last night Bickhams. Overseas move to Oakville/Kimberley.',
    nt:'⚠️ Pack everything for Sydney tonight.'},
-  {id:'jaggo',n:'Jaggo',dt:'Wed 20 May • 6:00pm',loc:'Londonderry NSW — Khera family hosts',h:'~53',
+  {id:'jaggo',n:'Jaggo',dt:'Wed 20 May',time:'6:00pm',loc:'Londonderry NSW — Khera family hosts',h:'~53',
    tr:'Arrive Sydney morning. Van from Melbourne. Sydney guests own cars.',
    ac:'Oakville (core). Kimberley (overseas). Penrith (overflow). ⚠️ Canada + NZ Airbnb needed.',
    nt:'⚠️ Chaj + matke confirmed. Baraat cars for tomorrow being arranged.'},
-  {id:'wedding',n:'✨ Anand Karaj — The Wedding',dt:'Fri 22 May • 9:00am',loc:'Glenwood Gurdwara NSW ✅',h:'~52',
-   tr:'⚠️ 2–3 BLACK cars + ribbons NOT BOOKED. Sehrabandi 7am. Return transport needed.',
+  {id:'wedding',n:'✨ Anand Karaj — The Wedding',dt:'Fri 22 May',time:'9:00am · Sehrabandi 7am',loc:'Glenwood Gurdwara NSW ✅',h:'~52',
+   tr:'⚠️ 2–3 BLACK cars + ribbons NOT BOOKED. Return transport needed.',
    ac:'Oakville (core + friends). Kimberley (overseas). Milni list needed.',
    nt:'2hr photoshoot after. Pani warna Oakville evening. Ribbon-cutting for camera.'},
-  {id:'reception',n:'Reception',dt:'Sun 24 May • 6:00pm',loc:'Ultima Function Centre VIC',h:'~200',
+  {id:'reception',n:'Reception',dt:'Sun 24 May',time:'6:00pm',loc:'Ultima Function Centre VIC',h:'~200',
    tr:'After: Audi + 2 BMWs + vans. Drops: Bickhams, Altona, Slinky, Kandy, Suni. Elders FIRST.',
    ac:'Bickhams (elders), Altona North, Slinky (10-13 mattresses), Kandy, Suni.',
    nt:'⚠️ DJ call tonight. Wedding cake not booked. Seating plan not started. MC not confirmed.'},
-  {id:'muklawa',n:'Muklawa',dt:'Mon 25 May • TBC',loc:'Bickhams VIC',h:'~70',
+  {id:'muklawa',n:'Muklawa',dt:'Mon 25 May',time:'TBC',loc:'Bickhams VIC',h:'~70',
    tr:'Own cars. Local Melbourne guests.',
    ac:'Bickhams (family). Local guests own homes.',
    nt:'Post-wedding event. Details TBC.'},
@@ -589,7 +616,9 @@ function renderHome(){
   document.getElementById('evts').innerHTML=EVTS.map(function(e){
     var att=gs.filter(function(g){return g.ev&&g.ev[e.id]===1;});
     var heads=att.reduce(function(s,g){return s+(g.c||1);},0)||e.h;
-    return '<div class="evt"><div style="display:flex;justify-content:space-between;align-items:center" onclick="toggleEvt(\''+e.id+'\')"><div><div class="evt-name">'+e.n+'</div><div class="evt-date">'+e.dt+'</div></div><span class="heads">'+heads+'</span></div><div class="evt-body" id="eb-'+e.id+'"><div class="erow"><b>📍 Where</b><span>'+e.loc+'</span></div><div class="erow"><b>🚗 Transport</b><span>'+e.tr+'</span></div><div class="erow"><b>🛏️ Accom</b><span>'+e.ac+'</span></div><div style="color:#7A5500;font-size:12px;margin-top:4px">'+e.nt+'</div><div style="margin-top:8px;font-size:12px;font-weight:700;color:#8A7968">Attending ('+heads+' people)</div>'+att.slice(0,6).map(function(g){return '<div style="font-size:12px;padding:3px 0;border-bottom:1px solid #E8DDD0">'+g.n+' <span style="color:#8A7968">('+g.c+')</span></div>';}).join('')+(att.length>6?'<div style="font-size:11px;color:#8A7968">+'+(att.length-6)+' more</div>':'')+'</div></div>';
+    var notAtt=gs.filter(function(g){return g.rv!=='Declined'&&g.ev&&g.ev[e.id]===0;});
+    var unsetCount=gs.filter(function(g){return g.rv!=='Declined'&&(!g.ev||g.ev[e.id]===undefined);}).length;
+    return '<div class="evt" data-lp="event" data-lpid="'+e.id+'" data-lplabel="'+e.n.replace(/"/g,'&quot;')+'"><div style="display:flex;justify-content:space-between;align-items:center" onclick="toggleEvt(\''+e.id+'\')"><div><div class="evt-name">'+e.n+'</div><div class="evt-date">'+e.dt+'</div></div><span class="heads">'+heads+'</span></div><div class="evt-body" id="eb-'+e.id+'"><div class="erow"><b>🕐 Time</b><span>'+(e.time||'TBC')+'</span></div><div class="erow"><b>📍 Where</b><span>'+e.loc+'</span></div><div class="erow"><b>🚗 Transport</b><span>'+e.tr+'</span></div><div class="erow"><b>🛏️ Accom</b><span>'+e.ac+'</span></div><div style="color:#7A5500;font-size:12px;margin-top:4px">'+e.nt+'</div><div style="margin-top:8px;font-size:12px;font-weight:700;color:#2E6B3E">✅ Attending ('+att.length+' groups)</div>'+att.slice(0,8).map(function(g){return '<div style="font-size:12px;padding:3px 0;border-bottom:1px solid #E8DDD0">'+g.n+' <span style="color:#8A7968">('+g.c+')</span></div>';}).join('')+(att.length>8?'<div style="font-size:11px;color:#8A7968">+'+(att.length-8)+' more</div>':'')+(notAtt.length?'<div style="margin-top:8px;font-size:12px;font-weight:700;color:#8B2E2E">❌ Not Attending ('+notAtt.length+')</div>'+notAtt.slice(0,8).map(function(g){return '<div style="font-size:12px;padding:3px 0;border-bottom:1px solid #E8DDD0;color:#8A7968">'+g.n+'</div>';}).join('')+(notAtt.length>8?'<div style="font-size:11px;color:#8A7968">+'+(notAtt.length-8)+' more</div>':''):'')+(unsetCount?'<div style="margin-top:8px;font-size:12px;font-weight:700;color:#7A5500">❓ Unset ('+unsetCount+' groups — not yet asked)</div>':'')+'</div></div>';
   }).join('');
 }
 
@@ -621,9 +650,11 @@ function renderGuests(){
       var coms=(DB.gc||[]).filter(function(c){return c.gid===g.id;});
       var comBadge=coms.length?'<span class="badge bgold" style="margin-left:4px">💬 '+coms.length+'</span>':'';
       var comList=coms.length?'<div style="margin-top:8px;border-top:1px dashed #E8DDD0;padding-top:8px">'+coms.map(function(c){return '<div style="background:#FFF4D4;border-radius:8px;padding:6px 8px;margin-bottom:4px;font-size:12px"><b style="color:#7A5500">'+c.f+':</b> '+c.t+'<div style="font-size:10px;color:#8A7968;margin-top:2px">'+c.dt+(c.p?' · ✓ processed':'')+'</div></div>';}).join('')+'</div>':'';
-      var detail='<div style="font-size:12px;color:#8A7968;margin-bottom:6px">'+(g.c>1?'👥 '+g.c+' ppl':'1 person')+(g.tr&&g.tr!=='TBC'?' · 🚗 '+g.tr:'')+(g.ac&&g.ac!=='TBC'?' · 🏨 '+g.ac:'')+'</div>';
+      var fiLabel=g.fi==='MEL'?'✈️MEL':g.fi==='SYD'?'✈️SYD':'✈️ flight in?';
+      var detail='<div style="font-size:12px;color:#8A7968;margin-bottom:6px">'+(g.c>1?'👥 '+g.c+' ppl':'1 person')+(g.tr&&g.tr!=='TBC'?' · 🚗 '+g.tr:'')+(g.ac&&g.ac!=='TBC'?' · 🏨 '+g.ac:'')+' · <a onclick="event.stopPropagation();updFI(\''+g.id+'\')" style="color:#C4983A;cursor:pointer;font-weight:700">'+fiLabel+'</a></div>';
       var mem=(g.mb&&g.mb.length)?'<div style="font-size:12px;color:#8A6318;margin-bottom:6px">👥 '+g.mb.join(' · ')+'</div>':'';
-      return '<div class="gi"><div style="display:flex;justify-content:space-between;align-items:center" onclick="toggleG(\''+g.id+'\')"><div style="flex:1"><div class="gi-name">'+g.n+comBadge+'</div></div><span class="badge '+(rb[g.rv]||'ba')+'">'+g.rv+'</span></div><div class="gi-body" id="gb-'+g.id+'">'+detail+mem+'<div style="font-size:11px;color:#8A7968;margin-bottom:4px">Tap an event to toggle attending</div><div class="egrid">'+EK.map(function(e){var v=g.ev&&g.ev[e];return '<div class="ec '+(v===1?'ey':v===0?'en':'et')+'" style="cursor:pointer" onclick="event.stopPropagation();togEv(\''+g.id+'\',\''+e+'\')">'+EL[e]+'</div>';}).join('')+'</div>'+(g.nt?'<div style="font-size:12px;color:#8A7968;margin-top:6px;font-style:italic">'+g.nt+'</div>':'')+'<div class="rbx"><button class="rgy" onclick="event.stopPropagation();updRSVP(\''+g.id+'\',\'Confirmed\')">✓ Yes</button><button class="rga" onclick="event.stopPropagation();updRSVP(\''+g.id+'\',\'TBC\')">? TBC</button><button class="rgn" onclick="event.stopPropagation();updRSVP(\''+g.id+'\',\'Declined\')">✗ No</button></div>'+comList+'<div style="margin-top:8px;border-top:1px dashed #E8DDD0;padding-top:8px"><label style="margin-top:0">💬 Add note about this guest</label><select id="cf-'+g.id+'" onclick="event.stopPropagation()" style="margin-bottom:4px"><option>Mani</option><option>Mum</option><option>Dad</option><option>Amrit</option><option>Family member</option></select><div style="position:relative" onclick="event.stopPropagation()"><textarea id="ct-'+g.id+'" rows="2" placeholder="e.g. Grover wants to be picked up..." style="padding-right:50px"></textarea><button class="mic-btn" id="cm-'+g.id+'" onclick="event.stopPropagation();cMic(\''+g.id+'\')">🎤</button></div><button class="btn btn-gold" onclick="event.stopPropagation();addCom(\''+g.id+'\')" style="margin-top:6px">+ Add Note</button></div></div></div>';
+      var flightBadge=g.fi==='MEL'?'<span style="font-size:11px;color:#1C4D7A;font-weight:700;margin-left:6px">✈️MEL</span>':g.fi==='SYD'?'<span style="font-size:11px;color:#7A5500;font-weight:700;margin-left:6px">✈️SYD</span>':'';
+      return '<div class="gi" data-lp="guest" data-lpid="'+g.id+'" data-lplabel="'+g.n.replace(/"/g,'&quot;')+'"><div style="display:flex;justify-content:space-between;align-items:center" onclick="toggleG(\''+g.id+'\')"><div style="flex:1"><div class="gi-name">'+g.n+flightBadge+comBadge+'</div></div><span class="badge '+(rb[g.rv]||'ba')+'">'+g.rv+'</span></div><div class="gi-body" id="gb-'+g.id+'">'+detail+mem+'<div style="font-size:11px;color:#8A7968;margin-bottom:4px">Tap an event to toggle attending</div><div class="egrid">'+EK.map(function(e){var v=g.ev&&g.ev[e];return '<div class="ec '+(v===1?'ey':v===0?'en':'et')+'" style="cursor:pointer" onclick="event.stopPropagation();togEv(\''+g.id+'\',\''+e+'\')">'+EL[e]+'</div>';}).join('')+'</div>'+(g.nt?'<div style="font-size:12px;color:#8A7968;margin-top:6px;font-style:italic">'+g.nt+'</div>':'')+'<div class="rbx"><button class="rgy" onclick="event.stopPropagation();updRSVP(\''+g.id+'\',\'Confirmed\')">✓ Yes</button><button class="rga" onclick="event.stopPropagation();updRSVP(\''+g.id+'\',\'TBC\')">? TBC</button><button class="rgn" onclick="event.stopPropagation();updRSVP(\''+g.id+'\',\'Declined\')">✗ No</button></div>'+comList+'<div style="margin-top:8px;border-top:1px dashed #E8DDD0;padding-top:8px"><label style="margin-top:0">💬 Add note about this guest</label><select id="cf-'+g.id+'" onclick="event.stopPropagation()" style="margin-bottom:4px"><option>Mani</option><option>Mum</option><option>Dad</option><option>Amrit</option><option>Family member</option></select><div style="position:relative" onclick="event.stopPropagation()"><textarea id="ct-'+g.id+'" rows="2" placeholder="e.g. Grover wants to be picked up..." style="padding-right:50px"></textarea><button class="mic-btn" id="cm-'+g.id+'" onclick="event.stopPropagation();cMic(\''+g.id+'\')">🎤</button></div><button class="btn btn-gold" onclick="event.stopPropagation();addCom(\''+g.id+'\')" style="margin-top:6px">+ Add Note</button></div></div></div>';
     }).join('');
   }).join('');
 }
@@ -679,7 +710,7 @@ function renderTasks(){
   var sl={todo:'To Do',inprogress:'In Progress',blocked:'Blocked',done:'Done ✓'};
   el.innerHTML=ts.map(function(t){
     var pdot=t.p==='urgent'?'🔴':t.p==='soon'?'🟡':'🟢';
-    return '<div class="ti '+t.p+' '+(t.s==='done'?'done':'')+'" onclick="toggleT(\''+t.id+'\')"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><div class="ti-desc">'+pdot+' '+t.d+'</div><span class="badge '+(t.s==='done'?'bg':t.p==='urgent'?'br':'ba')+'" style="flex-shrink:0">'+(sl[t.s]||t.s)+'</span></div><div class="ti-body" id="tb-'+t.id+'"><div style="font-size:12px;color:#8A7968;margin-bottom:6px">'+(t.a?'👤 '+t.a:'No owner')+(t.du?' · 📅 '+new Date(t.du+'T00:00:00').toLocaleDateString('en-AU'):'')+'</div>'+(t.n?'<div style="font-size:12px;color:#8A7968;margin-bottom:8px;font-style:italic">'+t.n+'</div>':'')+'<div class="tbx">'+(t.s!=='done'?'<button class="btn-sm btn-done" onclick="event.stopPropagation();setTS(\''+t.id+'\',\'done\')">✓ Done</button>':'')+(t.s==='todo'?'<button class="btn-sm btn-prog" onclick="event.stopPropagation();setTS(\''+t.id+'\',\'inprogress\')">▶ In Progress</button>':'')+'<button class="btn-sm btn-edit" onclick="event.stopPropagation();editT(\''+t.id+'\')">✏️ Edit</button></div></div></div>';
+    return '<div class="ti '+t.p+' '+(t.s==='done'?'done':'')+'" data-lp="task" data-lpid="'+t.id+'" data-lplabel="'+t.d.replace(/"/g,'&quot;').substring(0,60)+'" onclick="toggleT(\''+t.id+'\')"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><div class="ti-desc">'+pdot+' '+t.d+'</div><span class="badge '+(t.s==='done'?'bg':t.p==='urgent'?'br':'ba')+'" style="flex-shrink:0">'+(sl[t.s]||t.s)+'</span></div><div class="ti-body" id="tb-'+t.id+'"><div style="font-size:12px;color:#8A7968;margin-bottom:6px">'+(t.a?'👤 '+t.a:'No owner')+(t.du?' · 📅 '+new Date(t.du+'T00:00:00').toLocaleDateString('en-AU'):'')+'</div>'+(t.n?'<div style="font-size:12px;color:#8A7968;margin-bottom:8px;font-style:italic">'+t.n+'</div>':'')+'<div class="tbx">'+(t.s!=='done'?'<button class="btn-sm btn-done" onclick="event.stopPropagation();setTS(\''+t.id+'\',\'done\')">✓ Done</button>':'')+(t.s==='todo'?'<button class="btn-sm btn-prog" onclick="event.stopPropagation();setTS(\''+t.id+'\',\'inprogress\')">▶ In Progress</button>':'')+'<button class="btn-sm btn-edit" onclick="event.stopPropagation();editT(\''+t.id+'\')">✏️ Edit</button></div></div></div>';
   }).join('');
 }
 
@@ -743,7 +774,7 @@ function renderVendors(){
   var sb={Confirmed:'bg',Pending:'ba',Enquiring:'bgold',Cancelled:'br'};
   document.getElementById('vlist').innerHTML=Object.keys(groups).map(function(cat){
     return '<div class="div">'+cat+'</div>'+groups[cat].map(function(v){
-      return '<div class="vi" style="cursor:pointer" onclick="toggleV(\''+v.id+'\')"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><div style="font-size:14px;font-weight:600;flex:1">'+v.n+'</div><div style="text-align:right;flex-shrink:0"><span class="badge '+(sb[v.s]||'ba')+'">'+v.s+'</span>'+(v.co?'<div style="font-size:16px;font-weight:700;color:#8A6318;margin-top:2px">$'+Number(v.co).toLocaleString()+'</div>':'')+'</div></div><div class="vi-body" id="vb-'+v.id+'">'+(v.ct?'<div style="font-size:12px;color:#8A7968;margin-top:2px">📱 '+v.ct+'</div>':'')+(v.nt?'<div style="font-size:12px;color:#8A7968;margin-top:4px;font-style:italic;line-height:1.4">'+v.nt+'</div>':'')+'</div></div>';
+      return '<div class="vi" data-lp="vendor" data-lpid="'+v.id+'" data-lplabel="'+v.n.replace(/"/g,'&quot;')+'" style="cursor:pointer" onclick="toggleV(\''+v.id+'\')"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><div style="font-size:14px;font-weight:600;flex:1">'+v.n+'</div><div style="text-align:right;flex-shrink:0"><span class="badge '+(sb[v.s]||'ba')+'">'+v.s+'</span>'+(v.co?'<div style="font-size:16px;font-weight:700;color:#8A6318;margin-top:2px">$'+Number(v.co).toLocaleString()+'</div>':'')+'</div></div><div class="vi-body" id="vb-'+v.id+'">'+(v.ct?'<div style="font-size:12px;color:#8A7968;margin-top:2px">📱 '+v.ct+'</div>':'')+(v.nt?'<div style="font-size:12px;color:#8A7968;margin-top:4px;font-style:italic;line-height:1.4">'+v.nt+'</div>':'')+'</div></div>';
     }).join('');
   }).join('');
 }
@@ -966,6 +997,67 @@ function goPage(name,el){
   if(name==='tasks')renderTasks();
   if(name==='vendors'){renderVendors();renderLogs();}
   if(name==='hub'){renderDumps();renderQ();}
+}
+
+// LONG-PRESS NOTES — works on any element with data-lp / data-lpid / data-lplabel
+var lpTimer=null,lpTriggered=false;
+function lpStart(e){
+  var t=e.target;while(t&&!t.getAttribute('data-lp'))t=t.parentElement;
+  if(!t)return;
+  lpTriggered=false;
+  lpTimer=setTimeout(function(){
+    lpTriggered=true;
+    if(navigator.vibrate)try{navigator.vibrate(20);}catch(_){}
+    openLN(t.getAttribute('data-lp'),t.getAttribute('data-lpid'),t.getAttribute('data-lplabel'));
+  },550);
+}
+function lpEnd(){if(lpTimer){clearTimeout(lpTimer);lpTimer=null;}}
+document.addEventListener('touchstart',lpStart,{passive:true});
+document.addEventListener('touchend',lpEnd);
+document.addEventListener('touchmove',lpEnd);
+document.addEventListener('mousedown',lpStart);
+document.addEventListener('mouseup',lpEnd);
+document.addEventListener('mouseleave',lpEnd);
+document.addEventListener('click',function(e){if(lpTriggered){e.stopPropagation();e.preventDefault();lpTriggered=false;}},true);
+document.addEventListener('contextmenu',function(e){var t=e.target;while(t&&!t.getAttribute('data-lp'))t=t.parentElement;if(t)e.preventDefault();});
+
+function openLN(et,eid,elabel){
+  document.getElementById('mln-et').value=et;
+  document.getElementById('mln-eid').value=eid;
+  document.getElementById('mln-elabel').value=elabel||'';
+  document.getElementById('mln-text').value='';
+  document.getElementById('mln-target').textContent='Note about: '+et+' → '+elabel;
+  openM('mln');
+}
+
+function saveLN(){
+  var t=document.getElementById('mln-text').value.trim();if(!t){toast('Type or speak a note');return;}
+  var row={entity_type:document.getElementById('mln-et').value,entity_id:document.getElementById('mln-eid').value,entity_label:document.getElementById('mln-elabel').value,from_person:document.getElementById('mln-from').value,content:t};
+  sbpost('notes',row).then(function(rows){if(rows&&rows[0])DB.n.unshift(nMap(rows[0]));});
+  closeM('mln');toast('Saved — Charlie processes at 6pm ✦');
+}
+
+var lnMicRec=null,lnMicOn=false;
+function lnMic(){
+  if(!window.SpeechRecognition&&!window.webkitSpeechRecognition){toast('Voice not supported');return;}
+  if(lnMicOn){if(lnMicRec)lnMicRec.stop();return;}
+  var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  lnMicRec=new SR();lnMicRec.continuous=true;lnMicRec.interimResults=false;lnMicRec.lang='en-AU';
+  lnMicRec.onresult=function(e){var txt='';for(var i=e.resultIndex;i<e.results.length;i++){if(e.results[i].isFinal)txt+=e.results[i][0].transcript+' ';}var ta=document.getElementById('mln-text');ta.value=(ta.value?ta.value+' ':'')+txt.trim();};
+  lnMicRec.onstart=function(){lnMicOn=true;var b=document.getElementById('mln-mic');if(b){b.textContent='⏹️';b.classList.add('on');}toast('Listening…');};
+  lnMicRec.onend=function(){lnMicOn=false;var b=document.getElementById('mln-mic');if(b){b.textContent='🎤';b.classList.remove('on');}};
+  lnMicRec.onerror=function(e){toast('Mic: '+e.error);lnMicOn=false;var b=document.getElementById('mln-mic');if(b){b.textContent='🎤';b.classList.remove('on');}};
+  lnMicRec.start();
+}
+
+// FLIGHT-IN cycle: blank → MEL → SYD → blank
+function updFI(gid){
+  var g=DB.g.filter(function(x){return x.id===gid;})[0];if(!g)return;
+  var next=g.fi==='MEL'?'SYD':g.fi==='SYD'?'':'MEL';
+  DB.g=DB.g.map(function(x){return x.id===gid?Object.assign({},x,{fi:next}):x;});
+  renderGuests();toast('Flight in: '+(next||'cleared'));
+  sbpatch('guests',gid,{flight_in:next||null});
+  setTimeout(function(){var b=document.getElementById('gb-'+gid);if(b)b.classList.add('on');},10);
 }
 
 // MAP — Leaflet + OpenStreetMap
