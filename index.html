@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Mani + Navi Wedding Hub</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin="" defer></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:#FAF7F2;color:#18120C;max-width:480px;margin:0 auto;padding-bottom:80px}
@@ -206,10 +208,11 @@ label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5
 <div id="pg-vendors" class="page">
   <div style="height:12px"></div>
   <div style="font-size:20px;font-weight:700;margin-bottom:8px">Vendors & More</div>
-  <div class="chips">
+  <div class="chips" id="vv-tabs">
     <button class="chip on" onclick="setVV('v',this)">Vendors</button>
     <button class="chip" onclick="setVV('log',this)">📖 Decisions</button>
     <button class="chip" onclick="setVV('accom',this)">🛏️ Rooms</button>
+    <button class="chip" onclick="setVV('map',this)">🗺️ Map</button>
   </div>
   <div id="vv-v">
     <div id="vlist"></div>
@@ -218,6 +221,16 @@ label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5
   <div id="vv-log" style="display:none">
     <div id="llist"></div>
     <button class="btn btn-gold" onclick="openM('ml')">+ Log Decision</button>
+  </div>
+  <div id="vv-map" style="display:none">
+    <div class="chips" id="mv-tabs" style="margin-bottom:8px">
+      <button class="chip on" onclick="setMV('all',this)">All</button>
+      <button class="chip" onclick="setMV('event',this)">📅 Events</button>
+      <button class="chip" onclick="setMV('accom',this)">🏨 Accommodation</button>
+    </div>
+    <div id="leafmap" style="height:420px;border-radius:12px;overflow:hidden;border:1px solid #E8DDD0;background:#f0ede8"></div>
+    <div style="font-size:11px;color:#8A7968;margin-top:6px;text-align:center">Tap any pin for details + Google Maps link</div>
+    <div id="mapfallback"></div>
   </div>
   <div id="vv-accom" style="display:none">
     <div class="urgent" style="background:#E6EFF8;border-color:#1C4D7A">
@@ -706,10 +719,12 @@ function resetTF(){
 }
 
 // VENDORS
-function setVV(v,el){vv=v;document.querySelectorAll('#pg-vendors .chip').forEach(function(c){c.classList.remove('on');});el.classList.add('on');
+function setVV(v,el){vv=v;document.querySelectorAll('#vv-tabs .chip').forEach(function(c){c.classList.remove('on');});el.classList.add('on');
   document.getElementById('vv-v').style.display=v==='v'?'block':'none';
   document.getElementById('vv-log').style.display=v==='log'?'block':'none';
-  document.getElementById('vv-accom').style.display=v==='accom'?'block':'none';}
+  document.getElementById('vv-accom').style.display=v==='accom'?'block':'none';
+  document.getElementById('vv-map').style.display=v==='map'?'block':'none';
+  if(v==='map')setTimeout(initMap,100);}
 
 function renderVendors(){
   var vs=ld('v');
@@ -940,6 +955,63 @@ function goPage(name,el){
   if(name==='tasks')renderTasks();
   if(name==='vendors'){renderVendors();renderLogs();}
   if(name==='hub'){renderDumps();renderQ();}
+}
+
+// MAP — Leaflet + OpenStreetMap
+var VENUES=[
+  {type:'event',name:'Sukhmani Paath',lat:-37.864,lng:145.001,date:'Sat 16 May',addr:'Bickhams Ct, St Kilda East VIC'},
+  {type:'event',name:'Maiyan / Vatna',lat:-37.864,lng:145.001,date:'Mon 18 May',addr:'Bickhams Ct, St Kilda East VIC'},
+  {type:'event',name:'Mehndi',lat:-37.864,lng:145.001,date:'Tue 19 May',addr:'Bickhams Ct, St Kilda East VIC'},
+  {type:'event',name:'Jaggo',lat:-33.700,lng:150.770,date:'Wed 20 May',addr:'Londonderry NSW'},
+  {type:'event',name:'✨ Anand Karaj',lat:-33.7548,lng:150.9290,date:'Fri 22 May',addr:'Glenwood Gurdwara, Glenwood NSW',star:true},
+  {type:'event',name:'Reception',lat:-37.7060,lng:145.0690,date:'Sun 24 May',addr:'Ultima Function Centre, Bundoora VIC'},
+  {type:'event',name:'Muklawa',lat:-37.864,lng:145.001,date:'Mon 25 May',addr:'Bickhams Ct, St Kilda East VIC'},
+  {type:'accom',name:'Bickhams (Both Units)',lat:-37.864,lng:145.001,beds:'10+',addr:'Bickhams Ct, St Kilda East VIC'},
+  {type:'accom',name:'Oakville Airbnb',lat:-33.629,lng:150.875,beds:'8-12 (upgrading to 12)',addr:'Oakville NSW'},
+  {type:'accom',name:'Kimberley Hotel',lat:-33.751,lng:150.694,beds:'12 rooms',addr:'Sydney NSW'},
+  {type:'accom',name:'Select Inn Penrith',lat:-33.7506,lng:150.6940,beds:'12 rooms',addr:'Penrith NSW'},
+  {type:'accom',name:'Marsden Park Buffer',lat:-33.696,lng:150.802,beds:'1-2 BR (emergency)',addr:'Marsden Park NSW'},
+  {type:'accom',name:'Altona North',lat:-37.823,lng:144.836,beds:'TBC',addr:'Altona North VIC'},
+  {type:'accom',name:'Clematis (UK family)',lat:-37.969,lng:145.435,beds:'TBC',addr:'Clematis VIC'}
+];
+
+var lmap=null,lmarkers=[];
+function initMap(){
+  if(typeof L==='undefined'){
+    document.getElementById('mapfallback').innerHTML='<div class="card" style="margin-top:10px"><div style="font-size:13px;font-weight:700;margin-bottom:8px">Map library still loading… or blocked by network. List view:</div>'+VENUES.map(function(v){return '<div class="accom-row"><span>'+(v.type==='event'?'📅':'🏨')+' '+v.name+'</span><a href="https://maps.google.com/?q='+encodeURIComponent(v.addr)+'" target="_blank" style="color:#C4983A;text-decoration:none;font-weight:700">Open Maps →</a></div>';}).join('')+'</div>';
+    setTimeout(initMap,800);return;
+  }
+  if(lmap){setTimeout(function(){lmap.invalidateSize();},50);return;}
+  try{
+    lmap=L.map('leafmap').setView([-35.5,148],5);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18,attribution:'© OpenStreetMap'}).addTo(lmap);
+    drawMarkers('all');
+    setTimeout(function(){lmap.invalidateSize();},100);
+  }catch(e){
+    document.getElementById('leafmap').innerHTML='<div style="padding:30px;text-align:center;color:#8A7968">Map failed to load. Tap pins below for Google Maps.</div>';
+  }
+}
+
+function drawMarkers(filter){
+  if(!lmap)return;
+  lmarkers.forEach(function(m){lmap.removeLayer(m);});lmarkers=[];
+  VENUES.filter(function(v){return filter==='all'||v.type===filter;}).forEach(function(v){
+    var icon=v.type==='event'?'📅':'🏨';if(v.star)icon='✨';
+    var m=L.marker([v.lat,v.lng]).addTo(lmap);
+    var p='<div style="font-size:13px"><b>'+icon+' '+v.name+'</b><br>';
+    if(v.date)p+=v.date+'<br>';
+    if(v.beds)p+='🛏️ '+v.beds+'<br>';
+    p+='<small style="color:#8A7968">'+v.addr+'</small><br>';
+    p+='<a href="https://maps.google.com/?q='+encodeURIComponent(v.addr)+'" target="_blank" style="color:#C4983A;font-weight:700">Open in Maps →</a></div>';
+    m.bindPopup(p);lmarkers.push(m);
+  });
+  if(lmarkers.length){var grp=L.featureGroup(lmarkers);lmap.fitBounds(grp.getBounds().pad(0.2));}
+}
+
+function setMV(f,btn){
+  document.querySelectorAll('#mv-tabs .chip').forEach(function(c){c.classList.remove('on');});
+  if(btn)btn.classList.add('on');
+  drawMarkers(f);
 }
 
 // HOME SEARCH — aggregates across tasks, vendors, decisions, guests, questions, dumps, comments
