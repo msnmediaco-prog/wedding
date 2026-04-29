@@ -140,7 +140,19 @@ label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5
 
 <div id="pg-home" class="page on">
   <div style="height:12px"></div>
-  <div class="urgent">
+  <div class="search"><span class="sico">🔍</span><input id="hsearch" placeholder="Search anything: transport, cake, oakville..." oninput="hSearch(this.value)"></div>
+  <div class="chips" id="topicchips" style="margin-bottom:10px;overflow-x:auto;white-space:nowrap;-webkit-overflow-scrolling:touch">
+    <button class="chip" onclick="quickSearch('transport',this)">🚗 Transport</button>
+    <button class="chip" onclick="quickSearch('accommodation',this)">🏨 Accommodation</button>
+    <button class="chip" onclick="quickSearch('catering',this)">🍽️ Catering</button>
+    <button class="chip" onclick="quickSearch('clothing',this)">👔 Clothing</button>
+    <button class="chip" onclick="quickSearch('decoration',this)">💐 Decor</button>
+    <button class="chip" onclick="quickSearch('music',this)">🎧 Music/DJ</button>
+    <button class="chip" onclick="quickSearch('photo',this)">📸 Photo</button>
+    <button class="chip" onclick="quickSearch('overseas',this)">✈️ Overseas</button>
+  </div>
+  <div id="searchres"></div>
+  <div class="urgent" id="urgentbox">
     <h3>⚠️ Urgent — Act Now</h3>
     <p>⭐️ Call Oakville host — upgrade to 12 spots + early check-in (Mani)</p>
     <p>🚗 Book 2–3 black cars + ribbons for baraat — Glenwood Gurdwara 22 May</p>
@@ -928,6 +940,77 @@ function goPage(name,el){
   if(name==='tasks')renderTasks();
   if(name==='vendors'){renderVendors();renderLogs();}
   if(name==='hub'){renderDumps();renderQ();}
+}
+
+// HOME SEARCH — aggregates across tasks, vendors, decisions, guests, questions, dumps, comments
+var TOPIC_ALIAS={
+  transport:['transport','car','van','vehicle','baraat','flight','pickup','airport','sehrabandi','audi','bmw','ford','ranger','hiace','corvette','sixt','shota','chauffeur','classic car'],
+  accommodation:['accommodation','accom','room','bed','motel','hotel','airbnb','bickhams','oakville','kimberley','penrith','marsden','clematis','slinky','altona','kandy','suni','select inn','blue haven','retreat','luxury','mattress'],
+  catering:['catering','food','mithai','meal','breakfast','lunch','dinner','grover','ajay','gurdwara catering','langar'],
+  clothing:['clothing','dress','suit','sherwani','outfit','dry clean','tailor','chunni'],
+  decoration:['decoration','decor','flower','marquee','white diamond','khalsa','palace','tarun'],
+  music:['music','dj','dhol','speaker','song','dance','first dance','entry song','elite','platinum','diamond','emerald'],
+  photo:['photo','photographer','camera','video','videographer','milni','family photo'],
+  overseas:['uk','canada','india','nz','overseas','flight','kuldeep','pinky','baljeet','kiran','satti','harpreet','bholi','amrin','jaiveer','manpreet']
+};
+
+function hSearch(q){
+  q=(q||'').trim().toLowerCase();
+  var el=document.getElementById('searchres');
+  var urgent=document.getElementById('urgentbox');
+  if(!q){el.innerHTML='';if(urgent)urgent.style.display='block';return;}
+  if(urgent)urgent.style.display='none';
+  var terms=TOPIC_ALIAS[q]||[q];
+  function hit(text){if(!text)return false;text=String(text).toLowerCase();for(var i=0;i<terms.length;i++){if(text.indexOf(terms[i])>=0)return true;}return false;}
+  var groups={task:[],vendor:[],decision:[],guest:[],question:[],dump:[],comment:[]};
+  (DB.t||[]).forEach(function(t){if(hit(t.d)||hit(t.n)||hit(t.a))groups.task.push(t);});
+  (DB.v||[]).forEach(function(v){if(hit(v.n)||hit(v.c)||hit(v.nt))groups.vendor.push(v);});
+  (DB.l||[]).forEach(function(l){if(hit(l.d)||hit(l.c))groups.decision.push(l);});
+  (DB.g||[]).forEach(function(g){if(hit(g.n)||hit(g.tr)||hit(g.ac)||hit(g.nt)||(g.mb&&hit(g.mb.join(' '))))groups.guest.push(g);});
+  (DB.q||[]).forEach(function(qq){if(hit(qq.q)||hit(qq.a)||hit(qq.c))groups.question.push(qq);});
+  (DB.dp||[]).forEach(function(d){if(hit(d.t))groups.dump.push(d);});
+  (DB.gc||[]).forEach(function(c){if(hit(c.t)){var g=DB.g.filter(function(x){return x.id===c.gid;})[0];groups.comment.push({c:c,g:g});}});
+  var html='';
+  var total=groups.task.length+groups.vendor.length+groups.decision.length+groups.guest.length+groups.question.length+groups.dump.length+groups.comment.length;
+  html+='<div style="font-size:13px;font-weight:700;margin:10px 0 6px">📂 '+total+' result'+(total!==1?'s':'')+' for "'+q+'"</div>';
+  var sb={Confirmed:'bg',Pending:'ba',Enquiring:'bgold',Cancelled:'br',TBC:'ba',Declined:'br'};
+  if(groups.task.length){
+    html+='<div class="div">✅ Tasks ('+groups.task.length+')</div>';
+    groups.task.forEach(function(d){var cls=d.s==='done'?'bg':d.p==='urgent'?'br':'ba';html+='<div class="card" style="border-left:3px solid '+(d.p==='urgent'?'#8B2E2E':'#C4983A')+';margin-bottom:6px"><div style="font-size:13px;font-weight:600">'+d.d+'</div><div style="font-size:11px;color:#8A7968;margin-top:3px"><span class="badge '+cls+'">'+d.s+'</span>'+(d.a?' · 👤 '+d.a:'')+(d.du?' · 📅 '+d.du:'')+'</div>'+(d.n?'<div style="font-size:12px;color:#8A7968;margin-top:4px;font-style:italic">'+d.n+'</div>':'')+'</div>';});
+  }
+  if(groups.vendor.length){
+    html+='<div class="div">📋 Vendors ('+groups.vendor.length+')</div>';
+    groups.vendor.forEach(function(d){html+='<div class="card" style="margin-bottom:6px"><div style="display:flex;justify-content:space-between;gap:8px"><div style="font-size:13px;font-weight:600;flex:1">'+d.n+'</div><span class="badge '+(sb[d.s]||'ba')+'">'+d.s+'</span></div><div style="font-size:11px;color:#8A7968;margin-top:3px">'+d.c+(d.co?' · $'+Number(d.co).toLocaleString():'')+'</div>'+(d.nt?'<div style="font-size:12px;color:#8A7968;margin-top:4px;font-style:italic">'+d.nt+'</div>':'')+'</div>';});
+  }
+  if(groups.decision.length){
+    html+='<div class="div">📖 Decisions ('+groups.decision.length+')</div>';
+    groups.decision.forEach(function(d){html+='<div class="log-item" style="margin-bottom:6px"><div style="font-size:13px">'+d.d+'</div><div style="font-size:11px;color:#8A7968;margin-top:3px">'+(d.c?'<span class="badge bgold">'+d.c+'</span> ':'')+(d.b?'By '+d.b+' · ':'')+d.dt+'</div></div>';});
+  }
+  if(groups.guest.length){
+    html+='<div class="div">👥 Guests ('+groups.guest.length+')</div>';
+    groups.guest.forEach(function(d){html+='<div class="card" style="margin-bottom:6px"><div style="display:flex;justify-content:space-between;gap:8px"><div style="font-size:13px;font-weight:600;flex:1">'+d.n+'</div><span class="badge '+(sb[d.rv]||'ba')+'">'+d.rv+'</span></div><div style="font-size:11px;color:#8A7968;margin-top:3px">'+(d.c>1?d.c+' ppl · ':'')+d.tr+(d.ac&&d.ac!=='TBC'?' · 🏨 '+d.ac:'')+'</div>'+(d.nt?'<div style="font-size:12px;color:#8A7968;margin-top:4px;font-style:italic">'+d.nt+'</div>':'')+'</div>';});
+  }
+  if(groups.question.length){
+    html+='<div class="div">❓ Questions ('+groups.question.length+')</div>';
+    groups.question.forEach(function(d){html+='<div class="card" style="margin-bottom:6px;border-left:3px solid '+(d.s==='answered'?'#2E6B3E':'#C4983A')+'"><div style="font-size:13px">'+(d.s==='answered'?'✓ ':'🤔 ')+d.q+'</div>'+(d.a?'<div style="background:#E8F2EA;border-radius:6px;padding:6px 8px;margin-top:4px;font-size:12px"><b>'+d.ab+':</b> '+d.a+'</div>':'<div style="font-size:11px;color:#8A7968;margin-top:3px">Open</div>')+'</div>';});
+  }
+  if(groups.comment.length){
+    html+='<div class="div">💬 Guest Notes ('+groups.comment.length+')</div>';
+    groups.comment.forEach(function(m){var gname=m.g?m.g.n:'?';html+='<div class="card" style="margin-bottom:6px"><div style="font-size:11px;color:#C4983A;font-weight:700">on '+gname+'</div><div style="font-size:13px;margin-top:3px">'+m.c.t+'</div><div style="font-size:11px;color:#8A7968;margin-top:3px">'+m.c.f+' · '+m.c.dt+'</div></div>';});
+  }
+  if(groups.dump.length){
+    html+='<div class="div">💬 Brain Dumps ('+groups.dump.length+')</div>';
+    groups.dump.forEach(function(d){html+='<div class="dump-item"><div class="dump-from">'+d.f+' · '+d.dt+'</div><div class="dump-text">'+(d.t.length>250?d.t.substring(0,250)+'…':d.t)+'</div></div>';});
+  }
+  if(!total)html='<div style="text-align:center;padding:30px;color:#8A7968">No matches for "'+q+'"</div>';
+  el.innerHTML=html;
+}
+
+function quickSearch(term,btn){
+  document.getElementById('hsearch').value=term;
+  document.querySelectorAll('#topicchips .chip').forEach(function(c){c.classList.remove('on');});
+  if(btn)btn.classList.add('on');
+  hSearch(term);
 }
 
 // JUMP from home stat tile to filtered tab
