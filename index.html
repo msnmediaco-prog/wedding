@@ -102,6 +102,8 @@ nav a span:first-child{font-size:20px}
 .chips{margin-bottom:10px}
 .chip{display:inline-block;padding:5px 12px;border-radius:20px;font-size:11px;font-weight:700;border:1.5px solid #E8DDD0;background:#fff;color:#8A7968;cursor:pointer;margin:0 4px 4px 0;font-family:inherit}
 .chip.on{background:#18120C;color:#fff;border-color:#18120C}
+.chip-badge{display:inline-block;background:#DC2626;color:#fff;border-radius:10px;padding:0 6px;font-size:10px;font-weight:700;margin-left:4px;min-width:16px;text-align:center}
+.chip.on .chip-badge{background:#fff;color:#18120C}
 
 input,select,textarea{width:100%;padding:10px 12px;border:1.5px solid #E8DDD0;border-radius:8px;font-size:14px;font-family:inherit;color:#18120C;background:#FAF7F2;outline:none;-webkit-appearance:none;display:block;margin-top:4px}
 input:focus,select:focus,textarea:focus{border-color:#C4983A;background:#fff}
@@ -614,6 +616,24 @@ function renderHome(){
   document.getElementById('s2').textContent=gs.filter(function(g){return g.rv==='Confirmed';}).length;
   document.getElementById('s3').textContent=ts.filter(function(t){return t.s!=='done';}).length;
   document.getElementById('s4').textContent=vs.filter(function(v){return v.s==='Confirmed';}).length+'/'+vs.length;
+  // topic badges: count open tasks/vendors that match each chip
+  var openT=ts.filter(function(t){return t.s!=='done';});
+  var pendV=vs.filter(function(v){return v.s!=='Confirmed'&&v.s!=='Cancelled';});
+  function topicCount(topic){
+    var terms=TOPIC_ALIAS[topic]||[topic];
+    function hit(s){if(!s)return false;s=String(s).toLowerCase();for(var i=0;i<terms.length;i++)if(s.indexOf(terms[i])>=0)return true;return false;}
+    var n=0;
+    openT.forEach(function(t){if(hit(t.d)||hit(t.n)||hit(t.a))n++;});
+    pendV.forEach(function(v){if(hit(v.n)||hit(v.c)||hit(v.nt))n++;});
+    return n;
+  }
+  var topicBtns=document.querySelectorAll('#topicchips .chip');
+  topicBtns.forEach(function(b){
+    var m=b.getAttribute('onclick').match(/quickSearch\('([^']+)'/);if(!m)return;
+    var n=topicCount(m[1]);
+    var existing=b.querySelector('.chip-badge');if(existing)existing.remove();
+    if(n>0){var s=document.createElement('span');s.className='chip-badge';s.textContent=n;b.appendChild(s);}
+  });
   document.getElementById('evts').innerHTML=EVTS.map(function(e){
     var att=gs.filter(function(g){return g.ev&&g.ev[e.id]===1;});
     var heads=att.reduce(function(s,g){return s+(g.c||1);},0)||e.h;
@@ -732,9 +752,11 @@ function renderTasks(){
   var sl={todo:'To Do',inprogress:'In Progress',blocked:'Blocked',done:'Done ✓'};
   el.innerHTML=ts.map(function(t){
     var pdot=t.p==='urgent'?'🔴':t.p==='soon'?'🟡':'🟢';
+    var assignBadge=t.s==='done'?'✅ Done':(t.a?assigneeEmoji(t.a)+' '+t.a:'❓ Unassigned');
+    var statusBorder=t.s==='done'?'#16A34A':t.p==='urgent'?'#DC2626':t.p==='soon'?'#F59E0B':'#0D9488';
     var tNotes=(DB.n||[]).filter(function(x){return x.et==='task'&&x.eid===t.id;});
     var noteList=tNotes.length?'<div style="margin-top:8px;border-top:1px dashed #E8DDD0;padding-top:8px">'+tNotes.map(function(c){return '<div style="background:#FFF4D4;border-radius:8px;padding:6px 8px;margin-bottom:4px;font-size:12px"><b style="color:#7A5500">'+c.f+':</b> '+c.t+'<div style="font-size:10px;color:#8A7968;margin-top:2px">'+c.dt+(c.p?' · ✓ processed':'')+'</div></div>';}).join('')+'</div>':'';
-    return '<div class="ti '+t.p+' '+(t.s==='done'?'done':'')+'" data-lp="task" data-lpid="'+t.id+'" data-lplabel="'+t.d.replace(/"/g,'&quot;').substring(0,60)+'" onclick="toggleT(\''+t.id+'\')"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><div class="ti-desc">'+pdot+' '+t.d+'</div><span class="badge '+(t.s==='done'?'bg':t.p==='urgent'?'br':'ba')+'" style="flex-shrink:0">'+(sl[t.s]||t.s)+'</span></div><div class="ti-body" id="tb-'+t.id+'"><div style="font-size:12px;color:#8A7968;margin-bottom:6px">'+(t.a?'👤 '+t.a:'No owner')+(t.du?' · 📅 '+new Date(t.du+'T00:00:00').toLocaleDateString('en-AU'):'')+'</div>'+(t.n?'<div style="font-size:12px;color:#8A7968;margin-bottom:8px;font-style:italic">'+t.n+'</div>':'')+'<div class="tbx">'+(t.s!=='done'?'<button class="btn-sm btn-done" onclick="event.stopPropagation();setTS(\''+t.id+'\',\'done\')">✓ Done</button>':'')+(t.s==='todo'?'<button class="btn-sm btn-prog" onclick="event.stopPropagation();setTS(\''+t.id+'\',\'inprogress\')">▶ In Progress</button>':'')+'<button class="btn-sm btn-edit" onclick="event.stopPropagation();editT(\''+t.id+'\')">✏️ Edit</button><button class="btn-sm btn-edit" onclick="event.stopPropagation();noteFor(\'task\',\''+t.id+'\')">💬 Add Note</button></div>'+noteList+'</div></div>';
+    return '<div class="ti '+t.p+' '+(t.s==='done'?'done':'')+'" data-lp="task" data-lpid="'+t.id+'" data-lplabel="'+t.d.replace(/"/g,'&quot;').substring(0,60)+'" style="border-left:4px solid '+statusBorder+'" onclick="toggleT(\''+t.id+'\')"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><div class="ti-desc">'+pdot+' '+t.d+'</div><span class="badge '+(t.s==='done'?'bg':t.p==='urgent'?'br':'ba')+'" style="flex-shrink:0">'+(sl[t.s]||t.s)+'</span></div><div style="font-size:11px;color:'+(t.a?'#7A5500':'#8B2E2E')+';margin-top:3px;font-weight:600">'+assignBadge+(t.du?' · 📅 '+new Date(t.du+'T00:00:00').toLocaleDateString('en-AU'):'')+'</div><div class="ti-body" id="tb-'+t.id+'">'+(!t.a?'<div style="font-size:12px;color:#8B2E2E;margin-bottom:6px;font-weight:600">⚠️ Needs an owner — long-press to suggest one</div>':'')+(t.n?'<div style="font-size:12px;color:#8A7968;margin-bottom:8px;font-style:italic">'+t.n+'</div>':'')+'<div class="tbx">'+(t.s!=='done'?'<button class="btn-sm btn-done" onclick="event.stopPropagation();setTS(\''+t.id+'\',\'done\')">✓ Done</button>':'')+(t.s==='todo'?'<button class="btn-sm btn-prog" onclick="event.stopPropagation();setTS(\''+t.id+'\',\'inprogress\')">▶ In Progress</button>':'')+'<button class="btn-sm btn-edit" onclick="event.stopPropagation();editT(\''+t.id+'\')">✏️ Edit</button><button class="btn-sm btn-edit" onclick="event.stopPropagation();noteFor(\'task\',\''+t.id+'\')">💬 Add Note</button></div>'+noteList+'</div></div>';
   }).join('');
 }
 
@@ -821,7 +843,8 @@ function renderLogs(){
   var el=document.getElementById('llist');
   if(!ls.length){el.innerHTML='<div style="text-align:center;padding:30px;color:#8A7968">No decisions logged yet</div>';return;}
   el.innerHTML=ls.map(function(l){
-    return '<div class="log-item"><div style="font-size:13px;font-weight:500">'+l.d+'</div><div style="font-size:11px;color:#8A7968;margin-top:4px">'+(l.c?'<span class="badge bgold" style="margin-right:4px">'+l.c+'</span>':'')+(l.b?'By: '+l.b+' · ':'')+l.dt+'</div></div>';
+    var byEmoji=l.b?assigneeEmoji(l.b)+' '+l.b:'';
+    return '<div class="log-item" style="border-left-color:#16A34A;background:#F0FDF4"><div style="font-size:13px;font-weight:500">✅ '+l.d+'</div><div style="font-size:11px;color:#8A7968;margin-top:4px">'+(l.c?'<span class="badge bgold" style="margin-right:4px">'+l.c+'</span>':'')+(byEmoji?'By: '+byEmoji+' · ':'')+l.dt+'</div></div>';
   }).join('');
 }
 
@@ -1103,6 +1126,21 @@ document.addEventListener('mouseleave',lpEnd);
 document.addEventListener('click',function(e){if(lpTriggered){e.stopPropagation();e.preventDefault();lpTriggered=false;}},true);
 document.addEventListener('contextmenu',function(e){var t=e.target;while(t&&!t.getAttribute('data-lp'))t=t.parentElement;if(t)e.preventDefault();});
 
+function assigneeEmoji(name){
+  if(!name)return '❓';
+  var n=name.toLowerCase();
+  if(n.indexOf('mani')>=0)return '🧔‍♂️';
+  if(n.indexOf('navi')>=0)return '👰‍♀️';
+  if(n.indexOf('aj')===0||n.indexOf('dad')>=0)return '👨🏽';
+  if(n.indexOf('mum')>=0||n.indexOf('mom')>=0)return '👩🏽';
+  if(n.indexOf('amrit')>=0)return '💪';
+  if(n.indexOf('tarun')>=0)return '👷';
+  if(n.indexOf('jas')===0)return '👯';
+  if(n.indexOf('charlie')>=0)return '🤖';
+  if(n.indexOf('ajay')>=0)return '🚘';
+  return '👤';
+}
+
 function noteFor(et,eid){
   var label='';
   if(et==='task'){var t=DB.t.filter(function(x){return x.id===eid;})[0];if(t)label=t.d;}
@@ -1268,7 +1306,7 @@ function drawAccMap(list){
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18,attribution:'© OSM'}).addTo(accMap);
       // Heart-style venue marker
       var heartIcon=L.divIcon({className:'',iconSize:[32,32],iconAnchor:[16,32],html:'<div style="font-size:28px;line-height:1;text-shadow:0 2px 4px rgba(0,0,0,0.3);transform:translateY(-4px)">💗</div>'});
-      L.marker([GLENWOOD.lat,GLENWOOD.lng],{icon:heartIcon,zIndexOffset:1000}).bindPopup('<b>💗 The Wedding</b><br>Glenwood Gurdwara<br>22 May 2026').addTo(accMap);
+      L.marker([GLENWOOD.lat,GLENWOOD.lng],{icon:heartIcon,zIndexOffset:1000}).bindPopup('<b>💗 The Wedding</b><br>Glenwood Gurdwara<br>22 May 2026<br><a onclick="openLN(\'venue\',\'glenwood\',\'Glenwood Gurdwara — The Wedding\')" style="color:#1C4D7A;font-weight:700;cursor:pointer;font-size:11px">💬 Add note</a>').addTo(accMap);
     }catch(e){return;}
   }
   Object.keys(accMarkers).forEach(function(k){accMap.removeLayer(accMarkers[k]);});accMarkers={};
@@ -1279,10 +1317,10 @@ function drawAccMap(list){
     if(a.kind==='event'){
       m=L.circleMarker([a.lat,a.lng],{radius:9,fillColor:c,color:'#fff',weight:2,opacity:1,fillOpacity:accSel&&accSel!==a.id?0.35:0.9,dashArray:'2,3'}).addTo(accMap);
       var e=a.evRef;var atts=(DB.g||[]).filter(function(g){return g.ev&&g.ev[e.id]===1;}).length;
-      m.bindPopup('<b>📅 '+e.n+'</b><br>'+e.dt+(e.time?' · '+e.time:'')+'<br><small>'+e.loc+'</small><br>'+atts+' family groups attending<br><a onclick="selectAccom(\''+a.id+'\')" style="color:#C4983A;font-weight:700;cursor:pointer">See attendees →</a>');
+      m.bindPopup('<b>📅 '+e.n+'</b><br>'+e.dt+(e.time?' · '+e.time:'')+'<br><small>'+e.loc+'</small><br>'+atts+' family groups attending<br><a onclick="selectAccom(\''+a.id+'\')" style="color:#C4983A;font-weight:700;cursor:pointer">See attendees →</a><br><a onclick="openLN(\'event\',\''+e.id+'\',\''+e.n.replace(/\\\'/g,\"\")+'\')" style="color:#1C4D7A;font-weight:700;cursor:pointer;font-size:11px">💬 Add note</a>');
     } else {
       m=L.circleMarker([a.lat,a.lng],{radius:11,fillColor:c,color:'#fff',weight:3,opacity:1,fillOpacity:accSel&&accSel!==a.id?0.35:0.95}).addTo(accMap);
-      m.bindPopup('<b>🏨 '+a.n+'</b><br>'+(a.region==='syd'?a.distKm+'km from Gurdwara':'Melbourne')+'<br>'+a.filled+'/'+a.cap+' beds<br><a onclick="selectAccom(\''+a.id+'\')" style="color:#C4983A;font-weight:700;cursor:pointer">View rooms →</a>');
+      m.bindPopup('<b>🏨 '+a.n+'</b><br>'+(a.region==='syd'?a.distKm+'km from Gurdwara':'Melbourne')+'<br>'+a.filled+'/'+a.cap+' beds<br><a onclick="selectAccom(\''+a.id+'\')" style="color:#C4983A;font-weight:700;cursor:pointer">View rooms →</a><br><a onclick="openLN(\'accom\',\''+a.id+'\',\''+a.n.replace(/\\\'/g,\"\")+'\')" style="color:#1C4D7A;font-weight:700;cursor:pointer;font-size:11px">💬 Add note</a>');
     }
     m.on('click',function(){selectAccom(a.id);});
     accMarkers[a.id]=m;
