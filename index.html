@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Mani + Navi Wedding Hub</title>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin="" defer></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:#FAF7F2;color:#18120C;max-width:480px;margin:0 auto;padding-bottom:80px}
@@ -1078,20 +1078,32 @@ var VENUES=[
   {type:'accom',name:'Clematis (UK family)',lat:-37.969,lng:145.435,beds:'TBC',addr:'Clematis VIC'}
 ];
 
-var lmap=null,lmarkers=[];
+var lmap=null,lmarkers=[],lmAttempts=0;
+function renderMapList(msg){
+  document.getElementById('mapfallback').innerHTML='<div class="card" style="margin-top:10px"><div style="font-size:13px;font-weight:700;margin-bottom:8px">'+msg+'</div>'+VENUES.map(function(v){return '<div class="accom-row"><span>'+(v.type==='event'?'📅':'🏨')+' '+v.name+(v.beds?' · 🛏️ '+v.beds:'')+(v.date?' · '+v.date:'')+'</span><a href="https://maps.google.com/?q='+encodeURIComponent(v.addr)+'" target="_blank" style="color:#C4983A;text-decoration:none;font-weight:700">Open Maps →</a></div>';}).join('')+'</div>';
+}
 function initMap(){
+  var leaf=document.getElementById('leafmap');
   if(typeof L==='undefined'){
-    document.getElementById('mapfallback').innerHTML='<div class="card" style="margin-top:10px"><div style="font-size:13px;font-weight:700;margin-bottom:8px">Map library still loading… or blocked by network. List view:</div>'+VENUES.map(function(v){return '<div class="accom-row"><span>'+(v.type==='event'?'📅':'🏨')+' '+v.name+'</span><a href="https://maps.google.com/?q='+encodeURIComponent(v.addr)+'" target="_blank" style="color:#C4983A;text-decoration:none;font-weight:700">Open Maps →</a></div>';}).join('')+'</div>';
-    setTimeout(initMap,800);return;
+    lmAttempts++;
+    if(leaf)leaf.innerHTML='<div style="padding:60px 20px;text-align:center;color:#8A7968;font-size:13px">⏳ Loading map… (attempt '+lmAttempts+'/6)</div>';
+    if(lmAttempts<6){setTimeout(initMap,1200);return;}
+    if(leaf)leaf.style.display='none';
+    renderMapList('🗺️ Map couldn’t load (slow connection or blocker). Tap any venue:');
+    return;
   }
+  if(leaf)leaf.style.display='block';
+  document.getElementById('mapfallback').innerHTML='';
   if(lmap){setTimeout(function(){lmap.invalidateSize();},50);return;}
   try{
+    leaf.innerHTML='';
     lmap=L.map('leafmap').setView([-35.5,148],5);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18,attribution:'© OpenStreetMap'}).addTo(lmap);
     drawMarkers('all');
     setTimeout(function(){lmap.invalidateSize();},100);
   }catch(e){
-    document.getElementById('leafmap').innerHTML='<div style="padding:30px;text-align:center;color:#8A7968">Map failed to load. Tap pins below for Google Maps.</div>';
+    leaf.style.display='none';
+    renderMapList('Map failed to render. Tap any venue:');
   }
 }
 
