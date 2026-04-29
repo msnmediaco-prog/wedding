@@ -152,6 +152,37 @@ label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5
 @keyframes expand{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
 .mic-btn{position:absolute;right:8px;bottom:8px;background:#C4983A;color:#fff;border:none;border-radius:50%;width:36px;height:36px;font-size:18px;cursor:pointer;line-height:36px;text-align:center;font-family:inherit;padding:0}
 .mic-btn.on{background:#8B2E2E}
+
+.acc-split{display:flex;gap:12px;align-items:flex-start}
+@media (max-width:760px){.acc-split{flex-direction:column}}
+.acc-map-wrap{flex:1;min-width:0;height:480px;border-radius:14px;overflow:hidden;border:1px solid #E8DDD0;background:#E8F0E4;position:sticky;top:8px}
+@media (max-width:760px){.acc-map-wrap{height:300px;position:static}}
+.acc-cards{flex:1;min-width:0;max-height:600px;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-right:4px}
+.acc-card{background:#fff;border-radius:12px;border:0.5px solid #E8DDD0;padding:14px;margin-bottom:10px;transition:all 0.15s;cursor:pointer}
+.acc-card:hover,.acc-card.sel{border-color:#C4983A;background:#FFFCF5;transform:translateY(-1px)}
+.acc-card.dim{opacity:0.35}
+.acc-card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:6px}
+.acc-name{font-size:15px;font-weight:700}
+.acc-tier{display:inline-block;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px}
+.acc-tier.lux{background:#EDE9FE;color:#5B21B6}
+.acc-tier.mid{background:#DBEAFE;color:#1E40AF}
+.acc-tier.budg{background:#CCFBF1;color:#115E59}
+.acc-tier.fam{background:#DCFCE7;color:#166534}
+.acc-meta{font-size:12px;color:#8A7968;margin-bottom:8px}
+.acc-perk{font-size:12px;color:#7A5500;background:#FFF4D4;border-radius:6px;padding:6px 8px;margin-bottom:8px;line-height:1.4}
+.acc-bar{height:4px;background:#f0ede8;border-radius:2px;overflow:hidden;margin:6px 0 4px}
+.acc-bar-fill{height:100%;background:#16A34A;transition:width 0.3s}
+.acc-bar-fill.amber{background:#F59E0B}
+.acc-bar-fill.red{background:#DC2626}
+.acc-bar-label{font-size:11px;color:#8A7968}
+.acc-rooms{display:none;margin-top:10px;padding-top:10px;border-top:1px dashed #E8DDD0;font-size:12px}
+.acc-rooms.on{display:block}
+.acc-room{padding:5px 0;border-bottom:1px solid #f0ede8;display:flex;justify-content:space-between;gap:8px}
+.acc-room:last-child{border:none}
+.acc-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:14px;padding:12px;background:#fff;border-radius:12px;border:0.5px solid #E8DDD0}
+.acc-stat{text-align:center}
+.acc-stat-n{font-size:20px;font-weight:700;color:#8A6318}
+.acc-stat-l{font-size:10px;color:#8A7968;text-transform:uppercase;letter-spacing:0.5px}
 </style>
 </head>
 <body>
@@ -246,7 +277,7 @@ label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5
   <div class="chips" id="vv-tabs">
     <button class="chip on" onclick="setVV('v',this)">Vendors</button>
     <button class="chip" onclick="setVV('log',this)">📖 Decisions</button>
-    <button class="chip" onclick="setVV('accom',this)">🛏️ Rooms</button>
+    <button class="chip" onclick="setVV('accom',this)">🛏️ Accommodation</button>
     <button class="chip" onclick="setVV('map',this)">🗺️ Map</button>
   </div>
   <div id="vv-v">
@@ -272,18 +303,21 @@ label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5
     <div id="mapfallback"></div>
   </div>
   <div id="vv-accom" style="display:none">
-    <div class="urgent" style="background:#E6EFF8;border-color:#1C4D7A;cursor:pointer" onclick="document.getElementById('accomgaps').classList.toggle('on')">
-      <h3 style="color:#1C4D7A;display:flex;justify-content:space-between;align-items:center">❗ Accommodation Gaps <span style="font-size:11px;color:#1C4D7A;font-weight:400">tap</span></h3>
-      <div id="accomgaps" class="evt-body">
-        <p>❗ Canada (6) — no beds confirmed post-wedding</p>
-        <p>❗ NZ guests (6–8) — no beds confirmed</p>
-        <p>❗ Mattress count right unit — pending Mum</p>
-        <p>❗ Slinky St / Kandy / Suni capacities unknown</p>
-        <p>❗ Bathroom rosters not assigned (20+ people)</p>
-      </div>
+    <div class="chips" style="margin-bottom:8px">
+      <button class="chip on" onclick="setAF('all',this)">All</button>
+      <button class="chip" onclick="setAF('syd',this)">📍 Sydney</button>
+      <button class="chip" onclick="setAF('mel',this)">📍 Melbourne</button>
+      <button class="chip" onclick="setAF('lux',this)">💜 Family Base</button>
+      <button class="chip" onclick="setAF('mid',this)">💙 Hotel/Motel</button>
+      <button class="chip" onclick="setAF('avail',this)">🟢 Beds Available</button>
     </div>
-    <div class="card" style="cursor:pointer;margin-bottom:8px" onclick="document.getElementById('accom-bickhams').classList.toggle('on')"><div style="font-weight:700;font-size:14px;display:flex;justify-content:space-between;align-items:center">🏠 Bickhams Pre-Wedding <span style="font-size:11px;color:#8A7968;font-weight:400">tap</span></div></div>
-    <div id="accom-bickhams" class="evt-body card" style="font-size:13px">
+    <div class="urgent" style="background:#E6EFF8;border-color:#1C4D7A;margin-bottom:10px"><h3 style="color:#1C4D7A">❗ Gaps</h3><p style="font-size:12px">Canada (6) + NZ (6–8) post-wedding · Slinky/Kandy/Suni capacities TBC · Bathroom rosters unassigned</p></div>
+    <div class="acc-split">
+      <div class="acc-map-wrap" id="accmap"></div>
+      <div class="acc-cards" id="acccards"></div>
+    </div>
+    <div class="acc-summary" id="accsummary"></div>
+    <div style="display:none"><div id="accom-bickhams" class="evt-body card" style="font-size:13px">
       <b>Unit 1 (Left)</b> — Fully decorated ✅
       <div class="accom-row"><span>🛏️ Queen bed</span><span style="color:#8A7968">×2</span></div>
       <div class="accom-row"><span>🛏️ Double bed</span><span style="color:#8A7968">×2</span></div>
@@ -324,7 +358,7 @@ label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5
       <div class="accom-row"><span>🏨 Kimberley Hotel ✅</span><span style="color:#8A7968">12 rooms</span></div>
       <div class="accom-row"><span>🏨 Penrith Hotel ✅</span><span style="color:#8A7968">Extra room</span></div>
       <div class="accom-row" style="color:#8B2E2E;font-weight:700"><span>❗ Canada + NZ — NO beds booked</span></div>
-    </div>
+    </div></div>
   </div>
 </div>
 
@@ -743,7 +777,8 @@ function setVV(v,el){vv=v;document.querySelectorAll('#vv-tabs .chip').forEach(fu
   document.getElementById('vv-log').style.display=v==='log'?'block':'none';
   document.getElementById('vv-accom').style.display=v==='accom'?'block':'none';
   document.getElementById('vv-map').style.display=v==='map'?'block':'none';
-  if(v==='map')setTimeout(initMap,100);}
+  if(v==='map')setTimeout(initMap,100);
+  if(v==='accom')setTimeout(renderAccom,100);}
 
 function renderVendors(){
   var vs=ld('v');
@@ -1045,6 +1080,124 @@ function updFI(gid){
   renderGuests();toast('Flight in: '+(next||'cleared'));
   sbpatch('guests',gid,{flight_in:next||null});
   setTimeout(function(){var b=document.getElementById('gb-'+gid);if(b)b.classList.add('on');},10);
+}
+
+// ACCOMMODATION — split-panel (map left, cards right)
+var ACCOMS=[
+  {id:'oakville',n:'Oakville Airbnb',tier:'lux',region:'syd',lat:-33.629,lng:150.875,distKm:14,cap:12,filled:8,
+   perk:'Closest Airbnb · Family base · Sehrabandi prep',
+   rooms:[{r:'Mani + Navi',w:'Mani · Navi'},{r:'Grandparents room',w:'Grandparents'},{r:'Pooji',w:'Pooji'},{r:'Robbie',w:'Robbie'},{r:'Sattu (maybe)',w:'Sattu — TBC'}]},
+  {id:'kimberley',n:'Kimberley Hotel',tier:'mid',region:'syd',lat:-33.751,lng:150.694,distKm:22,cap:12,filled:12,
+   perk:'12 rooms · Overseas guests',
+   rooms:[{r:'12 rooms',w:'Overseas family — Card on check-in 24 May'}]},
+  {id:'select-inn',n:'Select Inn Penrith',tier:'mid',region:'syd',lat:-33.7506,lng:150.694,distKm:22,cap:12,filled:11,
+   perk:'12 motel rooms · Extended family',
+   rooms:[{r:'Room 1',w:'Deepe + Nagi'},{r:'Room 2',w:'Joga + wife'},{r:'Room 3',w:'Dyaal + daughter'},{r:'Room 4',w:'Arsh + Vikram'},{r:'Room 5',w:'Sunny + fam'},{r:'Room 6',w:'Kinde'},{r:'Room 7',w:'Puma + son'},{r:'Room 8',w:'Grover + fam'},{r:'Room 9',w:'Amrin'},{r:'Room 10',w:'Kiran + Bamtawar'},{r:'Room 11',w:'UK Kiran (Rawalrice)'},{r:'Room 12',w:'Open'}]},
+  {id:'penrith-hotel',n:'Penrith Hotel',tier:'mid',region:'syd',lat:-33.7506,lng:150.694,distKm:22,cap:1,filled:0,
+   perk:'1 extra overflow room',rooms:[{r:'Room',w:'Open — overflow'}]},
+  {id:'marsden',n:'Marsden Park Buffer',tier:'budg',region:'syd',lat:-33.696,lng:150.802,distKm:13,cap:2,filled:0,
+   perk:'1–2 BR emergency buffer',rooms:[{r:'Buffer',w:'Reserved — emergency'}]},
+  {id:'bickhams',n:'Bickhams (VIC)',tier:'lux',region:'mel',lat:-37.864,lng:145.001,distKm:0,cap:14,filled:10,
+   perk:'Family base · Pre-wedding events 16–19 May',
+   rooms:[{r:'U1: Queen #1',w:'Family'},{r:'U1: Queen #2',w:'Family'},{r:'U1: Double #1',w:'Family'},{r:'U1: Double #2',w:'Family'},{r:'U2 R1',w:'Gurpreet + Jaskamal'},{r:'U2 R2',w:'Satu paji + Saberwal'},{r:'U2 R3',w:'Supreet family'}]},
+  {id:'altona',n:'Altona North (Clematis)',tier:'fam',region:'mel',lat:-37.823,lng:144.836,distKm:0,cap:8,filled:3,
+   perk:'UK family base · Post-reception',
+   rooms:[{r:'Main rooms',w:'UK Kiran fam (3)'},{r:'Other rooms',w:'TBC'}]},
+  {id:'slinky',n:'Slinky St',tier:'fam',region:'mel',lat:-37.78,lng:144.92,distKm:0,cap:13,filled:0,
+   perk:'10–13 mattresses · Post-reception',
+   rooms:[{r:'Mattresses',w:'Family overflow — TBC'}]}
+];
+var GLENWOOD={lat:-33.7548,lng:150.929};
+var accFilter='all',accSel=null,accMap=null,accMarkers={};
+
+function setAF(f,btn){
+  accFilter=f;document.querySelectorAll('#vv-accom .chips:first-child .chip').forEach(function(c){c.classList.remove('on');});if(btn)btn.classList.add('on');
+  renderAccom();
+}
+
+function accFiltered(){
+  return ACCOMS.filter(function(a){
+    if(accFilter==='all')return true;
+    if(accFilter==='syd')return a.region==='syd';
+    if(accFilter==='mel')return a.region==='mel';
+    if(accFilter==='lux')return a.tier==='lux';
+    if(accFilter==='mid')return a.tier==='mid';
+    if(accFilter==='avail')return a.filled<a.cap;
+    return true;
+  });
+}
+
+function tierLabel(t){return t==='lux'?'Family Base':t==='mid'?'Hotel/Motel':t==='budg'?'Buffer':'Family Home';}
+function tierColor(t){return t==='lux'?'#7C3AED':t==='mid'?'#2563EB':t==='budg'?'#0D9488':'#16A34A';}
+
+function renderAccom(){
+  var list=accFiltered();
+  var el=document.getElementById('acccards');
+  el.innerHTML=list.map(function(a){
+    var pct=a.cap?Math.round(a.filled/a.cap*100):0;
+    var avail=a.cap-a.filled;
+    var barCls=avail===0?'red':avail<=2?'amber':'';
+    var availLabel=avail===0?'Fully assigned':avail+' bed'+(avail!==1?'s':'')+' open';
+    return '<div class="acc-card'+(accSel===a.id?' sel':'')+'" data-lp="accom" data-lpid="'+a.id+'" data-lplabel="'+a.n+'" onclick="selectAccom(\''+a.id+'\')">'+
+      '<div class="acc-card-head"><div class="acc-name">'+a.n+'</div><span class="acc-tier '+a.tier+'">'+tierLabel(a.tier)+'</span></div>'+
+      '<div class="acc-meta">'+(a.region==='syd'?'📍 '+a.distKm+'km from Glenwood Gurdwara':'📍 Melbourne pre-wedding')+'</div>'+
+      '<div class="acc-perk">✨ '+a.perk+'</div>'+
+      '<div class="acc-bar"><div class="acc-bar-fill '+barCls+'" style="width:'+pct+'%"></div></div>'+
+      '<div class="acc-bar-label">'+a.filled+' / '+a.cap+' beds · <b style="color:'+(avail===0?'#DC2626':avail<=2?'#F59E0B':'#16A34A')+'">'+availLabel+'</b></div>'+
+      '<div class="acc-rooms" id="ar-'+a.id+'">'+a.rooms.map(function(r){return '<div class="acc-room"><span style="color:#8A7968">🛏️ '+r.r+'</span><span style="font-weight:600">'+r.w+'</span></div>';}).join('')+'</div>'+
+    '</div>';
+  }).join('');
+  // Summary
+  var totalCap=list.reduce(function(s,a){return s+a.cap;},0);
+  var totalFilled=list.reduce(function(s,a){return s+a.filled;},0);
+  var avail=totalCap-totalFilled;
+  var nearest=list.filter(function(a){return a.region==='syd';}).sort(function(a,b){return a.distKm-b.distKm;})[0];
+  document.getElementById('accsummary').innerHTML='<div class="acc-stat"><div class="acc-stat-n">'+list.length+'</div><div class="acc-stat-l">Properties</div></div><div class="acc-stat"><div class="acc-stat-n">'+totalCap+'</div><div class="acc-stat-l">Total Beds</div></div><div class="acc-stat"><div class="acc-stat-n" style="color:'+(avail>0?'#16A34A':'#DC2626')+'">'+avail+'</div><div class="acc-stat-l">Available</div></div><div class="acc-stat"><div class="acc-stat-n">'+(nearest?nearest.distKm+'km':'—')+'</div><div class="acc-stat-l">Closest to Venue</div></div>';
+  // Map
+  if(typeof L!=='undefined')drawAccMap(list);
+}
+
+function drawAccMap(list){
+  var wrap=document.getElementById('accmap');
+  if(!accMap){
+    try{
+      accMap=L.map('accmap',{zoomControl:true}).setView([-33.755,150.85],10);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18,attribution:'© OSM'}).addTo(accMap);
+      // Heart-style venue marker
+      var heartIcon=L.divIcon({className:'',iconSize:[32,32],iconAnchor:[16,32],html:'<div style="font-size:28px;line-height:1;text-shadow:0 2px 4px rgba(0,0,0,0.3);transform:translateY(-4px)">💗</div>'});
+      L.marker([GLENWOOD.lat,GLENWOOD.lng],{icon:heartIcon,zIndexOffset:1000}).bindPopup('<b>💗 The Wedding</b><br>Glenwood Gurdwara<br>22 May 2026').addTo(accMap);
+    }catch(e){return;}
+  }
+  Object.keys(accMarkers).forEach(function(k){accMap.removeLayer(accMarkers[k]);});accMarkers={};
+  var bounds=[[GLENWOOD.lat,GLENWOOD.lng]];
+  list.forEach(function(a){
+    var c=tierColor(a.tier);
+    var m=L.circleMarker([a.lat,a.lng],{radius:11,fillColor:c,color:'#fff',weight:3,opacity:1,fillOpacity:accSel&&accSel!==a.id?0.35:0.95}).addTo(accMap);
+    m.bindPopup('<b>'+a.n+'</b><br>'+(a.region==='syd'?a.distKm+'km from Gurdwara':'Melbourne')+'<br>'+a.filled+'/'+a.cap+' beds<br><a onclick="selectAccom(\''+a.id+'\')" style="color:#C4983A;font-weight:700;cursor:pointer">View rooms →</a>');
+    m.on('click',function(){selectAccom(a.id);});
+    accMarkers[a.id]=m;
+    bounds.push([a.lat,a.lng]);
+  });
+  if(bounds.length>1)accMap.fitBounds(bounds,{padding:[40,40]});
+  setTimeout(function(){accMap.invalidateSize();},100);
+}
+
+function selectAccom(id){
+  accSel=accSel===id?null:id;
+  // toggle rooms panel
+  document.querySelectorAll('.acc-rooms').forEach(function(r){r.classList.remove('on');});
+  if(accSel){var p=document.getElementById('ar-'+accSel);if(p)p.classList.add('on');}
+  renderAccom();
+  // Scroll to selected card
+  if(accSel){
+    setTimeout(function(){
+      var card=document.querySelector('.acc-card.sel');
+      if(card&&card.scrollIntoView)card.scrollIntoView({behavior:'smooth',block:'nearest'});
+      // Pan map
+      var a=ACCOMS.filter(function(x){return x.id===accSel;})[0];
+      if(a&&accMap)accMap.panTo([a.lat,a.lng]);
+    },50);
+  }
 }
 
 // MAP — Leaflet + OpenStreetMap
