@@ -266,6 +266,16 @@ label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5
     <button class="chip" onclick="setTF('soon',this)">🟡 Soon</button>
     <button class="chip" onclick="setTF('done',this)">✅ Done</button>
   </div>
+  <div class="chips" id="taf-chips" style="margin-top:4px">
+    <button class="chip on" onclick="setTAF('all',this)">Anyone</button>
+    <button class="chip" onclick="setTAF('Mani',this)">🧔🏽 Mani</button>
+    <button class="chip" onclick="setTAF('Mum',this)">👩🏽 Mum</button>
+    <button class="chip" onclick="setTAF('Dad',this)">👨🏽 Dad</button>
+    <button class="chip" onclick="setTAF('Amrit',this)">👷‍♂️ Amrit</button>
+    <button class="chip" onclick="setTAF('Tarun',this)">🧑‍💼 Tarun</button>
+    <button class="chip" onclick="setTAF('Charlie',this)">🤖 Charlie</button>
+    <button class="chip" onclick="setTAF('unassigned',this)">❓ Unassigned</button>
+  </div>
   <div id="tlist"></div>
   <button class="btn btn-gold" onclick="openM('mt')">+ Add Task</button>
 </div>
@@ -520,7 +530,7 @@ label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5
 <script>
 var EK=['paath','maiyan','mehndi','jaggo','wedding','reception','muklawa'];
 var EL={paath:'Paath 16/5',maiyan:'Maiyan 18/5',mehndi:'Mehndi 19/5',jaggo:'Jaggo 20/5',wedding:'Wed 22/5',reception:'Recept 24/5',muklawa:'Muklawa 25/5'};
-var gf='all',gsearch='',tf='open',vv='v',hv='q';
+var gf='all',gsearch='',tf='open',taf='all',vv='v',hv='q';
 
 // ---- SUPABASE ----
 var SB='https://pecvorberttcojnkdgpm.supabase.co';
@@ -732,7 +742,9 @@ function saveGuest(){
 }
 
 // TASKS
-function setTF(f,el){tf=f;document.querySelectorAll('#pg-tasks .chip').forEach(function(c){c.classList.remove('on');});el.classList.add('on');renderTasks();}
+function setTF(f,el){tf=f;var chips=document.querySelectorAll('#pg-tasks .chips').length?document.querySelectorAll('#pg-tasks .chips')[0].querySelectorAll('.chip'):[];chips.forEach(function(c){c.classList.remove('on');});el.classList.add('on');renderTasks();}
+function setTAF(f,el){taf=f;document.querySelectorAll('#taf-chips .chip').forEach(function(c){c.classList.remove('on');});el.classList.add('on');renderTasks();}
+function importanceScore(t){var s=String(t.d||'').toLowerCase()+' '+String(t.n||'').toLowerCase();var n=0;['urgent','important','asap',' now ','🔥','🔴','URGENT'].forEach(function(k){if(s.indexOf(k.toLowerCase())>=0)n++;});return n;}
 
 function renderTasks(){
   var ts=ld('t').slice();
@@ -740,9 +752,11 @@ function renderTasks(){
   else if(tf==='urgent') ts=ts.filter(function(t){return t.p==='urgent'&&t.s!=='done';});
   else if(tf==='soon') ts=ts.filter(function(t){return t.p==='soon'&&t.s!=='done';});
   else if(tf==='done') ts=ts.filter(function(t){return t.s==='done';});
+  if(taf!=='all'){ts=ts.filter(function(t){if(taf==='unassigned')return !t.a;return (t.a||'').toLowerCase().indexOf(taf.toLowerCase())>=0;});}
   ts.sort(function(a,b){
     if(a.s==='done'&&b.s!=='done')return 1;
     if(b.s==='done'&&a.s!=='done')return -1;
+    var ia=importanceScore(a),ib=importanceScore(b);if(ia!==ib)return ib-ia;
     var p={urgent:0,soon:1,later:2};
     var pd=(p[a.p]||1)-(p[b.p]||1);if(pd!==0)return pd;
     if(a.du&&b.du)return a.du<b.du?-1:1;
@@ -752,14 +766,24 @@ function renderTasks(){
   var el=document.getElementById('tlist');
   if(!ts.length){el.innerHTML='<div style="text-align:center;padding:30px;color:#8A7968">Nothing here</div>';return;}
   var sl={todo:'To Do',inprogress:'In Progress',blocked:'Blocked',done:'Done ✓'};
-  el.innerHTML=ts.map(function(t){
+  function renderRow(t){
     var pdot=t.p==='urgent'?'🔴':t.p==='soon'?'🟡':'🟢';
     var assignBadge=t.s==='done'?'✅ Done':(t.a?assigneeEmoji(t.a)+' '+t.a:'❓ Unassigned');
     var statusBorder=t.s==='done'?'#16A34A':t.p==='urgent'?'#DC2626':t.p==='soon'?'#F59E0B':'#0D9488';
     var tNotes=(DB.n||[]).filter(function(x){return x.et==='task'&&x.eid===t.id;});
     var noteList=tNotes.length?'<div style="margin-top:8px;border-top:1px dashed #E8DDD0;padding-top:8px">'+tNotes.map(function(c){return '<div style="background:#FFF4D4;border-radius:8px;padding:6px 8px;margin-bottom:4px;font-size:12px"><b style="color:#7A5500">'+c.f+':</b> '+c.t+'<div style="font-size:10px;color:#8A7968;margin-top:2px">'+c.dt+(c.p?' · ✓ processed':'')+'</div></div>';}).join('')+'</div>':'';
     return '<div class="ti '+t.p+' '+(t.s==='done'?'done':'')+'" data-lp="task" data-lpid="'+t.id+'" data-lplabel="'+t.d.replace(/"/g,'&quot;').substring(0,60)+'" style="border-left:4px solid '+statusBorder+'" onclick="toggleT(\''+t.id+'\')"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><div class="ti-desc">'+pdot+' '+t.d+'</div><span class="badge '+(t.s==='done'?'bg':t.p==='urgent'?'br':'ba')+'" style="flex-shrink:0">'+(sl[t.s]||t.s)+'</span></div><div style="font-size:11px;color:'+(t.a?'#7A5500':'#8B2E2E')+';margin-top:3px;font-weight:600">'+assignBadge+(t.du?' · 📅 '+new Date(t.du+'T00:00:00').toLocaleDateString('en-AU'):'')+'</div><div class="ti-body" id="tb-'+t.id+'">'+(!t.a?'<div style="font-size:12px;color:#8B2E2E;margin-bottom:6px;font-weight:600">⚠️ Needs an owner — long-press to suggest one</div>':'')+(t.n?'<div style="font-size:12px;color:#8A7968;margin-bottom:8px;font-style:italic">'+t.n+'</div>':'')+'<div class="tbx">'+(t.s!=='done'?'<button class="btn-sm btn-done" onclick="event.stopPropagation();setTS(\''+t.id+'\',\'done\')">✓ Done</button>':'')+(t.s==='todo'?'<button class="btn-sm btn-prog" onclick="event.stopPropagation();setTS(\''+t.id+'\',\'inprogress\')">▶ In Progress</button>':'')+'<button class="btn-sm btn-edit" onclick="event.stopPropagation();editT(\''+t.id+'\')">✏️ Edit</button><button class="btn-sm btn-edit" onclick="event.stopPropagation();noteFor(\'task\',\''+t.id+'\')">💬 Add Note</button></div>'+noteList+'</div></div>';
-  }).join('');
+  }
+  var openHtml=ts.map(renderRow).join('');
+  // Done section appended at bottom (collapsed) when in Open/Urgent/Soon view
+  var doneHtml='';
+  if(tf!=='done'){
+    var allDone=ld('t').filter(function(t){return t.s==='done'&&(taf==='all'||(taf==='unassigned'?!t.a:(t.a||'').toLowerCase().indexOf(taf.toLowerCase())>=0));});
+    if(allDone.length){
+      doneHtml='<div id="tdone-wrap" style="margin-top:12px;border-top:2px dashed #C4983A;padding-top:10px"><div onclick="document.getElementById(\'tdone-list\').classList.toggle(\'on\');this.querySelector(\'span\').textContent=document.getElementById(\'tdone-list\').classList.contains(\'on\')?\'▼\':\'▶\';" style="cursor:pointer;font-weight:700;color:#16A34A;font-size:13px;display:flex;align-items:center;gap:6px"><span>▶</span> ✅ Done ('+allDone.length+') <span style="font-size:11px;color:#8A7968;font-weight:400">— tap to expand</span></div><div id="tdone-list" class="ti-body" style="margin-top:8px">'+allDone.map(renderRow).join('')+'</div></div>';
+    }
+  }
+  el.innerHTML=openHtml+doneHtml;
 }
 
 function toggleT(id){var el=document.getElementById('tb-'+id);if(el)el.classList.toggle('on');}
