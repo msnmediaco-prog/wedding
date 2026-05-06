@@ -366,7 +366,7 @@ label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5
   <div id="hv-q">
     <div class="card" style="background:#FFF4D4;border:1.5px solid #C4983A;margin-bottom:10px">
       <div style="font-size:13px;font-weight:700;color:#7A5500;margin-bottom:4px">❓ These are Charlie's questions for the family</div>
-      <div style="font-size:12px;color:#7A5500;line-height:1.4">Anyone can answer — Mani, Mum, Dad, Amrit, Jas, anyone. Tap an open question, pick who you are, type or talk into the mic, hit submit. Charlie applies the answer at 6pm.</div>
+      <div style="font-size:12px;color:#7A5500;line-height:1.4">Anyone can answer — Mani, Mum, Dad, Amrit, Jas, Tarun, anyone. Tap an open question, pick who you are, type or talk into the mic, hit submit. Charlie applies the answer at 6pm.</div>
     </div>
     <div class="chips" style="margin-bottom:8px">
       <button class="chip on" onclick="setQF('open',this)">Open</button>
@@ -379,7 +379,7 @@ label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5
       <div style="font-size:11px;color:#1C4D7A;margin-bottom:6px">Got a question for someone else in the family? Drop it here — anyone can answer.</div>
       <input id="qnew" placeholder="e.g. Has anyone confirmed the cake?">
       <label style="margin-top:6px">For whom? (optional — pin to top of list)</label>
-      <select id="qnew-for"><option value="">Anyone can answer</option><option>Mani</option><option>Dad</option><option>Amrit</option><option>Mum</option><option>Jas</option></select>
+      <select id="qnew-for"><option value="">Anyone can answer</option><option>Mani</option><option>Dad</option><option>Amrit</option><option>Mum</option><option>Jas</option><option>Tarun</option></select>
       <button class="btn btn-gold" onclick="addQ()" style="margin-top:8px">+ Post Question</button>
     </div>
   </div>
@@ -389,7 +389,7 @@ label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5
       <div style="font-size:12px;color:#7A5500;line-height:1.4">Updates, ideas, problems with the site, suggestions, RSVP info, vendor news, anything. Charlie reads everything at 6pm and figures out where it goes — guests, tasks, vendors, decisions, or site fixes.</div>
     </div>
     <label>Who is this from? <span style="color:#8B2E2E">*</span></label>
-    <select id="dfrom"><option value="">— Choose —</option><option>Mani</option><option>Dad</option><option>Amrit</option><option>Mum</option><option>Jas</option><option>Family member</option><option>Other</option></select>
+    <select id="dfrom"><option value="">— Choose —</option><option>Mani</option><option>Dad</option><option>Amrit</option><option>Mum</option><option>Jas</option><option>Tarun</option><option>Family member</option><option>Other</option></select>
     <label>What's on your mind?</label>
     <div style="position:relative">
       <textarea id="dtext" rows="5" placeholder="Talk about anything — Charlie figures out what to do with it..." style="padding-right:50px"></textarea>
@@ -474,7 +474,7 @@ label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5
     <div id="mln-target" style="font-size:12px;color:#8A7968;margin-bottom:8px"></div>
     <input type="hidden" id="mln-et"><input type="hidden" id="mln-eid"><input type="hidden" id="mln-elabel">
     <label>Who's leaving this note?</label>
-    <select id="mln-from"><option>Mani</option><option>Mum</option><option>Dad</option><option>Amrit</option><option>Family member</option></select>
+    <select id="mln-from"><option>Mani</option><option>Mum</option><option>Dad</option><option>Amrit</option><option>Tarun</option><option>Family member</option></select>
     <label>Note (Charlie reads at 6pm)</label>
     <div style="position:relative">
       <textarea id="mln-text" rows="3" placeholder="Anything to fix, change, or note..." style="padding-right:50px"></textarea>
@@ -514,7 +514,7 @@ label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5
     <div class="mtitle">💬 Quick Brain Dump</div>
     <div style="font-size:12px;color:#8A7968;margin-bottom:6px">Talk about anything — Charlie figures out where it goes.</div>
     <label>Who is this from? <span style="color:#8B2E2E">*</span></label>
-    <select id="bd-from"><option value="">— Choose —</option><option>Mani</option><option>Dad</option><option>Amrit</option><option>Mum</option><option>Jas</option><option>Family member</option></select>
+    <select id="bd-from"><option value="">— Choose —</option><option>Mani</option><option>Dad</option><option>Amrit</option><option>Mum</option><option>Jas</option><option>Tarun</option><option>Family member</option></select>
     <label>What's on your mind?</label>
     <div style="position:relative">
       <textarea id="bd-text" rows="5" placeholder="Updates, ideas, problems, anything..." style="padding-right:36px"></textarea>
@@ -675,7 +675,7 @@ function renderGuests(){
       var detail='<div style="font-size:12px;color:#8A7968;margin-bottom:6px">'+(g.c>1?'👥 '+g.c+' ppl':'1 person')+(g.tr&&g.tr!=='TBC'?' · 🚗 '+g.tr:'')+(g.ac&&g.ac!=='TBC'?' · 🏨 '+g.ac:'')+' · <a onclick="event.stopPropagation();updFI(\''+g.id+'\')" style="color:#C4983A;cursor:pointer;font-weight:700">'+fiLabel+'</a></div>';
       var mem=(g.mb&&g.mb.length)?'<div style="font-size:12px;color:#8A6318;margin-bottom:6px">👥 '+g.mb.join(' · ')+'</div>':'';
       var flightBadge=g.fi==='MEL'?'<span style="font-size:11px;color:#1C4D7A;font-weight:700;margin-left:6px">✈️MEL</span>':g.fi==='SYD'?'<span style="font-size:11px;color:#7A5500;font-weight:700;margin-left:6px">✈️SYD</span>':'';
-      return '<div class="gi" data-lp="guest" data-lpid="'+g.id+'" data-lplabel="'+g.n.replace(/"/g,'&quot;')+'"><div style="display:flex;justify-content:space-between;align-items:center" onclick="toggleG(\''+g.id+'\')"><div style="flex:1"><div class="gi-name">'+g.n+flightBadge+comBadge+'</div></div><span class="badge '+(rb[g.rv]||'ba')+'">'+g.rv+'</span></div><div class="gi-body" id="gb-'+g.id+'">'+detail+mem+'<div style="font-size:11px;color:#8A7968;margin-bottom:4px">Tap an event to toggle attending</div><div class="egrid">'+EK.map(function(e){var v=g.ev&&g.ev[e];return '<div class="ec '+(v===1?'ey':v===0?'en':'et')+'" style="cursor:pointer" onclick="event.stopPropagation();togEv(\''+g.id+'\',\''+e+'\')">'+EL[e]+'</div>';}).join('')+'</div>'+(g.nt?'<div style="font-size:12px;color:#8A7968;margin-top:6px;font-style:italic">'+g.nt+'</div>':'')+'<div class="rbx"><button class="rgy" onclick="event.stopPropagation();updRSVP(\''+g.id+'\',\'Confirmed\')">✓ Yes</button><button class="rga" onclick="event.stopPropagation();updRSVP(\''+g.id+'\',\'TBC\')">? TBC</button><button class="rgn" onclick="event.stopPropagation();updRSVP(\''+g.id+'\',\'Declined\')">✗ No</button></div>'+comList+'<div style="margin-top:8px;border-top:1px dashed #E8DDD0;padding-top:8px"><label style="margin-top:0">💬 Add note about this guest</label><select id="cf-'+g.id+'" onclick="event.stopPropagation()" style="margin-bottom:4px"><option>Mani</option><option>Mum</option><option>Dad</option><option>Amrit</option><option>Family member</option></select><div style="position:relative" onclick="event.stopPropagation()"><textarea id="ct-'+g.id+'" rows="2" placeholder="e.g. Grover wants to be picked up..." style="padding-right:50px"></textarea><button class="mic-btn" id="cm-'+g.id+'" onclick="event.stopPropagation();cMic(\''+g.id+'\')">🎤</button></div><button class="btn btn-gold" onclick="event.stopPropagation();addCom(\''+g.id+'\')" style="margin-top:6px">+ Add Note</button></div></div></div>';
+      return '<div class="gi" data-lp="guest" data-lpid="'+g.id+'" data-lplabel="'+g.n.replace(/"/g,'&quot;')+'"><div style="display:flex;justify-content:space-between;align-items:center" onclick="toggleG(\''+g.id+'\')"><div style="flex:1"><div class="gi-name">'+g.n+flightBadge+comBadge+'</div></div><span class="badge '+(rb[g.rv]||'ba')+'">'+g.rv+'</span></div><div class="gi-body" id="gb-'+g.id+'">'+detail+mem+'<div style="font-size:11px;color:#8A7968;margin-bottom:4px">Tap an event to toggle attending</div><div class="egrid">'+EK.map(function(e){var v=g.ev&&g.ev[e];return '<div class="ec '+(v===1?'ey':v===0?'en':'et')+'" style="cursor:pointer" onclick="event.stopPropagation();togEv(\''+g.id+'\',\''+e+'\')">'+EL[e]+'</div>';}).join('')+'</div>'+(g.nt?'<div style="font-size:12px;color:#8A7968;margin-top:6px;font-style:italic">'+g.nt+'</div>':'')+'<div class="rbx"><button class="rgy" onclick="event.stopPropagation();updRSVP(\''+g.id+'\',\'Confirmed\')">✓ Yes</button><button class="rga" onclick="event.stopPropagation();updRSVP(\''+g.id+'\',\'TBC\')">? TBC</button><button class="rgn" onclick="event.stopPropagation();updRSVP(\''+g.id+'\',\'Declined\')">✗ No</button></div>'+comList+'<div style="margin-top:8px;border-top:1px dashed #E8DDD0;padding-top:8px"><label style="margin-top:0">💬 Add note about this guest</label><select id="cf-'+g.id+'" onclick="event.stopPropagation()" style="margin-bottom:4px"><option>Mani</option><option>Mum</option><option>Dad</option><option>Amrit</option><option>Tarun</option><option>Family member</option></select><div style="position:relative" onclick="event.stopPropagation()"><textarea id="ct-'+g.id+'" rows="2" placeholder="e.g. Grover wants to be picked up..." style="padding-right:50px"></textarea><button class="mic-btn" id="cm-'+g.id+'" onclick="event.stopPropagation();cMic(\''+g.id+'\')">🎤</button></div><button class="btn btn-gold" onclick="event.stopPropagation();addCom(\''+g.id+'\')" style="margin-top:6px">+ Add Note</button></div></div></div>';
     }).join('');
   }).join('');
 }
@@ -910,7 +910,7 @@ function renderQ(){
       '<div style="font-size:13px;font-weight:600">🤔 '+q.q+'</div>'+
       '<div style="font-size:11px;color:#8A7968;margin:3px 0 8px">'+cat+'asked '+q.dt+'</div>'+
       '<label style="margin-top:0">Who is answering?</label>'+
-      '<select id="qb-'+q.id+'"><option>Mani</option><option>Dad</option><option>Amrit</option><option>Mum</option><option>Jas</option><option>Family member</option></select>'+
+      '<select id="qb-'+q.id+'"><option>Mani</option><option>Dad</option><option>Amrit</option><option>Mum</option><option>Jas</option><option>Tarun</option><option>Family member</option></select>'+
       '<label>Your answer</label>'+
       '<div style="position:relative">'+
         '<textarea id="qa-'+q.id+'" rows="2" placeholder="Type or tap mic to speak..." style="padding-right:36px"></textarea>'+
@@ -1529,7 +1529,7 @@ function openM(id){document.getElementById(id).classList.add('on');}
 function closeM(id){document.getElementById(id).classList.remove('on');}
 
 // TOAST
-function toast(msg){var el=document.getElementById('toast');el.textContent=msg;el.classList.add('on');setTimeout(function(){el.classList.remove('on');},2500);}
+function toast(msg){var el=document.getElementById('toast');el.textContent=msg;el.classList.add('on');setTimeout(function(){el.classList.remove('on');},3000);}
 
 loadAll();
 </script>
